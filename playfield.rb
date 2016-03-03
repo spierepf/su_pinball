@@ -9,6 +9,14 @@ def rotate(degrees)
   Geom::Transformation.rotation(Geom::Point3d.new, Geom::Vector3d.new(0, 0, 1), degrees.degrees)
 end
 
+class Post
+  attr_reader :position
+
+  def initialize(t)
+    @position = t * Geom::Point3d.new()
+  end
+end
+
 class Playfield
   attr_reader :floor_width, :floor_depth, :floor_thickness, :wall_thickness, :wall_height, :shooter_lane_width, :shooter_lane_start_depth, :shooter_lane_end_depth 
   
@@ -22,7 +30,6 @@ class Playfield
     @shooter_lane_width = 1.375
     @shooter_lane_start_depth = 7.5
     @shooter_lane_end_depth = 16.125
-    @items = []
   end
 
   def draw_floor
@@ -130,6 +137,20 @@ class Playfield
     hole_from_edges hole, join_arcs(hole, [bottom_arc, top_arc]) 
   end
 
+  def lamp_hole(t)
+    circular_hole(t, 0.25)
+  end
+
+  def square_hole(t, x0, y0, x1, y1)
+    hole = Sketchup.active_model.active_entities.add_group()
+  
+    pt1 = t * Geom::Point3d.new(x0, y0, 0.0)
+    pt2 = t * Geom::Point3d.new(x1, y0, 0.0)
+    pt3 = t * Geom::Point3d.new(x1, y1, 0.0)
+    pt4 = t * Geom::Point3d.new(x0, y1, 0.0)
+    hole_from_face hole, hole.entities.add_face(pt1, pt2, pt3, pt4)
+  end
+
   def flipper_mechanics t
     template(t, "Flipper\ Assy\ -\ Williams\ A-15205\ \(Left\)")
     [-17.0/32.0, -5.0/32.0, 89.0/32.0, 101.0/32.0].each do |x|
@@ -157,6 +178,7 @@ class Playfield
   def post t
     pilot_hole(t)
     component(t, "Star_Post_1-1'16_-03-8319-13")
+    Post.new(t)
   end
   
   def slingshot t
@@ -165,11 +187,51 @@ class Playfield
     circular_hole(t * frame(1.0), 0.25)
   end
   
-  def flipper_slingshot t, m
-    post t * m * frame(-(0.0 + 25.0/32.0), 3.0 + 5.0/16.0)
-    post t * m * frame(-(2.0 + 3.0/32.0),  4.0 + 7.0/32.0)
-    post t * m * frame(-(2.0 + 3.0/16.0),  5.0 + 1.0/4.0)
-    post t * m * frame(-(2.0 + 1.0/64.0),  6.0 + 29.0/32.0)
+  def wireize (group, cu, wireradius)
+    v = cu.first.vertices()
+    centerpoint = Geom::Point3d.new(v[0])
+    normal = Geom::Vector3d.new v[0].position.x-v[1].position.x,v[0].position.y-v[1].position.y,v[0].position.z-v[1].position.z
+    group.entities.add_face(group.entities.add_circle(centerpoint, normal, wireradius)).followme(cu)
+  end
+
+  def rubber(posts)
+    rubber = Sketchup.active_model.active_entities.add_group()
+    arcs = []
+    posts.each_with_index do |post, i|
+      v0 = posts[i - 1].position - post.position
+      theta0 = Math::atan2(v0.y, v0.x)
+      v1 = posts[(i + 1) % posts.length].position - post.position
+      theta1 = Math::atan2(v1.y, v1.x)
+      theta2 = v0.angle_between(v1)
+  
+      theta0 += 270.degrees
+      theta1 += 90.degrees
+      theta0 += 360.degrees if theta0 < 0
+      theta1 += 360.degrees if theta1 < 0
+      
+      centerpoint = post.position + Geom::Vector3d.new(0,0,43.0/64.0)
+      arcs.push(rubber.entities.add_arc(centerpoint, Geom::Vector3d.new(1,0,0), Geom::Vector3d.new(0,0,1), 5.0/16.0, theta0, theta1))
+    end
+    wireize(rubber, join_arcs(rubber, arcs), 3.0/32.0)
+  end
+  
+  def flipper_slingshot t, side
+    if side == :left
+      m = Geom::Transformation.new
+    else
+      m = Geom::Transformation.scaling(-1, 1, 1)
+    end
+    
+    posts = []
+    posts.push(post(t * m * frame(-(0.0 + 25.0/32.0), 3.0 + 5.0/16.0)))
+    posts.push(post(t * m * frame(-(2.0 + 3.0/32.0),  4.0 + 7.0/32.0)))
+    posts.push(post(t * m * frame(-(2.0 + 3.0/16.0),  5.0 + 1.0/4.0)))
+    posts.push(post(t * m * frame(-(2.0 + 1.0/64.0),  6.0 + 29.0/32.0)))
+    
+    posts.reverse! if side == :right
+      
+    rubber(posts)
+    
     slingshot t * m * frame(-(1.0 + 13.0/32.0), 5.0 + 1.0/8.0) * rotate(111.2) * m
   end
   
@@ -178,5 +240,122 @@ class Playfield
     round_ended_hole(t, 25.0/16.0, 3.0/16.0)
     pilot_hole(t * frame(31.0/64.0, -79.0/64.0, 0.0))
     pilot_hole(t * frame(31.0/64.0, -103.0/64.0, 0.0))
+  end
+  
+  def lane_guide(t)
+    post t * frame(0, 0.625)
+    post t * frame(0, -0.625)
+    component t, "Lane_Guide_03-8318-25"
+    lamp_hole t
+  end
+  
+  def rake(start, stop, count)
+    d = stop - start
+    d.x = d.x / (2.0 * count)
+    d.y = d.y / (2.0 * count)
+    d.z = d.z / (2.0 * count)
+    
+    p = Geom::Transformation.translation(start)
+    lane_guide p
+    (1..count).each do
+      p = p * Geom::Transformation.translation(d)
+      rollover_switch p
+      p = p * Geom::Transformation.translation(d)
+      lane_guide p
+    end
+  end
+  
+  def pop_bumper(t)
+    # Ring and rod holes
+    circular_hole(t * frame(11.0/16.0, 0.0, 0.0), 3.0/16.0)
+    circular_hole(t * frame(-11.0/16.0, 0.0, 0.0), 3.0/16.0)
+    
+    # Skirt shaft hole
+    circular_hole(t, 11.0/32.0)
+
+    # Lamp lead holes
+    t2 = t * rotate(-45.0)
+    circular_hole(t2 * frame(11.0/32.0, 0.0, 0.0), 3.0/16.0)
+    circular_hole(t2 * frame(-11.0/32.0, 0.0, 0.0), 3.0/16.0)
+
+    # Coil bracket (hammer screw) holes
+    circular_hole(t * frame(0.0, 17.0/16.0, 0.0), 3.0/64.0)
+    circular_hole(t * frame(1.0, 7.0/16.0, 0.0), 3.0/64.0)
+    circular_hole(t * frame(-1.0, 7.0/16.0, 0.0), 3.0/64.0)
+
+    # Body mounting pilot holes
+    pilot_hole(t * frame(-5.0/16.0, -5.0/16.0, 0.0))
+    pilot_hole(t * frame(5.0/16.0, 5.0/16.0, 0.0))
+
+    # Spoon switch bracket holes
+    pilot_hole(t * frame(-3.0/8.0, -29.0/16.0, 0.0))
+    pilot_hole(t * frame(-3.0/8.0, -35.0/16.0, 0.0))
+
+    # Drill template
+    template(t, "Pop\ Bumper\ Assembly\ Williams\ Bally")
+
+    # Pop bumper
+    component(t, "pop-bumper")
+  end
+  
+  def kickout(t)
+    circular_hole(t, (1.0 + 3.0/16.0) / 2.0)
+    template(t, "Kickout_Hole_SYS7")
+    
+    # Kickout insert
+    [-11.0/16.0, 11.0/16.0].each do |x|
+        [-9.0/16, 9.0/16].each do |y|
+            pilot_hole(t * frame(x, y, 0.0))
+        end
+    end
+    
+    # Pivot bracket
+    pilot_hole(t * frame(1 + 7.0/16.0, -30.0/64.0, 0.0))
+    pilot_hole(t * frame(1 + 13.0/16.0, -30.0/64.0, 0.0))
+    pilot_hole(t * frame(1 + 15.0/16.0, 3.0/64.0, 0.0))
+    pilot_hole(t * frame(1 + 15.0/16.0, 23.0/64.0, 0.0))
+      
+    # Solenoid bracket
+    [3 + 39.0/64.0, 4 + 7.0/64.0].each do |x|
+        [39.0/64.0, 15.0/64.0].each do |y|
+            pilot_hole(t * frame(x, y, 0.0))
+        end
+    end
+  end
+  
+  def drop_target_bank t
+    round_ended_hole(t * frame(0.0, -1.0/8.0, 0.0) * rotate(90), 4.0, 0.5)
+    
+    component(t * frame(-2.0, -4.0/8.0, 0.0), "Mini_Post_6-32_Thread_02-4195")
+    component(t * frame(0.0, -4.0/8.0, 0.0), "Mini_Post_6-32_Thread_02-4195")
+    component(t * frame(2.0, -4.0/8.0, 0.0), "Mini_Post_6-32_Thread_02-4195")
+    
+    template(t, "williams_3_target_bank_model_rough")
+    x = 1.0 + 7.0/8.0
+    (1..4).each do
+      y = 1.0 + 7.0/8.0
+      (1..2).each do
+        pilot_hole(t * frame(x, y, 0.0))
+        y -= (1.0 + 1.0/8.0)
+      end
+      x -= (1.0 + 1.0/4.0)
+    end
+  end
+  
+  def inline_drop_target_bank t
+    template(t, "bally_inline_3_target_bank_rough")
+    
+    pilot_hole(t * frame(3.0/32.0, -7.0/16.0, 0.0))
+    pilot_hole(t * frame(2.0, -7.0/16.0, 0.0))
+    pilot_hole(t * frame(7.0/8.0, 3.0 + 1.0/16.0, 0.0))
+    pilot_hole(t * frame(7.0/8.0, 1.0 + 9.0/16.0, 0.0))
+    pilot_hole(t * frame(3.0/32.0, 5.0, 0.0))
+    pilot_hole(t * frame(2.0, 5.0, 0.0))
+    
+    y0 = 0
+    (1..3).each do
+      square_hole t, -7.0/16.0, y0, 7.0/16.0, y0 + 0.5
+      y0 += 1.5
+    end
   end
 end
