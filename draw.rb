@@ -56,16 +56,11 @@ playfield.post frame(2.0 + 1.0/16.0,  42.0 - (7.0 + 3.0/16.0))
 playfield.post frame(9.0 + 5.0/16.0,  42.0 - (4.0 + 3.0/16.0))
 playfield.post frame(8.0,             42.0 - (7.0))
 playfield.post frame(7.0 + 13.0/16.0, 42.0 - (10.0 + 5.0/8.0))
-playfield.post frame(1.0 + 3.0/16.0,  42.0 - (10.0 + 9.0/16.0))
-playfield.post frame(15.0/16.0,       42.0 - (13.0 + 7.0/16.0))
-playfield.post frame(1.5,             42.0 - (23.0 + 7.0/16.0))
-playfield.post frame(1.0 + 1.0/8.0,   42.0 - (26.25))
-playfield.post frame(1.0 + 5.0/16.0,  42.0 - (14.25))
-playfield.post frame(4.0 + 3.0/8.0,   42.0 - (16.75))
-
-playfield.post frame(20.25 - (6.0 + 5.0/8.0), 42.0 - (13.0 + 5.0/8.0))
-playfield.post frame(20.25 - (3.0 + 7.0/16.0), 42.0 - (23.0 + 5.0/16.0))
-playfield.post frame(20.25 - (2.0 + 5.0/8.0), 42.0 - (24.0 + 13.0/16.0))
+playfield.rubber([playfield.post(frame(1.0 + 3.0/16.0, 42.0 - (10.0 + 9.0/16.0))), playfield.post(frame(15.0/16.0, 42.0 - (13.0 + 7.0/16.0)))])
+playfield.rubber([playfield.post(frame(1.0 + 5.0/16.0,  42.0 - (14.25))), playfield.post(frame(4.0 + 3.0/8.0,   42.0 - (16.75)))])
+playfield.rubber([playfield.post(frame(1.5, 42.0 - (23.0 + 7.0/16.0))), playfield.post(frame(1.0 + 1.0/8.0, 42.0 - (26.25)))])
+playfield.post frame(20.25 - (6.0 + 5.0/8.0),  42.0 - (13.0 + 5.0/8.0))
+playfield.rubber([playfield.post(frame(20.25 - (3.0 + 7.0/16.0), 42.0 - (23.0 + 5.0/16.0))), playfield.post(frame(20.25 - (2.0 + 5.0/8.0), 42.0 - (24.0 + 13.0/16.0)))])
 
 puts Time.now.getutc - t0
 

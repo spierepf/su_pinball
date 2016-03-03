@@ -202,13 +202,14 @@ class Playfield
       theta0 = Math::atan2(v0.y, v0.x)
       v1 = posts[(i + 1) % posts.length].position - post.position
       theta1 = Math::atan2(v1.y, v1.x)
-      theta2 = v0.angle_between(v1)
   
       theta0 += 270.degrees
       theta1 += 90.degrees
-      theta0 += 360.degrees if theta0 < 0
-      theta1 += 360.degrees if theta1 < 0
-      
+      theta0 += 360.degrees if theta0 < 0 and posts.length > 2
+      theta1 += 360.degrees if theta1 < 0 and posts.length > 2
+
+      #puts (theta0 * 180.0 / 3.14159).to_s + " " + (theta1 * 180.0 / 3.14159).to_s
+           
       centerpoint = post.position + Geom::Vector3d.new(0,0,43.0/64.0)
       arcs.push(rubber.entities.add_arc(centerpoint, Geom::Vector3d.new(1,0,0), Geom::Vector3d.new(0,0,1), 5.0/16.0, theta0, theta1))
     end
