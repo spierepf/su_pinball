@@ -9,11 +9,77 @@ def rotate(degrees)
   Geom::Transformation.rotation(Geom::Point3d.new, Geom::Vector3d.new(0, 0, 1), degrees.degrees)
 end
 
+def join_arcs(group, arcs, closed=true)
+  edges = []
+  (0 .. arcs.length - 2).each do |i|
+    edges += arcs[i]
+    edges += group.entities.add_edges arcs[i].last.end, arcs[i+1].first.start
+  end
+  edges += arcs.last
+  edges += group.entities.add_edges arcs.last.last.end, arcs.first.first.start if closed
+  return edges
+end
+
+def wireize (group, edges, wireradius)
+  v = edges.first.vertices()
+  centerpoint = Geom::Point3d.new(v[0])
+  normal = Geom::Vector3d.new v[0].position.x-v[1].position.x,v[0].position.y-v[1].position.y,v[0].position.z-v[1].position.z
+  group.entities.add_face(group.entities.add_circle(centerpoint, normal, wireradius)).followme(edges)
+  group.entities.erase_entities edges
+end
+
 class Post
   attr_reader :position
 
   def initialize(t)
     @position = t * Geom::Point3d.new()
+  end
+end
+
+class WireFormTrough
+  def initialize
+    @troughDiameter = 1.0 + 1.0/8.0
+    @wireDiameter = 1.0/8.0
+  end
+  
+  def rib(spline, i, theta0=0.degrees, theta1=180.degrees)
+    group = Sketchup.active_model.active_entities.add_group()
+    frame = spline.frame(i)
+    edges = group.entities.add_arc frame*Geom::Point3d.new, frame*Geom::Vector3d.new(1,0,0), frame*Geom::Vector3d.new(0,1,0), (@troughDiameter + 3.0 * @wireDiameter) / 2.0, theta0, theta1
+    wireize(group, edges, @wireDiameter/2.0)
+  end
+  
+  def singleGuide(spline, i0, i1, theta)
+    group = Sketchup.active_model.active_entities.add_group()
+
+    railPoints = []
+    (i0..i1).step(1.0/16.0) do |i|
+      frame = spline.frame(i)
+      point = frame * Geom::Transformation.rotation(Geom::Point3d.new, Geom::Vector3d.new(0, 1, 0), theta) * Geom::Point3d.new((@troughDiameter + @wireDiameter) / 2.0, 0, 0)
+      railPoints.push(point) 
+    end
+
+    wireize(group, group.entities.add_edges(railPoints), @wireDiameter / 2.0)
+  end
+  
+  def doubleGuide(spline, i0, i1, theta)
+    group = Sketchup.active_model.active_entities.add_group()
+
+    railPoints = [[],[]]
+    (i0..i1).step(1.0/16.0) do |i|
+      frame = spline.frame(i)
+      railPoints[0].push(frame * Geom::Transformation.rotation(Geom::Point3d.new, Geom::Vector3d.new(0, 1, 0), theta) * Geom::Point3d.new((@troughDiameter + @wireDiameter) / 2.0, 0, 0)) 
+      railPoints[1].unshift(frame * Geom::Transformation.rotation(Geom::Point3d.new, Geom::Vector3d.new(0, 1, 0), 180.degrees - theta) * Geom::Point3d.new((@troughDiameter + @wireDiameter) / 2.0, 0, 0)) 
+    end
+    
+    frame = spline.frame(i1)
+    tmp1 = group.entities.add_edges railPoints[0][0..railPoints[0].length-2]
+    theta0 = 180.degrees + theta
+    theta1 = 0.degrees - theta
+    tmp2 = group.entities.add_arc frame * Geom::Point3d.new(0, -@troughDiameter / 2.0, -(@troughDiameter + @wireDiameter)/2.0 * Math.sin(theta)), frame * Geom::Vector3d.new(-1,0,0), frame * Geom::Vector3d.new(0,0,1), (@troughDiameter + @wireDiameter) / 2.0, theta0, theta1
+    tmp3 = group.entities.add_edges railPoints[1][1..railPoints[1].length-1]
+    edges = join_arcs(group, [tmp1, tmp2, tmp3], false)
+    wireize(group, edges, @wireDiameter/2)
   end
 end
 
@@ -57,17 +123,6 @@ class Playfield
     draw_wall(0, @floor_depth - @wall_thickness, @floor_width, @floor_depth)
     draw_wall(@floor_width - @wall_thickness, 0, @floor_width, @floor_depth - @wall_thickness)
     draw_wall(@floor_width - @wall_thickness - @shooter_lane_width - @wall_thickness, @shooter_lane_start_depth, @floor_width - @wall_thickness - @shooter_lane_width, @shooter_lane_end_depth)
-  end
-  
-  def join_arcs(group, arcs)
-    edges = []
-    (0 .. arcs.length - 2).each do |i|
-      edges += arcs[i]
-      edges += group.entities.add_edges arcs[i].last.end, arcs[i+1].first.start
-    end
-    edges += arcs.last
-    edges += group.entities.add_edges arcs.last.last.end, arcs.first.first.start
-    return edges
   end
   
   def hole_from_face(hole, face)
@@ -187,13 +242,6 @@ class Playfield
     circular_hole(t * frame(1.0), 0.25)
   end
   
-  def wireize (group, cu, wireradius)
-    v = cu.first.vertices()
-    centerpoint = Geom::Point3d.new(v[0])
-    normal = Geom::Vector3d.new v[0].position.x-v[1].position.x,v[0].position.y-v[1].position.y,v[0].position.z-v[1].position.z
-    group.entities.add_face(group.entities.add_circle(centerpoint, normal, wireradius)).followme(cu)
-  end
-
   def rubber(posts)
     rubber = Sketchup.active_model.active_entities.add_group()
     arcs = []

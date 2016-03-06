@@ -1,4 +1,5 @@
 load "su_pinball/playfield.rb"
+load "su_pinball/bezier_spline.rb"
 
 Sketchup.active_model.active_entities.each { |it| Sketchup.active_model.active_entities.erase_entities it }
 
@@ -61,6 +62,48 @@ playfield.rubber([playfield.post(frame(1.0 + 5.0/16.0,  42.0 - (14.25))), playfi
 playfield.rubber([playfield.post(frame(1.5, 42.0 - (23.0 + 7.0/16.0))), playfield.post(frame(1.0 + 1.0/8.0, 42.0 - (26.25)))])
 playfield.post frame(20.25 - (6.0 + 5.0/8.0),  42.0 - (13.0 + 5.0/8.0))
 playfield.rubber([playfield.post(frame(20.25 - (3.0 + 7.0/16.0), 42.0 - (23.0 + 5.0/16.0))), playfield.post(frame(20.25 - (2.0 + 5.0/8.0), 42.0 - (24.0 + 13.0/16.0)))])
+
+
+wireformTrough = WireFormTrough.new()
+
+ballPath = BezierSpline.new([
+  Geom::Point3d.new( 9.4, 28.4, 0.53125),
+  Geom::Point3d.new( 9.7, 31.6, 0.81673828125),
+  Geom::Point3d.new(11.4, 34.4, 1.7370703125),
+  Geom::Point3d.new(14.5, 35.9, 2.0),
+  Geom::Point3d.new(17.8, 35.1, 2.0),
+  Geom::Point3d.new(19.3, 32.5, 2.0),
+  Geom::Point3d.new(18.8, 29.9, 2.0),
+  Geom::Point3d.new(16.8, 28.3, 2.0),
+  Geom::Point3d.new(14.8, 26.8, 2.0),
+  Geom::Point3d.new(13.9, 24.1, 2.0),
+  Geom::Point3d.new(15.1, 21.1, 2.0),
+  Geom::Point3d.new(17.3, 19.1, 2.0),
+  Geom::Point3d.new(18.2, 17.0, 2.0),
+  Geom::Point3d.new(17.4, 15.0, 2.0),
+  Geom::Point3d.new(16.0, 13.6, 2.0)
+])
+
+(0..ballPath.length).each do |t|
+  Sketchup.active_model.active_entities.add_cpoint ballPath.f(t)
+end
+
+(3..5).each do |t|
+  wireformTrough.rib(ballPath, t, -60.degrees)
+end
+
+wireformTrough.singleGuide(ballPath, 3, 5, -60.degrees)
+
+(6..ballPath.length).each do |t|
+  wireformTrough.rib(ballPath, t)
+end
+
+wireformTrough.doubleGuide(ballPath, 3, ballPath.length, 0.degrees)
+wireformTrough.doubleGuide(ballPath, 3, ballPath.length, 60.degrees)
+
+#def puts_point(p)
+#  puts "Geom::Point3d.new(" + p.x.to_f.to_s + ", " + p.y.to_f.to_s + ", " + p.z.to_f.to_s + "),"
+#end
 
 puts Time.now.getutc - t0
 
