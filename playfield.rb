@@ -28,6 +28,10 @@ def wireize (group, edges, wireradius)
   group.entities.erase_entities edges
 end
 
+def puts_point(p)
+  puts "Geom::Point3d.new(" + p.x.to_f.to_s + ", " + p.y.to_f.to_s + ", " + p.z.to_f.to_s + "),"
+end
+
 class Post
   attr_reader :position
 
@@ -59,7 +63,7 @@ class WireFormTrough
       railPoints.push(point) 
     end
 
-    wireize(group, group.entities.add_edges(railPoints), @wireDiameter / 2.0)
+    wireize(group, group.entities.add_curve(railPoints), @wireDiameter / 2.0)
   end
   
   def doubleGuide(spline, i0, i1, theta)
@@ -73,11 +77,11 @@ class WireFormTrough
     end
     
     frame = spline.frame(i1)
-    tmp1 = group.entities.add_edges railPoints[0][0..railPoints[0].length-2]
+    tmp1 = group.entities.add_curve railPoints[0][0..railPoints[0].length-2]
     theta0 = 180.degrees + theta
     theta1 = 0.degrees - theta
     tmp2 = group.entities.add_arc frame * Geom::Point3d.new(0, -@troughDiameter / 2.0, -(@troughDiameter + @wireDiameter)/2.0 * Math.sin(theta)), frame * Geom::Vector3d.new(-1,0,0), frame * Geom::Vector3d.new(0,0,1), (@troughDiameter + @wireDiameter) / 2.0, theta0, theta1
-    tmp3 = group.entities.add_edges railPoints[1][1..railPoints[1].length-1]
+    tmp3 = group.entities.add_curve railPoints[1][1..railPoints[1].length-1]
     edges = join_arcs(group, [tmp1, tmp2, tmp3], false)
     wireize(group, edges, @wireDiameter/2)
   end
@@ -256,12 +260,29 @@ class Playfield
       theta0 += 360.degrees if theta0 < 0 and posts.length > 2
       theta1 += 360.degrees if theta1 < 0 and posts.length > 2
 
-      #puts (theta0 * 180.0 / 3.14159).to_s + " " + (theta1 * 180.0 / 3.14159).to_s
-           
       centerpoint = post.position + Geom::Vector3d.new(0,0,43.0/64.0)
       arcs.push(rubber.entities.add_arc(centerpoint, Geom::Vector3d.new(1,0,0), Geom::Vector3d.new(0,0,1), 5.0/16.0, theta0, theta1))
     end
     wireize(rubber, join_arcs(rubber, arcs), 3.0/32.0)
+  end
+  
+  def rubber_with_switch(post1, post2)
+    rubber([post1, post2])
+
+    width = (post1.position - post2.position).length
+    center = Geom::Point3d.new((post1.position.x + post2.position.x) / 2.0, (post1.position.y + post2.position.y) / 2.0, (post1.position.z + post2.position.z) / 2.0)
+    xaxis = (post1.position - post2.position).normalize!
+    zaxis = Geom::Vector3d.new(0,0,1)
+    yaxis = zaxis * xaxis
+    frame = Geom::Transformation.axes(center, xaxis, yaxis, zaxis)
+    
+    circular_hole frame, 0.25
+    
+    pilot_hole frame * Geom::Transformation.translation(Geom::Point3d.new(7.0/16.0, 0, 0))
+    pilot_hole frame * Geom::Transformation.translation(Geom::Point3d.new((width / 2.0 - 0.5), 0, 0))
+
+    pilot_hole frame * Geom::Transformation.translation(Geom::Point3d.new(-(7.0/16.0), 0, 0))
+    pilot_hole frame * Geom::Transformation.translation(Geom::Point3d.new(-(width / 2.0 - 0.5), 0, 0))
   end
   
   def flipper_slingshot t, side
@@ -375,9 +396,9 @@ class Playfield
   def drop_target_bank t
     round_ended_hole(t * frame(0.0, -1.0/8.0, 0.0) * rotate(90), 4.0, 0.5)
     
-    component(t * frame(-2.0, -4.0/8.0, 0.0), "Mini_Post_6-32_Thread_02-4195")
-    component(t * frame(0.0, -4.0/8.0, 0.0), "Mini_Post_6-32_Thread_02-4195")
-    component(t * frame(2.0, -4.0/8.0, 0.0), "Mini_Post_6-32_Thread_02-4195")
+    component(t * frame(-(1.0 + 11.0/32.0), -4.0/8.0, 0.0), "Mini_Post_6-32_Thread_02-4195")
+    component(t * frame(0.0,                -4.0/8.0, 0.0), "Mini_Post_6-32_Thread_02-4195")
+    component(t * frame(  1.0 + 11.0/32.0,  -4.0/8.0, 0.0), "Mini_Post_6-32_Thread_02-4195")
     
     template(t, "williams_3_target_bank_model_rough")
     x = 1.0 + 7.0/8.0

@@ -45,24 +45,32 @@ playfield.kickout frame(20.25 - (2 + 7.0/8.0), 42.0 - 15.75) * rotate(285.0)
 
 # left drop target bank
 playfield.drop_target_bank frame(4.5, 42.0 - 20.0) * rotate(250.0)
+playfield.component frame(4.0 + 11.0/16.0, 42.0 - (17.0 + 11.0/16.0)), 'Bumper Post 8-32 Thread bottom 6-32 at Top 024056'
+playfield.component frame(3.0 +  5.0/16.0, 42.0 - (21.0 + 11.0/16.0)), 'Bumper Post 8-32 Thread bottom 6-32 at Top 024056'
+
 # right drop target bank
 playfield.drop_target_bank frame(20.25 - 4.5, 42.0 - 17.5) * rotate(100.0)
+playfield.component frame(20.25 - (4.0 +   1.0/2.0),  42.0 - (15.0 +  5.0/16.0)), 'Bumper Post 8-32 Thread bottom 6-32 at Top 024056'
+playfield.component frame(20.25 - (3.0 + 15.0/16.0),  42.0 - (19.0 + 11.0/16.0)), 'Bumper Post 8-32 Thread bottom 6-32 at Top 024056'
 
 # inline drop target bank
-playfield.inline_drop_target_bank frame(20.25 - (7.0 + 13.0/16.0), 42.0 - (12.0 + 15.0/16.0)) * rotate(-13.0)
-
+t = frame(20.25 - (7.0 + 13.0/16.0), 42.0 - (12.0 + 15.0/16.0)) * rotate(-13.0)
+playfield.inline_drop_target_bank t
+playfield.round_ended_hole(t * Geom::Transformation.translation(Geom::Point3d.new(0, 5.0 + 1.0/16.0, 0)) * rotate(90), 1.0 + 1.0/8.0, 0.5)
 # posts
 playfield.post frame(1.5,             42.0 - (3.0 + 7.0/16.0))
 playfield.post frame(2.0 + 1.0/16.0,  42.0 - (7.0 + 3.0/16.0))
 playfield.post frame(9.0 + 5.0/16.0,  42.0 - (4.0 + 3.0/16.0))
 playfield.post frame(8.0,             42.0 - (7.0))
 playfield.post frame(7.0 + 13.0/16.0, 42.0 - (10.0 + 5.0/8.0))
-playfield.rubber([playfield.post(frame(1.0 + 3.0/16.0, 42.0 - (10.0 + 9.0/16.0))), playfield.post(frame(15.0/16.0, 42.0 - (13.0 + 7.0/16.0)))])
-playfield.rubber([playfield.post(frame(1.0 + 5.0/16.0,  42.0 - (14.25))), playfield.post(frame(4.0 + 3.0/8.0,   42.0 - (16.75)))])
+playfield.rubber_with_switch(playfield.post(frame(1.0 + 3.0/16.0, 42.0 - (10.0 + 9.0/16.0))), playfield.post(frame(15.0/16.0, 42.0 - (13.0 + 7.0/16.0))))
+playfield.rubber_with_switch(playfield.post(frame(1.0 + 5.0/16.0,  42.0 - (14.25))), playfield.post(frame(4.0 + 3.0/8.0,   42.0 - (16.75))))
 playfield.rubber([playfield.post(frame(1.5, 42.0 - (23.0 + 7.0/16.0))), playfield.post(frame(1.0 + 1.0/8.0, 42.0 - (26.25)))])
 playfield.post frame(20.25 - (6.0 + 5.0/8.0),  42.0 - (13.0 + 5.0/8.0))
 playfield.rubber([playfield.post(frame(20.25 - (3.0 + 7.0/16.0), 42.0 - (23.0 + 5.0/16.0))), playfield.post(frame(20.25 - (2.0 + 5.0/8.0), 42.0 - (24.0 + 13.0/16.0)))])
 
+playfield.post frame(20.25 -  (9.0 + 1.0/4.0), 42.0-(13.0 + 9.0/16.0))
+playfield.post frame(20.25 - (12.0 + 3.0/8.0), 42.0-(13.0 + 9.0/16.0))
 
 wireformTrough = WireFormTrough.new()
 
@@ -101,9 +109,6 @@ end
 wireformTrough.doubleGuide(ballPath, 3, ballPath.length, 0.degrees)
 wireformTrough.doubleGuide(ballPath, 3, ballPath.length, 60.degrees)
 
-#def puts_point(p)
-#  puts "Geom::Point3d.new(" + p.x.to_f.to_s + ", " + p.y.to_f.to_s + ", " + p.z.to_f.to_s + "),"
-#end
 
 puts Time.now.getutc - t0
 
