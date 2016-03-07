@@ -32,7 +32,7 @@ class BezierSpline
       @firstControlPoints = [Geom::Point3d.new((2.0 * knots[0].x + knots[1].x) / 3.0, (2.0 * knots[0].y + knots[1].y) / 3.0, (2.0 * knots[0].z + knots[1].z) / 3.0)]
 
       # P2 = 2P1 – P0
-      @secondControlPoints = [Geom::Point3d.new(2.0 * firstControlPoints[0].x - knots[0].x, 2.0 * firstControlPoints[0].y - knots[0].y, 2.0 * firstControlPoints[0].z - knots[0].z)]
+      @secondControlPoints = [Geom::Point3d.new(2.0 * @firstControlPoints[0].x - knots[0].x, 2.0 * @firstControlPoints[0].y - knots[0].y, 2.0 * @firstControlPoints[0].z - knots[0].z)]
       return
     end
 

@@ -28,6 +28,22 @@ def wireize (group, edges, wireradius)
   group.entities.erase_entities edges
 end
 
+def sheetmetalize (group, edges, height, thickness)
+  v = edges.first.vertices()
+  regpoint = Geom::Point3d.new(v[0])
+  yaxis = Geom::Vector3d.new v[0].position.x-v[1].position.x,v[0].position.y-v[1].position.y,v[0].position.z-v[1].position.z
+  zaxis = Geom::Vector3d.new(0,0,1)
+  xaxis = yaxis * zaxis
+  points = [
+    regpoint + Geom::Vector3d.linear_combination(0.0, xaxis, 0.0, yaxis, 0.0, zaxis),
+    regpoint + Geom::Vector3d.linear_combination(0.0, xaxis, 0.0, yaxis, height, zaxis),
+    regpoint + Geom::Vector3d.linear_combination(thickness, xaxis, 0.0, yaxis, height, zaxis),
+    regpoint + Geom::Vector3d.linear_combination(thickness, xaxis, 0.0, yaxis, 0.0, zaxis)
+  ]
+  face = group.entities.add_face points
+  face.followme(edges)
+end
+
 def puts_point(p)
   puts "Geom::Point3d.new(" + p.x.to_f.to_s + ", " + p.y.to_f.to_s + ", " + p.z.to_f.to_s + "),"
 end
@@ -130,8 +146,8 @@ class Playfield
   end
   
   def hole_from_face(hole, face)
-    face.pushpull @floor_thickness
-    @floor = hole.subtract @floor
+#    face.pushpull @floor_thickness
+#    @floor = hole.subtract @floor
   end
   
   def hole_from_edges(hole, edges)
@@ -427,5 +443,17 @@ class Playfield
       square_hole t, -7.0/16.0, y0, 7.0/16.0, y0 + 0.5
       y0 += 1.5
     end
+  end
+  
+  def sheet_guide spline
+    group = Sketchup.active_model.active_entities.add_group()
+    
+    points = []
+    (0..spline.length).step(1.0/8.0) do |i|
+      points.push spline.f(i)
+    end
+    
+    edges = group.entities.add_curve points
+    sheetmetalize(group, edges, 1.0+1.0/8.0, 1.0/16.0)
   end
 end
