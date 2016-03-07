@@ -253,6 +253,7 @@ class Playfield
   def post t
     pilot_hole(t)
     component(t, "Star_Post_1-1'16_-03-8319-13")
+    component(t * Geom::Transformation.translation(Geom::Point3d.new(0, 0, 1.0 + 1.0/16.0)), "Threaded Post Screw 0001")
     Post.new(t)
   end
   
