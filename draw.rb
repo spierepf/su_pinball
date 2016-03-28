@@ -48,6 +48,12 @@ playfield.sheet_guide(BezierSpline.new([
   Geom::Point3d.new(13.0/16.0,       42.0-(21.0 + 1.0/8.0),  0),
   Geom::Point3d.new(1.0+5.0/8.0,     42.0-(22.0 + 7.0/8.0),  0)
 ]))
+# left kickout inner guide
+playfield.wire_guide(BezierSpline.new([
+  Geom::Point3d.new(3.0 + 3.0/16.0,  42.0-(17.0 + 3.0/8.0), 0),
+  Geom::Point3d.new(2.0 + 11.0/16.0, 42.0-(19.0 + 9.0/32.0), 0),
+  Geom::Point3d.new(3.0 + 1.0/8.0,   42.0-(21.0 + 3.0/16.0), 0)
+]))
 
 # right kickout
 playfield.kickout frame(20.25 - (2 + 7.0/8.0), 42.0 - 15.75) * rotate(285.0)
@@ -58,6 +64,12 @@ playfield.sheet_guide(BezierSpline.new([
   Geom::Point3d.new(20.25-(2.0 + 1.0/32.0), 42.0-(19.0),             0),
   Geom::Point3d.new(20.25-(2.0 + 9.0/16.0), 42.0-(20.0 + 7.0/8.0),   0),
   Geom::Point3d.new(20.25-(3.0 + 9.0/16.0), 42.0-(22.0 + 13.0/16.0), 0)
+]))
+# right kickout inner guide
+playfield.wire_guide(BezierSpline.new([
+  Geom::Point3d.new(20.25-(3.0 + 11.0/16.0), 42.0-(15.0 + 11.0/16.0), 0),
+  Geom::Point3d.new(20.25-(3.0 + 4.0/16.0),  42.0-(17.0 + 5.0/8.0),   0),
+  Geom::Point3d.new(20.25-(3.0 + 11.0/16.0), 42.0-(19.0 + 9.0/16.0),  0)
 ]))
 
 # left drop target bank
@@ -126,7 +138,7 @@ end
 wireformTrough.doubleGuide(ballPath, 3, ballPath.length, 0.degrees)
 wireformTrough.doubleGuide(ballPath, 3, ballPath.length, 60.degrees)
 
-# upper playfield ramp
+# upper playfield ramp outer guide
 playfield.sheet_guide(BezierSpline.new([
   Geom::Point3d.new(20.25-(5.0 + 3.0/8.0),   42.0-(4.0 + 1.0/16.0),  0),
   Geom::Point3d.new(20.25-(3.0 + 1.0/4.0),   42.0-(6.0 + 5.0/8.0),   0),
@@ -134,8 +146,16 @@ playfield.sheet_guide(BezierSpline.new([
   Geom::Point3d.new(20.25-(3.0 + 3.0/8.0),   42.0-(12.0 + 1.0/16.0), 0),
   Geom::Point3d.new(20.25-(4.0 + 13.0/16.0), 42.0-(14.0 + 7.0/8.0),  0)
 ]))
+# upper playfield ramp inner guide
+playfield.wire_guide(BezierSpline.new([
+  Geom::Point3d.new(20.25-(6.0 + 1.0/8.0),   42.0-(5.0 +  13.0/16.0), 0),
+  Geom::Point3d.new(20.25-(5.0),             42.0-(7.0 +  11.0/16.0), 0),
+  Geom::Point3d.new(20.25-(4.0 + 11.0/16.0), 42.0-(9.0 +   9.0/16.0), 0),
+  Geom::Point3d.new(20.25-(5.0 + 3.0/16.0),  42.0-(11.0 +  7.0/16.0), 0),
+  Geom::Point3d.new(20.25-(6.0 + 3.0/16.0),  42.0-(13.0 + 11.0/32.0), 0)
+]))
 
-# top right curve
+# top right outer curve
 playfield.sheet_guide(BezierSpline.new([
   Geom::Point3d.new(20.25-(      7.0/16.0), 42.0-(6.0 + 10.0/16.0), 0),
   Geom::Point3d.new(20.25-(1.0 + 1.0/4.0),  42.0-(4.0 +  1.0/16.0), 0),
@@ -144,6 +164,16 @@ playfield.sheet_guide(BezierSpline.new([
   Geom::Point3d.new(20.25-(8.0 + 1.0/16.0), 42.0-(       9.0/16.0), 0),
 ]))
 
+# top right inner curve
+playfield.wire_guide(BezierSpline.new([
+  Geom::Point3d.new(20.25-(1.0 + 15.0/16.0), 42.0-(7.0 + 3.0/16.0),  0),
+  Geom::Point3d.new(20.25-(2.0 + 13.0/16.0), 42.0-(4.0 + 2.0/16.0), 0),
+  Geom::Point3d.new(20.25-(5.0 + 3.0/8.0),   42.0-(2.0 + 2.0/8.0),   0),
+  Geom::Point3d.new(20.25-(8.0 + 15.0/16.0), 42.0-(2.0 + 5.0/16.0),  0),
+  Geom::Point3d.new(20.25-(10.0 + 9.0/16.0), 42.0-(3.0 + 17.0/32.0), 0),
+]))
+
+# top curve
 playfield.sheet_guide(BezierSpline.new([
   Geom::Point3d.new(20.25-(8.0 + 1.0/16.0),  42.0-(       9.0/16.0), 0),
   Geom::Point3d.new(20.25-(14.0 + 1.0/16.0), 42.0-(       9.0/16.0), 0),

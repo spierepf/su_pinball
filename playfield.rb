@@ -146,8 +146,8 @@ class Playfield
   end
   
   def hole_from_face(hole, face)
-#    face.pushpull @floor_thickness
-#    @floor = hole.subtract @floor
+    face.pushpull @floor_thickness
+    @floor = hole.subtract @floor
   end
   
   def hole_from_edges(hole, edges)
@@ -447,6 +447,18 @@ class Playfield
   end
   
   def sheet_guide spline
+    group = Sketchup.active_model.active_entities.add_group()
+    
+    points = []
+    (0..spline.length).step(1.0/8.0) do |i|
+      points.push spline.f(i)
+    end
+    
+    edges = group.entities.add_curve points
+    sheetmetalize(group, edges, 1.0+1.0/8.0, 1.0/16.0)
+  end
+  
+  def wire_guide spline
     group = Sketchup.active_model.active_entities.add_group()
     
     points = []
