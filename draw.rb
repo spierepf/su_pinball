@@ -168,7 +168,9 @@ playfield.wire_guide(BezierSpline.new([
   Geom::Point3d.new(20.25-(6.0 + 3.0/16.0),  42.0-(13.0 + 11.0/32.0), 0)
 ]))
 
-playfield.large_arrow_insert(frame(15.125, 28.5) * rotate(-26.0))
+playfield.large_arrow_insert(frame(15.0 + 1.0/8.0, 28.5) * rotate(-26.0))
+playfield.large_arrow_insert(frame(16.0 + 3.0/8.0, 31.5) * rotate(-8.0))
+playfield.large_arrow_insert(frame(16.0 + 2.0/8.0, 34.5) * rotate(30.0))
 
 # top right outer curve
 playfield.sheet_guide(BezierSpline.new([
