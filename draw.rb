@@ -11,8 +11,12 @@ playfield.draw_floor
 playfield.draw_walls
 playfield.draw_ball_trough
 
+left_flipper_frame_x = 5.0 + 57.0/64.0 # left_flipper_frame_x = 5.0 + 41.0/64.0
+right_flipper_frame_x = 12.0 + 31.0/64.0
+play_area_center_x = (left_flipper_frame_x + right_flipper_frame_x) / 2.0
+
 # left flipper constellation
-left_flipper_frame = frame(5.0 + 57.0/64.0, 6 + 45.0/64.0) # left_flipper_frame = frame(5.0 + 41.0/64.0, 6 + 45.0/64.0)
+left_flipper_frame = frame(left_flipper_frame_x, 6 + 45.0/64.0) 
 playfield.flipper_mechanics left_flipper_frame
 playfield.flipper_bat left_flipper_frame
 playfield.inlane_guide left_flipper_frame
@@ -28,6 +32,8 @@ playfield.inlane_guide right_flipper_frame * Geom::Transformation.scaling(-1, 1,
 playfield.rollover_switch right_flipper_frame * frame((3.0 + 9.0/64.0), 5.0 + 5.0/32.0)
 playfield.rollover_switch right_flipper_frame * frame((4.0 + 38.0/64.0), 5.0 + 5.0/32.0)
 playfield.flipper_slingshot right_flipper_frame, :right
+
+playfield.round_insert(frame(play_area_center_x, 5), 1.5)
 
 # rake
 y = (42.0 - 5.0 - 5.0/16.0)
@@ -55,6 +61,8 @@ playfield.wire_guide(BezierSpline.new([
   Geom::Point3d.new(3.0 + 1.0/8.0,   42.0-(21.0 + 3.0/16.0), 0)
 ]))
 
+playfield.large_arrow_insert(frame(3.75, 17.5) * rotate(30.0))
+
 # right kickout
 playfield.kickout frame(20.25 - (2 + 7.0/8.0), 42.0 - 15.75) * rotate(285.0)
 # right kickout outer guide
@@ -71,6 +79,7 @@ playfield.wire_guide(BezierSpline.new([
   Geom::Point3d.new(20.25-(3.0 + 4.0/16.0),  42.0-(17.0 + 5.0/8.0),   0),
   Geom::Point3d.new(20.25-(3.0 + 11.0/16.0), 42.0-(19.0 + 9.0/16.0),  0)
 ]))
+playfield.large_arrow_insert(frame(14.75, 17.5) * rotate(330.0))
 
 # left drop target bank
 playfield.drop_target_bank frame(4.5, 42.0 - 20.0) * rotate(250.0)
@@ -86,6 +95,8 @@ playfield.component frame(20.25 - (3.0 + 15.0/16.0),  42.0 - (19.0 + 11.0/16.0))
 t = frame(20.25 - (7.0 + 13.0/16.0), 42.0 - (12.0 + 15.0/16.0)) * rotate(-13.0)
 playfield.inline_drop_target_bank t
 playfield.round_ended_hole(t * Geom::Transformation.translation(Geom::Point3d.new(0, 5.0 + 1.0/16.0, 0)) * rotate(90), 1.0 + 1.0/8.0, 0.5)
+playfield.large_arrow_insert(frame(11.5, 24.75) * rotate(-13.0))
+
 # posts
 playfield.post frame(1.5,             42.0 - (3.0 + 7.0/16.0))
 playfield.post frame(2.0 + 1.0/16.0,  42.0 - (7.0 + 3.0/16.0))
@@ -138,6 +149,8 @@ end
 wireformTrough.doubleGuide(ballPath, 3, ballPath.length, 0.degrees)
 wireformTrough.doubleGuide(ballPath, 3, ballPath.length, 60.degrees)
 
+playfield.large_arrow_insert(frame(9.4, 25.0))
+
 # upper playfield ramp outer guide
 playfield.sheet_guide(BezierSpline.new([
   Geom::Point3d.new(20.25-(5.0 + 3.0/8.0),   42.0-(4.0 + 1.0/16.0),  0),
@@ -154,6 +167,8 @@ playfield.wire_guide(BezierSpline.new([
   Geom::Point3d.new(20.25-(5.0 + 3.0/16.0),  42.0-(11.0 +  7.0/16.0), 0),
   Geom::Point3d.new(20.25-(6.0 + 3.0/16.0),  42.0-(13.0 + 11.0/32.0), 0)
 ]))
+
+playfield.large_arrow_insert(frame(15.125, 28.5) * rotate(-26.0))
 
 # top right outer curve
 playfield.sheet_guide(BezierSpline.new([
@@ -187,6 +202,15 @@ playfield.sheet_guide(BezierSpline.new([
   Geom::Point3d.new(20.25-(18.0 + 10.0/16.0), 42.0-(1.0 +  9.0/16.0), 0),
   Geom::Point3d.new(20.25-(19.0 + 12.0/16.0), 42.0-(2.0 +  7.0/16.0), 0)
 ]))
+
+(0..5).each do |i|
+  playfield.triangle_insert frame(play_area_center_x, 15.0) * rotate(i * 60.0 + 30.0) * frame(1.0) * rotate(-30.0)
+end
+
+lens_center_to_arc_center = (2.0 + 5.0/16.0 - 3.0/4.0) / 2
+(0..2).each do |i|
+  playfield.large_oval_insert frame(play_area_center_x, 15.0) * rotate(i * 60.0 + 30.0) * frame(3.0 - lens_center_to_arc_center) * rotate(i * -60.0 + 60.0) * frame(lens_center_to_arc_center) 
+end
 
 puts Time.now.getutc - t0
 

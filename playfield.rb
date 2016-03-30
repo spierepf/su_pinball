@@ -263,6 +263,28 @@ class Playfield
     circular_hole(t * frame(1.0), 0.25)
   end
   
+  def round_cornered_polygon(group, vertices, arc_radius)
+    arcs = []
+    vertices.each_with_index do |vertex, i|
+      v0 = vertices[i - 1] - vertex
+      theta0 = Math::atan2(v0.y, v0.x)
+      v1 = vertices[(i + 1) % vertices.length] - vertex
+      theta1 = Math::atan2(v1.y, v1.x)
+
+      theta0 -= 90.degrees
+      if vertices.length > 2 then
+        theta1 += 90.degrees
+        theta0 += 360.degrees if theta0 < 0 and vertices.length > 2
+        theta1 -= 360.degrees if theta0 < 180.degrees and theta1 > 180.degrees and vertices.length > 2
+      else
+        theta1 = theta0 - 180.degrees
+      end
+      
+      arcs.push(group.entities.add_arc(vertex, Geom::Vector3d.new(1,0,0), Geom::Vector3d.new(0,0,1), arc_radius, theta0, theta1))
+    end
+    join_arcs(group, arcs)
+  end
+  
   def rubber(posts)
     rubber = Sketchup.active_model.active_entities.add_group()
     arcs = []
@@ -327,6 +349,8 @@ class Playfield
     round_ended_hole(t, 25.0/16.0, 3.0/16.0)
     pilot_hole(t * frame(31.0/64.0, -79.0/64.0, 0.0))
     pilot_hole(t * frame(31.0/64.0, -103.0/64.0, 0.0))
+      
+    round_insert(t * frame(0.0, 2.0), 3.0/4.0)
   end
   
   def lane_guide(t)
@@ -468,5 +492,75 @@ class Playfield
     
     edges = group.entities.add_curve points
     sheetmetalize(group, edges, 1.0+1.0/8.0, 1.0/16.0)
+  end
+  
+  def round_insert t, diameter
+    circular_hole t, diameter / 2.0
+    component(t, "Insert 1-1`2 inch RND PL-112ROT") if diameter == 1.5
+    component(t, "Insert_-_1_inch_RND_PL-1ROT") if diameter == 1.0
+    component(t, "Insert_-_3`4_inch_RND_PL-34RAS") if diameter == 0.75
+  end
+  
+  def triangle_insert t
+    zaxis = Geom::Vector3d.new(0.0, 0.0, 1.0)
+    hole = Sketchup.active_model.active_entities.add_group()
+    vertices = []
+    2.downto(0) do |i|
+      t2 = t * rotate(i * 120)
+      vertices.push(t2 * Geom::Point3d.new(0.0, 71.0/128.0, 0.0))
+    end
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, 1.0/8.0)
+    component(t, "Insert - 1-3`16 inch Tri PI-1316TOS")
+  end
+  
+  def small_arrow_insert t
+    width = 21.0/32.0
+    height = 1.0 + 65.0/128.0
+    corner_radius = 9.0/64.0
+    
+    hole = Sketchup.active_model.active_entities.add_group()
+    vertices = []
+    vertices.push(t * Geom::Point3d.new(-(width/2.0 - corner_radius), corner_radius, 0.0))
+    vertices.push(t * Geom::Point3d.new(0.0, height - corner_radius, 0.0))
+    vertices.push(t * Geom::Point3d.new((width/2.0 - corner_radius), corner_radius, 0.0))
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius)
+    component(t, "Insert 1-1'2 inch Triangle PI-112TGT")
+  end
+  
+  def large_arrow_insert t
+    width = 1.0
+    height = 2.0
+    corner_radius = 12.0/64.0
+    
+    hole = Sketchup.active_model.active_entities.add_group()
+    vertices = []
+    vertices.push(t * Geom::Point3d.new(-(width/2.0 - corner_radius), corner_radius, 0.0))
+    vertices.push(t * Geom::Point3d.new(0.0, height - corner_radius, 0.0))
+    vertices.push(t * Geom::Point3d.new((width/2.0 - corner_radius), corner_radius, 0.0))
+    round_cornered_polygon(hole, vertices, corner_radius)
+#    component(t, "Insert 2 inch Arrow PI-T2RT")
+  end
+
+  def small_oval_insert t
+    width = 1.0 + 5.0/8.0
+    height = 3.0/4.0
+  
+    hole = Sketchup.active_model.active_entities.add_group()
+    vertices = []
+    vertices.push(t * Geom::Point3d.new(-(width - height)/2.0, 0.0, 0.0))
+    vertices.push(t * Geom::Point3d.new((width - height)/2.0, 0.0, 0.0))
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, height / 2.0)
+    insert = component(t, "Insert - 1-5`8 inch OVAL PI-11234--OGT")
+  end
+  
+  def large_oval_insert t
+    width = 2.0 + 5.0/16.0
+    height = 3.0/4.0
+  
+    hole = Sketchup.active_model.active_entities.add_group()
+    vertices = []
+    vertices.push(t * Geom::Point3d.new(-(width - height)/2.0, 0.0, 0.0))
+    vertices.push(t * Geom::Point3d.new((width - height)/2.0, 0.0, 0.0))
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, height / 2.0)
   end
 end
