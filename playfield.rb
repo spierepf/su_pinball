@@ -103,6 +103,70 @@ class WireFormTrough
   end
 end
 
+class PlasticTrough
+  def rib(group, spline, i, floor_width)
+    fold_radius = 1.0/8.0
+    plastic_thickness = 1.0/16.0
+    descent = 13.0/32.0
+    ascent = 17.0/32.0
+    
+    frame = spline.frame(i)
+    
+    arcs = []
+    arcs.push group.entities.add_arc(frame*Geom::Point3d.new(-floor_width/2.0, 0, -descent), frame*Geom::Vector3d.new(1,0,0), frame*Geom::Vector3d.new(0,1,0), fold_radius, 180.degrees, 90.degrees)
+    arcs.push group.entities.add_arc(frame*Geom::Point3d.new(floor_width/2.0, 0, -descent), frame*Geom::Vector3d.new(1,0,0), frame*Geom::Vector3d.new(0,1,0), fold_radius, 90.degrees, 0.degrees)
+
+    arcs.push group.entities.add_arc(frame*Geom::Point3d.new(floor_width/2.0 + fold_radius + plastic_thickness + fold_radius, 0, ascent), frame*Geom::Vector3d.new(1,0,0), frame*Geom::Vector3d.new(0,1,0), fold_radius + plastic_thickness, 180.degrees, 270.degrees)
+    arcs.push group.entities.add_arc(frame*Geom::Point3d.new(floor_width/2.0 + fold_radius + plastic_thickness + fold_radius + 1.0/8.0, 0, ascent + plastic_thickness/2.0 + fold_radius), frame*Geom::Vector3d.new(1,0,0), frame*Geom::Vector3d.new(0,1,0), plastic_thickness / 2.0, -90.degrees, 90.degrees)
+    arcs.push group.entities.add_arc(frame*Geom::Point3d.new(floor_width/2.0 + fold_radius + plastic_thickness + fold_radius, 0, ascent), frame*Geom::Vector3d.new(1,0,0), frame*Geom::Vector3d.new(0,1,0), fold_radius, 270.degrees, 180.degrees)
+
+    arcs.push group.entities.add_arc(frame*Geom::Point3d.new(floor_width/2.0, 0, -descent), frame*Geom::Vector3d.new(1,0,0), frame*Geom::Vector3d.new(0,1,0), fold_radius + plastic_thickness, 0.degrees, 90.degrees)
+    arcs.push group.entities.add_arc(frame*Geom::Point3d.new(-floor_width/2.0, 0, -descent), frame*Geom::Vector3d.new(1,0,0), frame*Geom::Vector3d.new(0,1,0), fold_radius + plastic_thickness, 90.degrees, 180.degrees)
+
+    arcs.push group.entities.add_arc(frame*Geom::Point3d.new(-(floor_width/2.0 + fold_radius + plastic_thickness + fold_radius), 0, ascent), frame*Geom::Vector3d.new(1,0,0), frame*Geom::Vector3d.new(0,1,0), fold_radius, 360.degrees, 270.degrees)
+    arcs.push group.entities.add_arc(frame*Geom::Point3d.new(-(floor_width/2.0 + fold_radius + plastic_thickness + fold_radius + 1.0/8.0), 0, ascent + plastic_thickness/2.0 + fold_radius), frame*Geom::Vector3d.new(1,0,0), frame*Geom::Vector3d.new(0,1,0), plastic_thickness / 2.0, 90.degrees, 270.degrees)
+    arcs.push group.entities.add_arc(frame*Geom::Point3d.new(-(floor_width/2.0 + fold_radius + plastic_thickness + fold_radius), 0, ascent), frame*Geom::Vector3d.new(1,0,0), frame*Geom::Vector3d.new(0,1,0), fold_radius + plastic_thickness, 270.degrees, 360.degrees)
+    edges = join_arcs(group, arcs)
+  end
+
+  def trough spline, t0, t1
+    width0 = 2.0
+    width1 = 7.0/8.0
+    
+    m = (width1 - width0)/(t1 - t0)
+    
+    
+    group = Sketchup.active_model.active_entities.add_group()
+    
+    transverse_edges = []
+    (t0..t1).step(1.0/10.0) do |t|
+      transverse_edges.push rib(group, spline, t, (m * t + width0))
+    end
+    
+    group.entities.add_face(transverse_edges.first)
+    group.entities.add_face(transverse_edges.last)
+    transverse_edges.each_index do |i|
+      if i != 0 
+        transverse0 = transverse_edges[i-1]
+        transverse1 = transverse_edges[i]
+        transverse_edges[i].each_index do |j|
+          p0 = transverse0[j].start.position
+          p1 = transverse0[j].end.position
+          p2 = transverse1[j].end.position
+          p3 = transverse1[j].start.position
+
+          begin
+            group.entities.add_face(p0, p1, p2, p3)
+          rescue
+            group.entities.add_face(p0, p1, p2)
+            group.entities.add_face(p0, p2, p3)
+          end
+        end
+      end
+    end
+  end
+end
+
 class Playfield
   attr_reader :floor_width, :floor_depth, :floor_thickness, :wall_thickness, :wall_height, :shooter_lane_width, :shooter_lane_start_depth, :shooter_lane_end_depth 
   

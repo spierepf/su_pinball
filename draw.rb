@@ -109,13 +109,17 @@ playfield.rubber([playfield.post(frame(1.5, 42.0 - (23.0 + 7.0/16.0))), playfiel
 playfield.post frame(20.25 - (6.0 + 5.0/8.0),  42.0 - (13.0 + 5.0/8.0))
 playfield.rubber([playfield.post(frame(20.25 - (3.0 + 7.0/16.0), 42.0 - (23.0 + 5.0/16.0))), playfield.post(frame(20.25 - (2.0 + 5.0/8.0), 42.0 - (24.0 + 13.0/16.0)))])
 
-playfield.post frame(20.25 -  (9.0 + 1.0/4.0), 42.0-(13.0 + 9.0/16.0))
-playfield.post frame(20.25 - (12.0 + 3.0/8.0), 42.0-(13.0 + 9.0/16.0))
+ramp_start_x0 = 20.25 -  (9.0 + 1.0/4.0)
+ramp_start_x1 = 20.25 - (12.0 + 3.0/8.0)
+ramp_start_y = 42.0-(13.0 + 9.0/16.0)
+playfield.post frame(ramp_start_x0, ramp_start_y)
+playfield.post frame(ramp_start_x1, ramp_start_y)
 
 wireformTrough = WireFormTrough.new()
+plasticTrough = PlasticTrough.new()
 
 ballPath = BezierSpline.new([
-  Geom::Point3d.new( 9.4, 28.4, 0.53125),
+  Geom::Point3d.new((ramp_start_x0 + ramp_start_x1) / 2, ramp_start_y, 0.53125),
   Geom::Point3d.new( 9.7, 31.6, 0.81673828125),
   Geom::Point3d.new(11.4, 34.4, 1.7370703125),
   Geom::Point3d.new(14.5, 35.9, 2.0),
@@ -149,7 +153,9 @@ end
 wireformTrough.doubleGuide(ballPath, 3, ballPath.length, 0.degrees)
 wireformTrough.doubleGuide(ballPath, 3, ballPath.length, 60.degrees)
 
-playfield.large_arrow_insert(frame(9.4, 25.0))
+plasticTrough.trough(ballPath, 0, 3)
+
+playfield.large_arrow_insert(frame((ramp_start_x0 + ramp_start_x1) / 2, 25.0))
 
 # upper playfield ramp outer guide
 playfield.sheet_guide(BezierSpline.new([
