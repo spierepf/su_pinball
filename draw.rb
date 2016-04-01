@@ -172,7 +172,49 @@ def spinner_ramp(playfield)
   playfield.large_arrow_insert(frame((ramp_start_x0 + ramp_start_x1) / 2, 25.0))
 end
 
-def upper_playfield_ramp(playfield)
+def draw_wall(x1, y1, x2, y2, z0, height)
+  # TODO: Create screw holes
+  entities = Sketchup.active_model.active_entities.add_group().entities
+
+  pt1 = [x1, y1, z0]
+  pt2 = [x1, y2, z0]
+  pt3 = [x2, y2, z0]
+  pt4 = [x2, y1, z0]
+  new_face = entities.add_face pt1, pt2, pt3, pt4
+  new_face.pushpull -height
+end
+
+def upper_playfield(playfield)
+  upper_playfield = Sketchup.active_model.active_entities.add_group()
+  width = 9.0
+  depth = 6.0 + 3.0/8.0
+  thickness = 1.0/4.0
+  gap = 1.0/2.0
+  
+  pt1 = [0.0, playfield.floor_depth, playfield.wall_height + gap]
+  pt2 = [width, playfield.floor_depth, playfield.wall_height + gap]
+  pt3 = [width, playfield.floor_depth - depth, playfield.wall_height + gap]
+  pt4 = [0.0, playfield.floor_depth - depth, playfield.wall_height + gap]
+  upper_playfield.entities.add_face(pt1, pt2, pt3, pt4).pushpull -thickness
+  
+  plastic = Sketchup.active_model.materials.add
+  plastic.color = 'white'
+  plastic.alpha = 0.5
+  upper_playfield.material = plastic
+  
+  draw_wall(0, playfield.floor_depth - depth, playfield.wall_thickness, playfield.floor_depth - playfield.wall_thickness, playfield.wall_height + gap + thickness, playfield.wall_height)
+  draw_wall(0, playfield.floor_depth - playfield.wall_thickness, width, playfield.floor_depth, playfield.wall_height + gap + thickness, playfield.wall_height)
+  draw_wall(width - playfield.wall_thickness, playfield.floor_depth - depth, width, playfield.floor_depth - playfield.wall_thickness - 1.25, playfield.wall_height + gap + thickness, playfield.wall_height)
+
+  ramp_start_x0 = 20.25-(5.0 + 3.0/8.0)
+  ramp_start_x1 = 20.25-(6.0 + 1.0/8.0)
+  ramp_start_y0 = 42.0-(4.0 + 1.0/16.0)
+  ramp_start_y1 = 42.0-(5.0 +  13.0/16.0)
+
+  ramp_end_x = width
+  ramp_end_y0 = 41.0 + 7.0/8.0
+  ramp_end_y1 = ramp_end_y0 - 2.0
+  
   playfield.sheet_guide(BezierSpline.new([
     Geom::Point3d.new(20.25-(5.0 + 3.0/8.0),   42.0-(4.0 + 1.0/16.0),  0),
     Geom::Point3d.new(20.25-(3.0 + 1.0/4.0),   42.0-(6.0 + 5.0/8.0),   0),
@@ -190,6 +232,21 @@ def upper_playfield_ramp(playfield)
   playfield.large_arrow_insert(frame(15.0 + 1.0/8.0, 28.5) * rotate(-26.0))
   playfield.large_arrow_insert(frame(16.0 + 3.0/8.0, 31.5) * rotate(-8.0))
   playfield.large_arrow_insert(frame(16.0 + 2.0/8.0, 34.5) * rotate(30.0))
+  
+     
+  ballPath = BezierSpline.new([
+    Geom::Point3d.new((ramp_start_x0 + ramp_start_x1) / 2, (ramp_start_y0 + ramp_start_y1) / 2, 0.53125),
+    Geom::Point3d.new((ramp_start_x0 + ramp_start_x1) / 2 - 1.5, (ramp_start_y0 + ramp_start_y1) / 2 + 1.5, 0.53125 + 5.0/16.0),
+    Geom::Point3d.new(ramp_end_x + 2.0, (ramp_end_y0 + ramp_end_y1) / 2.0 - 7.0/16.0, (playfield.wall_height + gap + thickness + 0.53125) - 5.0/16.0),
+    Geom::Point3d.new(ramp_end_x, (ramp_end_y0 + ramp_end_y1) / 2, (playfield.wall_height + gap + thickness + 0.53125)),
+  ])
+  
+  (0..ballPath.length).each do |t|
+    Sketchup.active_model.active_entities.add_cpoint ballPath.f(t)
+  end
+
+  plasticTrough = PlasticTrough.new()
+  plasticTrough.trough(ballPath)
 end
 
 def top_curve(playfield)
@@ -247,43 +304,9 @@ left_drop_target_bank(playfield)
 right_drop_target_bank(playfield)
 inline_drop_target_bank(playfield)
 spinner_ramp(playfield)
-upper_playfield_ramp(playfield)
+upper_playfield(playfield)
 top_curve(playfield)
 center_lenses(playfield)
-
-upper_playfield = Sketchup.active_model.active_entities.add_group()
-width = 9.0
-depth = 6.0 + 3.0/8.0
-thickness = 1.0/4.0
-gap = 1.0/2.0
-
-pt1 = [0.0, playfield.floor_depth, playfield.wall_height + gap]
-pt2 = [width, playfield.floor_depth, playfield.wall_height + gap]
-pt3 = [width, playfield.floor_depth - depth, playfield.wall_height + gap]
-pt4 = [0.0, playfield.floor_depth - depth, playfield.wall_height + gap]
-upper_playfield.entities.add_face(pt1, pt2, pt3, pt4).pushpull -thickness
-
-plastic = Sketchup.active_model.materials.add
-plastic.color = 'white'
-plastic.alpha = 0.5
-upper_playfield.material = plastic
-
-def draw_wall(x1, y1, x2, y2, z0, height)
-  # TODO: Create screw holes
-  entities = Sketchup.active_model.active_entities.add_group().entities
-
-  pt1 = [x1, y1, z0]
-  pt2 = [x1, y2, z0]
-  pt3 = [x2, y2, z0]
-  pt4 = [x2, y1, z0]
-  new_face = entities.add_face pt1, pt2, pt3, pt4
-  new_face.pushpull -height
-end
-
-draw_wall(0, playfield.floor_depth - depth, playfield.wall_thickness, playfield.floor_depth - playfield.wall_thickness, playfield.wall_height + gap + thickness, playfield.wall_height)
-draw_wall(0, playfield.floor_depth - playfield.wall_thickness, width, playfield.floor_depth, playfield.wall_height + gap + thickness, playfield.wall_height)
-draw_wall(width - playfield.wall_thickness, playfield.floor_depth - depth, width, playfield.floor_depth - playfield.wall_thickness, playfield.wall_height + gap + thickness, playfield.wall_height)
-
 
 puts Time.now.getutc - t0
 
