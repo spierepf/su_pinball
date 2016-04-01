@@ -164,6 +164,17 @@ class PlasticTrough
         end
       end
     end
+    
+    plastic = Sketchup.active_model.materials.add
+    plastic.color = 'white'
+    plastic.alpha = 0.5
+    group.material = plastic
+    
+    group.entities.grep(Sketchup::Edge).each do |e|
+      next unless e.faces.length==2 && (e.faces[0].normal - e.faces[1].normal).length.abs < 0.5
+      e.soft=true
+      e.smooth=true
+    end
   end
 end
 
@@ -601,8 +612,8 @@ class Playfield
     vertices.push(t * Geom::Point3d.new(-(width/2.0 - corner_radius), corner_radius, 0.0))
     vertices.push(t * Geom::Point3d.new(0.0, height - corner_radius, 0.0))
     vertices.push(t * Geom::Point3d.new((width/2.0 - corner_radius), corner_radius, 0.0))
-    round_cornered_polygon(hole, vertices, corner_radius)
-#    component(t, "Insert 2 inch Arrow PI-T2RT")
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius)
+    component(t, "Insert 2 inch Arrow PI-T2RT")
   end
 
   def small_oval_insert t
@@ -625,6 +636,7 @@ class Playfield
     vertices = []
     vertices.push(t * Geom::Point3d.new(-(width - height)/2.0, 0.0, 0.0))
     vertices.push(t * Geom::Point3d.new((width - height)/2.0, 0.0, 0.0))
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, height / 2.0)
+    round_cornered_polygon(hole, vertices, height / 2.0)
+    #hole_from_edges hole, round_cornered_polygon(hole, vertices, height / 2.0)
   end
 end
