@@ -184,6 +184,18 @@ def draw_wall(x1, y1, x2, y2, z0, height)
   new_face.pushpull -height
 end
 
+def upgrade_spline(spline)
+  new_spline_length = spline.length + 1.0
+  denominator = spline.length * new_spline_length
+  
+  tmp = []
+  (0..new_spline_length).each do |i|
+    tmp.push(spline.f(i * spline.length / new_spline_length))
+  end
+  
+  BezierSpline.new(tmp)
+end
+
 def upper_playfield(playfield)
   upper_playfield = Sketchup.active_model.active_entities.add_group()
   width = 9.0
@@ -196,7 +208,18 @@ def upper_playfield(playfield)
   pt3 = [width, playfield.floor_depth - depth, playfield.wall_height + gap]
   pt4 = [0.0, playfield.floor_depth - depth, playfield.wall_height + gap]
   upper_playfield.entities.add_face(pt1, pt2, pt3, pt4).pushpull -thickness
+
+  13.times do |i|
+    hole = Sketchup.active_model.active_entities.add_group()
+    pt1 = [3.0/8.0 + i * (39.3701 / 60), playfield.floor_depth, playfield.wall_height + gap]
+    pt2 = [3.0/8.0 + i * (39.3701 / 60) + 3.0/8.0, playfield.floor_depth, playfield.wall_height + gap]
+    pt3 = [3.0/8.0 + i * (39.3701 / 60) + 3.0/8.0, playfield.floor_depth - 0.10, playfield.wall_height + gap]
+    pt4 = [3.0/8.0 + i * (39.3701 / 60), playfield.floor_depth - 0.10, playfield.wall_height + gap]
+    hole.entities.add_face(pt1, pt2, pt3, pt4).pushpull -thickness
+    upper_playfield = hole.subtract(upper_playfield)
+  end
   
+    
   plastic = Sketchup.active_model.materials.add
   plastic.color = 'white'
   plastic.alpha = 0.5
@@ -232,17 +255,28 @@ def upper_playfield(playfield)
   playfield.large_arrow_insert(frame(15.0 + 1.0/8.0, 28.5) * rotate(-26.0))
   playfield.large_arrow_insert(frame(16.0 + 3.0/8.0, 31.5) * rotate(-8.0))
   playfield.large_arrow_insert(frame(16.0 + 2.0/8.0, 34.5) * rotate(30.0))
+
+  r = 4.0
+  delta = 1.0/16.0
+  tmp = []
+  (0.5).step(0.25, -delta) do |i|
+    tmp.push(Geom::Point3d.new(ramp_end_x + r*Math.cos(i * 3.14159), ((ramp_end_y0 + ramp_end_y1) / 2) - r + r*Math.sin(i * 3.14159), 2.0))
+  end
+
+  5.times do |i|
+    last = tmp.last()
+    tmp.push(Geom::Point3d.new(last.x + delta * r * 3.14159 / Math.sqrt(2), last.y - delta * r * 3.14159 / Math.sqrt(2), 2.0))
+  end
   
-     
-  ballPath = BezierSpline.new([
-    Geom::Point3d.new((ramp_start_x0 + ramp_start_x1) / 2, (ramp_start_y0 + ramp_start_y1) / 2, 0.53125),
-    Geom::Point3d.new((ramp_start_x0 + ramp_start_x1) / 2 - 1.5, (ramp_start_y0 + ramp_start_y1) / 2 + 1.5, 0.53125 + 5.0/16.0),
-    Geom::Point3d.new(ramp_end_x + 2.0, (ramp_end_y0 + ramp_end_y1) / 2.0 - 7.0/16.0, (playfield.wall_height + gap + thickness + 0.53125) - 5.0/16.0),
-    Geom::Point3d.new(ramp_end_x, (ramp_end_y0 + ramp_end_y1) / 2, (playfield.wall_height + gap + thickness + 0.53125)),
-  ])
+  tmp.each_index do |i|
+    tmp[i].z = (1.0 + 7.0/8.0) * (1.0 / (1.0 + Math.exp(-(5.0 - i)))) + ((1.0 + 1.0/16.0) / 2.0);
+  end
+  
+  ballPath = BezierSpline.new(tmp.reverse())
   
   (0..ballPath.length).each do |t|
     Sketchup.active_model.active_entities.add_cpoint ballPath.f(t)
+    puts ballPath.f(t)
   end
 
   plasticTrough = PlasticTrough.new()
@@ -297,6 +331,7 @@ end
 
 left_flipper_constellation(playfield)
 right_flipper_constellation(playfield)
+playfield.round_insert(frame(play_area_center_x, 5), 1.5)
 upper_left(playfield)
 left_kickout(playfield)
 right_kickout(playfield)
@@ -309,6 +344,24 @@ top_curve(playfield)
 center_lenses(playfield)
 
 puts Time.now.getutc - t0
+
+def draw_ball
+  xaxis = Geom::Vector3d.new 1,0,0
+  yaxis = Geom::Vector3d.new 1,0,0
+  zaxis = Geom::Vector3d.new 0,0,1
+  
+  radius = (1.0 + 1.0/16.0)/2.0
+  centerpoint = Geom::Point3d.new(12.0 + 1.0/4.0, 40.0 + 13.0/32.0, radius)
+  
+  # Create a circle perpendicular to the normal or Z axis
+  circle1 = Sketchup.active_model.active_entities.add_circle centerpoint, zaxis, radius
+  circle2 = Sketchup.active_model.active_entities.add_circle centerpoint, yaxis, radius * 2
+  
+  Sketchup.active_model.active_entities.add_face(circle1).followme(circle2)
+  Sketchup.active_model.active_entities.erase_entities(circle2)
+end
+
+draw_ball
 
 Sketchup.send_action("viewTop:")
 Sketchup.send_action("viewZoomExtents:")
