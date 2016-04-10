@@ -179,6 +179,19 @@ class PlasticTrough
   end
 end
 
+class UpperPlayfield
+  attr_reader :floor_width, :floor_depth, :floor_height, :floor_thickness, :wall_thickness, :wall_height 
+  
+  def initialize
+    @floor = Sketchup.active_model.active_entities.add_group()
+    @floor_width = 20.25
+    @floor_depth = 42.0
+    @floor_thickness = 17.0/32.0
+    @wall_thickness = 0.5
+    @wall_height = 1.125
+  end
+end
+
 class Playfield
   attr_reader :floor_width, :floor_depth, :floor_thickness, :wall_thickness, :wall_height, :shooter_lane_width, :shooter_lane_start_depth, :shooter_lane_end_depth 
   
@@ -263,7 +276,21 @@ class Playfield
     square_hole(frame(), 0.0, 0.0, 1.0 + 1.0/8.0, 4.0 + 3.0/4.0)
     square_hole(frame(), 20.25 - (1.0 + 13.0/16.0), 0.0, 20.25, 4.0 + 5.0/16.0)
   end
+  
+  def draw_shooter_lane()
+    shooter_lane_start_x = @floor_width - @wall_thickness - (@shooter_lane_width / 2.0)
+    shooter_lane_start_y = 4.0 + 5.0/16.0
     
+    rollover_switch(frame(shooter_lane_start_x, shooter_lane_start_y + 11.0/16.0) * rotate(180.0), false)
+      
+    launch_guide = Sketchup.active_model.active_entities.add_group()
+    launch_angle = 1.0.degrees
+    edges = launch_guide.entities.add_circle(Geom::Point3d.new(shooter_lane_start_x, shooter_lane_start_y - 1.0/8.0, 0.25), Geom::Vector3d.new(0, Math.cos(launch_angle), Math.sin(launch_angle)) , (1.0 + 1.0/16.0) / 2.0)
+    face = launch_guide.entities.add_face(edges)
+    face.pushpull(18.0)
+    @floor = launch_guide.subtract @floor
+  end
+  
   def template(t, name)
     filename = (File.dirname(__FILE__) + "/models/" + name + ".skp").gsub("/", "\\")
     component = Sketchup.active_model.definitions.load filename
@@ -350,6 +377,11 @@ class Playfield
     component(t, "Star_Post_1-1'16_-03-8319-13")
     component(t * Geom::Transformation.translation(Geom::Point3d.new(0, 0, 1.0 + 1.0/16.0)), "Threaded Post Screw 0001")
     Post.new(t)
+  end
+  
+  def mini_post_6_32 t
+    pilot_hole(t)
+    component(t, "Mini_Post_6-32_Thread_02-4195")
   end
   
   def slingshot t
@@ -439,13 +471,13 @@ class Playfield
     slingshot t * m * frame(-(1.0 + 13.0/32.0), 5.0 + 1.0/8.0) * rotate(111.2) * m
   end
   
-  def rollover_switch(t)
+  def rollover_switch(t, insert = true)
     template(t, "Rollover_Switch_and_Bracket_A-12688")
     round_ended_hole(t, 25.0/16.0, 3.0/16.0)
     pilot_hole(t * frame(31.0/64.0, -79.0/64.0, 0.0))
     pilot_hole(t * frame(31.0/64.0, -103.0/64.0, 0.0))
-      
-    round_insert(t * frame(0.0, 2.0), 3.0/4.0)
+    
+    round_insert(t * frame(0.0, 2.0), 3.0/4.0) if(insert)
   end
   
   def lane_guide(t)

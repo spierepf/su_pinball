@@ -11,6 +11,17 @@ playfield.draw_floor
 playfield.draw_walls
 playfield.draw_ball_trough
 playfield.draw_handhold_notches
+playfield.draw_shooter_lane
+
+playfield.sheet_guide(BezierSpline.new([
+  Geom::Point3d.new(playfield.floor_width-(1+13/16.0), playfield.floor_depth-(25.5),0.0),
+  Geom::Point3d.new(playfield.floor_width-(1+13/16.0),playfield.floor_depth-(19+15/16.0),0.0)
+]))
+  
+playfield.sheet_guide(BezierSpline.new([
+  Geom::Point3d.new(playfield.floor_width-(1+13/16.0), playfield.floor_depth-(16+7/8.0),0.0),
+  Geom::Point3d.new(playfield.floor_width-(1+13/16.0),playfield.floor_depth-(7+5/8.0),0.0)
+]))
 
 def left_flipper_frame_x
   5.0 + 57.0/64.0 # left_flipper_frame_x = 5.0 + 41.0/64.0
@@ -107,12 +118,33 @@ def left_drop_target_bank(playfield)
   playfield.drop_target_bank frame(4.5, 42.0 - 20.0) * rotate(250.0)
   playfield.component frame(4.0 + 11.0/16.0, 42.0 - (17.0 + 11.0/16.0)), 'Bumper Post 8-32 Thread bottom 6-32 at Top 024056'
   playfield.component frame(3.0 +  5.0/16.0, 42.0 - (21.0 + 11.0/16.0)), 'Bumper Post 8-32 Thread bottom 6-32 at Top 024056'
+
+    
+  insert_spray_x = 11.25
+  insert_spray_y = 18.0
+  insert_spray_start_angle = 135.0
+  insert_spray_spread = 17.0
+  insert_spray_radius = 5.0
+  
+  (0..2).each do |i|
+    playfield.round_insert(frame(insert_spray_x, insert_spray_y) * rotate(insert_spray_start_angle + i * insert_spray_spread) * frame(insert_spray_radius), 3.0/4.0)
+  end
 end
 
 def right_drop_target_bank(playfield)
   playfield.drop_target_bank frame(20.25 - 4.5, 42.0 - 17.5) * rotate(100.0)
   playfield.component frame(20.25 - (4.0 +   1.0/2.0),  42.0 - (15.0 +  5.0/16.0)), 'Bumper Post 8-32 Thread bottom 6-32 at Top 024056'
   playfield.component frame(20.25 - (3.0 + 15.0/16.0),  42.0 - (19.0 + 11.0/16.0)), 'Bumper Post 8-32 Thread bottom 6-32 at Top 024056'
+    
+  insert_spray_x = 8.0 + 3.0/4.0
+  insert_spray_y = 20.0 + 1.0/4.0
+  insert_spray_start_angle = 5.0
+  insert_spray_spread = 20.0
+  insert_spray_radius = 4.0 + 3.0/4.0
+  
+  (0..2).each do |i|
+    playfield.round_insert(frame(insert_spray_x, insert_spray_y) * rotate(insert_spray_start_angle + i * insert_spray_spread) * frame(insert_spray_radius), 3.0/4.0)
+  end
 end
 
 def inline_drop_target_bank(playfield)
@@ -142,6 +174,8 @@ def spinner_ramp(playfield)
   playfield.post frame(ramp_start_x1, ramp_start_y)
   
   playfield.circular_hole(frame(ramp_start_x1 + 0.5, ramp_start_y), 1.0/8.0)
+  playfield.mini_post_6_32(frame(ramp_start_x1 + 0.5, ramp_start_y - 5.0/8.0))
+  
   wireformTrough = WireFormTrough.new()
   plasticTrough = PlasticTrough.new()
   
@@ -182,7 +216,7 @@ def spinner_ramp(playfield)
   
   plasticTrough.trough(ballPath, 0, 3)
   
-  playfield.large_arrow_insert(frame((ramp_start_x0 + ramp_start_x1) / 2, 25.0))
+  playfield.large_arrow_insert(frame((ramp_start_x0 + ramp_start_x1) / 2, 25.5))
 end
 
 def draw_wall(x1, y1, x2, y2, z0, height)
@@ -231,7 +265,6 @@ def upper_playfield(playfield)
     hole.entities.add_face(pt1, pt2, pt3, pt4).pushpull -thickness
     upper_playfield = hole.subtract(upper_playfield)
   end
-  
     
   plastic = Sketchup.active_model.materials.add
   plastic.color = 'white'
@@ -240,60 +273,81 @@ def upper_playfield(playfield)
   
   draw_wall(0, playfield.floor_depth - depth, playfield.wall_thickness, playfield.floor_depth - playfield.wall_thickness, playfield.wall_height + gap + thickness, playfield.wall_height)
   draw_wall(0, playfield.floor_depth - playfield.wall_thickness, width, playfield.floor_depth, playfield.wall_height + gap + thickness, playfield.wall_height)
-  draw_wall(width - playfield.wall_thickness, playfield.floor_depth - depth, width, playfield.floor_depth - playfield.wall_thickness - 1.25, playfield.wall_height + gap + thickness, playfield.wall_height)
 
-  ramp_start_x0 = 20.25-(5.0 + 3.0/8.0)
-  ramp_start_x1 = 20.25-(6.0 + 1.0/8.0)
-  ramp_start_y0 = 42.0-(4.0 + 1.0/16.0)
-  ramp_start_y1 = 42.0-(5.0 +  13.0/16.0)
+  ramp_end_x = playfield.floor_width - (11.0 + 1.0/4.0)
+  ramp_end_y = playfield.floor_depth - (3.0 + 1.0/16.0)
 
-  ramp_end_x = width
-  ramp_end_y0 = 41.0 + 7.0/8.0
-  ramp_end_y1 = ramp_end_y0 - 2.0
-  
-  playfield.sheet_guide(BezierSpline.new([
-    Geom::Point3d.new(20.25-(5.0 + 3.0/8.0),   42.0-(4.0 + 1.0/16.0),  0),
-    Geom::Point3d.new(20.25-(3.0 + 1.0/4.0),   42.0-(6.0 + 5.0/8.0),   0),
-    Geom::Point3d.new(20.25-(2.0 + 13.0/16.0), 42.0-(9.0 + 5.0/16.0),  0),
-    Geom::Point3d.new(20.25-(3.0 + 3.0/8.0),   42.0-(12.0 + 1.0/16.0), 0),
-    Geom::Point3d.new(20.25-(4.0 + 13.0/16.0), 42.0-(14.0 + 7.0/8.0),  0)
-  ]))
-  playfield.wire_guide(BezierSpline.new([
-    Geom::Point3d.new(20.25-(6.0 + 1.0/8.0),   42.0-(5.0 +  13.0/16.0), 0),
-    Geom::Point3d.new(20.25-(5.0),             42.0-(7.0 +  11.0/16.0), 0),
-    Geom::Point3d.new(20.25-(4.0 + 11.0/16.0), 42.0-(9.0 +   9.0/16.0), 0),
-    Geom::Point3d.new(20.25-(5.0 + 3.0/16.0),  42.0-(11.0 +  7.0/16.0), 0),
-    Geom::Point3d.new(20.25-(6.0 + 3.0/16.0),  42.0-(13.0 + 11.0/32.0), 0)
-  ]))
-  playfield.large_arrow_insert(frame(15.0 + 1.0/8.0, 28.5) * rotate(-26.0))
-  playfield.large_arrow_insert(frame(16.0 + 3.0/8.0, 31.5) * rotate(-8.0))
-  playfield.large_arrow_insert(frame(16.0 + 2.0/8.0, 34.5) * rotate(30.0))
+  draw_wall(width - playfield.wall_thickness, ramp_end_y + (2.0 + 1.0/16.0)/2, width, playfield.floor_depth - playfield.wall_thickness, playfield.wall_height + gap + thickness, playfield.wall_height)
+  draw_wall(width - playfield.wall_thickness, playfield.floor_depth - depth, width, ramp_end_y - (2.0 + 1.0/16.0)/2, playfield.wall_height + gap + thickness, playfield.wall_height)
 
-  r = 4.0
-  delta = 1.0/16.0
-  tmp = []
-  (0.5).step(0.25, -delta) do |i|
-    tmp.push(Geom::Point3d.new(ramp_end_x + r*Math.cos(i * 3.14159), ((ramp_end_y0 + ramp_end_y1) / 2) - r + r*Math.sin(i * 3.14159), 2.0))
-  end
-
-  5.times do |i|
-    last = tmp.last()
-    tmp.push(Geom::Point3d.new(last.x + delta * r * 3.14159 / Math.sqrt(2), last.y - delta * r * 3.14159 / Math.sqrt(2), 2.0))
-  end
-  
-  tmp.each_index do |i|
-    tmp[i].z = (1.0 + 7.0/8.0) * (1.0 / (1.0 + Math.exp(-(5.0 - i)))) + ((1.0 + 1.0/16.0) / 2.0);
-  end
-  
-  ballPath = BezierSpline.new(tmp.reverse())
+  ballPath = BezierSpline.new([
+    Geom::Point3d.new(ramp_end_x, ramp_end_y),
+    Geom::Point3d.new(playfield.floor_width - (8.0 + 13.0/16.0), playfield.floor_depth - (3.0 + 3.0/8.0)),
+    Geom::Point3d.new(playfield.floor_width - (7.0),             playfield.floor_depth - (4.0)),
+    Geom::Point3d.new(playfield.floor_width - (5.0 + 7.0/16.0),  playfield.floor_depth - (5.0 + 5.0/16.0)),
+    Geom::Point3d.new(playfield.floor_width - (4.0 + 5.0/16.0),  playfield.floor_depth - (6.0 + 7.0/8.0)),
+    Geom::Point3d.new(playfield.floor_width - (3.0 + 5.0/8.0),   playfield.floor_depth - (8.0 + 7.0/8.0)),
+    Geom::Point3d.new(playfield.floor_width - (3.0 + 3.0/4.0),   playfield.floor_depth - (10.0 + 13.0/16.0)),
+    Geom::Point3d.new(playfield.floor_width - (4.0 + 1.0/2.0),   playfield.floor_depth - (12.0 + 11.0/16.0)),
+    Geom::Point3d.new(playfield.floor_width - (5.0 + 1.0/2.0),   playfield.floor_depth - (14.0 + 1.0/2.0)),
+  ])
   
   (0..ballPath.length).each do |t|
     Sketchup.active_model.active_entities.add_cpoint ballPath.f(t)
-    puts ballPath.f(t)
   end
-
-  plasticTrough = PlasticTrough.new()
-  plasticTrough.trough(ballPath)
+  
+#  ramp_start_x0 = 20.25-(5.0 + 3.0/8.0)
+#  ramp_start_x1 = 20.25-(6.0 + 1.0/8.0)
+#  ramp_start_y0 = 42.0-(4.0 + 1.0/16.0)
+#  ramp_start_y1 = 42.0-(5.0 +  13.0/16.0)
+#
+#  ramp_end_x = width
+#  ramp_end_y0 = 41.0 + 7.0/8.0
+#  ramp_end_y1 = ramp_end_y0 - 2.0
+#  
+#  playfield.sheet_guide(BezierSpline.new([
+#    Geom::Point3d.new(20.25-(5.0 + 3.0/8.0),   42.0-(4.0 + 1.0/16.0),  0),
+#    Geom::Point3d.new(20.25-(3.0 + 1.0/4.0),   42.0-(6.0 + 5.0/8.0),   0),
+#    Geom::Point3d.new(20.25-(2.0 + 13.0/16.0), 42.0-(9.0 + 5.0/16.0),  0),
+#    Geom::Point3d.new(20.25-(3.0 + 3.0/8.0),   42.0-(12.0 + 1.0/16.0), 0),
+#    Geom::Point3d.new(20.25-(4.0 + 13.0/16.0), 42.0-(14.0 + 7.0/8.0),  0)
+#  ]))
+#  playfield.wire_guide(BezierSpline.new([
+#    Geom::Point3d.new(20.25-(6.0 + 1.0/8.0),   42.0-(5.0 +  13.0/16.0), 0),
+#    Geom::Point3d.new(20.25-(5.0),             42.0-(7.0 +  11.0/16.0), 0),
+#    Geom::Point3d.new(20.25-(4.0 + 11.0/16.0), 42.0-(9.0 +   9.0/16.0), 0),
+#    Geom::Point3d.new(20.25-(5.0 + 3.0/16.0),  42.0-(11.0 +  7.0/16.0), 0),
+#    Geom::Point3d.new(20.25-(6.0 + 3.0/16.0),  42.0-(13.0 + 11.0/32.0), 0)
+#  ]))
+#  playfield.large_arrow_insert(frame(15.0 + 1.0/8.0, 28.5) * rotate(-26.0))
+#  playfield.large_arrow_insert(frame(16.0 + 3.0/8.0, 31.5) * rotate(-8.0))
+#  playfield.large_arrow_insert(frame(16.0 + 2.0/8.0, 34.5) * rotate(30.0))
+#
+#  r = 4.0
+#  delta = 1.0/16.0
+#  tmp = []
+#  (0.5).step(0.25, -delta) do |i|
+#    tmp.push(Geom::Point3d.new(ramp_end_x + r*Math.cos(i * 3.14159), ((ramp_end_y0 + ramp_end_y1) / 2) - r + r*Math.sin(i * 3.14159), 2.0))
+#  end
+#
+#  5.times do |i|
+#    last = tmp.last()
+#    tmp.push(Geom::Point3d.new(last.x + delta * r * 3.14159 / Math.sqrt(2), last.y - delta * r * 3.14159 / Math.sqrt(2), 2.0))
+#  end
+#  
+#  tmp.each_index do |i|
+#    tmp[i].z = (1.0 + 7.0/8.0) * (1.0 / (1.0 + Math.exp(-(5.0 - i)))) + ((1.0 + 1.0/16.0) / 2.0);
+#  end
+#  
+#  ballPath = BezierSpline.new(tmp.reverse())
+#  
+#  (0..ballPath.length).each do |t|
+#    Sketchup.active_model.active_entities.add_cpoint ballPath.f(t)
+#    puts ballPath.f(t)
+#  end
+#
+#  plasticTrough = PlasticTrough.new()
+#  plasticTrough.trough(ballPath)
 end
 
 def top_curve(playfield)
@@ -334,29 +388,45 @@ def top_curve(playfield)
 end
 
 def center_lenses(playfield)
+  playfield.round_insert(frame(play_area_center_x, 5), 1.5)
+
+  (-1..1).each do |i|
+    playfield.round_insert(frame(play_area_center_x, 5) * rotate(25.0 * i) * frame(0, 5), 1.0)
+  end
+  
+  flower_y = 14.0
   (0..5).each do |i|
-    playfield.triangle_insert frame(play_area_center_x, 15.0) * rotate(i * 60.0 + 30.0) * frame(1.0) * rotate(-30.0)
+    playfield.triangle_insert frame(play_area_center_x, flower_y) * rotate(i * 60.0 + 30.0) * frame(1.25) * rotate(-30.0)
   end
   
   lens_center_to_arc_center = (2.0 + 5.0/16.0 - 3.0/4.0) / 2
+  (-1..1).each do |i|
+    playfield.large_oval_insert frame(play_area_center_x, flower_y) * rotate(i * 60.0) * frame(0, 3.25 - lens_center_to_arc_center) * rotate(i * -(60.0 - 30) + 90.0) * frame(lens_center_to_arc_center) 
+  end
+  
+  insert_spray_x = 8.0
+  insert_spray_y = 21.5
+  insert_spray_start_angle = 5.0
+  insert_spray_spread = 35.0
+  insert_spray_radius = 2.25
+  
   (0..2).each do |i|
-    playfield.large_oval_insert frame(play_area_center_x, 15.0) * rotate(i * 60.0 + 30.0) * frame(3.0 - lens_center_to_arc_center) * rotate(i * -60.0 + 60.0) * frame(lens_center_to_arc_center) 
+    playfield.round_insert(frame(insert_spray_x, insert_spray_y) * rotate(insert_spray_start_angle + i * insert_spray_spread) * frame(insert_spray_radius), 1.0)
   end
 end
 
 #left_flipper_constellation(playfield)
 #right_flipper_constellation(playfield)
-#playfield.round_insert(frame(play_area_center_x, 5), 1.5)
 #upper_left(playfield)
 #left_kickout(playfield)
 #right_kickout(playfield)
-#left_drop_target_bank(playfield)
-#right_drop_target_bank(playfield)
+left_drop_target_bank(playfield)
+right_drop_target_bank(playfield)
 #inline_drop_target_bank(playfield)
 #spinner_ramp(playfield)
 #upper_playfield(playfield)
 #top_curve(playfield)
-#center_lenses(playfield)
+center_lenses(playfield)
 
 puts Time.now.getutc - t0
 
@@ -381,5 +451,9 @@ draw_ball
 Sketchup.send_action("viewTop:")
 Sketchup.send_action("viewZoomExtents:")
 
-# shooter lane switch and centering guide trough thingie
 # flipper back guards (3-1/8 long)
+# flexible pilot hole code
+# GI lighting
+# adding ledges insert holes
+# upper playfield ramp and guides
+# adding rubbers to single posts
