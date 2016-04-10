@@ -115,11 +115,22 @@ def right_drop_target_bank(playfield)
 end
 
 def inline_drop_target_bank(playfield)
-  t = frame(20.25 - (7.0 + 13.0/16.0), 42.0 - (12.0 + 15.0/16.0)) * rotate(-13.0)
-  playfield.inline_drop_target_bank t
+  t = frame(20.25 - (7.0 + 13.0/16.0), 42.0 - (12.0 + 15.0/16.0)) * rotate(-13.0) * frame(0, 0.5)
+  playfield.inline_drop_target_bank_2 t
   playfield.round_ended_hole(t * Geom::Transformation.translation(Geom::Point3d.new(0, 5.0 + 1.0/16.0, 0)) * rotate(90), 1.0 + 1.0/8.0, 0.5)
   playfield.large_arrow_insert(frame(11.5, 24.75) * rotate(-13.0))
   playfield.post frame(20.25 - (6.0 + 5.0/8.0),  42.0 - (13.0 + 5.0/8.0))
+    
+  rightside = 20 + 1/4.0
+  topside = 42.0
+  playfield.wire_guide(BezierSpline.new([
+    Geom::Point3d.new(rightside-5.5,topside-(7.0+15/16.0),0.0),
+    Geom::Point3d.new(rightside-(6+3/4.0),topside-(13+3/16.0),0.0)
+  ]))
+  playfield.wire_guide(BezierSpline.new([
+    Geom::Point3d.new(rightside-(8+7/8.0),topside-(13+3/8.0),0.0),
+    Geom::Point3d.new(rightside-(7+7/16.0),topside-(7.0+5/8.0),0.0)
+  ]))
 end
 
 def spinner_ramp(playfield)
@@ -129,6 +140,7 @@ def spinner_ramp(playfield)
   playfield.post frame(ramp_start_x0, ramp_start_y)
   playfield.post frame(ramp_start_x1, ramp_start_y)
   
+  playfield.circular_hole(frame(ramp_start_x1 + 0.5, ramp_start_y), 1.0/8.0)
   wireformTrough = WireFormTrough.new()
   plasticTrough = PlasticTrough.new()
   
@@ -316,6 +328,8 @@ def top_curve(playfield)
     Geom::Point3d.new(20.25-(18.0 + 10.0/16.0), 42.0-(1.0 +  9.0/16.0), 0),
     Geom::Point3d.new(20.25-(19.0 + 12.0/16.0), 42.0-(2.0 +  7.0/16.0), 0)
   ]))
+  
+  playfield.component(frame(1.0 + 1.0/16.0, 42.0 - (2.0 + 3.0/4.0)), "shooter_lane_stop_bumper")
 end
 
 def center_lenses(playfield)
@@ -365,3 +379,8 @@ draw_ball
 
 Sketchup.send_action("viewTop:")
 Sketchup.send_action("viewZoomExtents:")
+
+# wall screw pilot holes
+# handhold notches (left: 1-1/8x4-3/4 , right: 1-13/16x4-5/16)
+# shooter lane switch and centering guide trough thingie
+# flipper back guards (3-1/8 long)

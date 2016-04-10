@@ -546,6 +546,23 @@ class Playfield
     end
   end
   
+  def inline_drop_target_bank_2 t
+    template(t, "bally_inline_3_target_bank_rough_2")
+    
+    pilot_hole(t * frame(3.0/32.0, (-7.0/16.0) - (1.0 + 1.0/8.0),      0.0))
+    pilot_hole(t * frame(2.0,      (-7.0/16.0) - (1.0 + 1.0/8.0),      0.0))
+    pilot_hole(t * frame(7.0/8.0,  (3.0 + 1.0/16.0) - (1.0 + 1.0/8.0), 0.0))
+    pilot_hole(t * frame(7.0/8.0,  (1.0 + 9.0/16.0) - (1.0 + 1.0/8.0), 0.0))
+    pilot_hole(t * frame(3.0/32.0, (5.0) - (1.0 + 1.0/8.0),            0.0))
+    pilot_hole(t * frame(2.0,      (5.0) - (1.0 + 1.0/8.0),            0.0))
+    
+    y0 = 0
+    (1..3).each do
+      square_hole t, -7.0/16.0, y0, 7.0/16.0, y0 + 0.5
+      y0 += 1.5
+    end
+  end
+  
   def sheet_guide spline
     group = Sketchup.active_model.active_entities.add_group()
     
