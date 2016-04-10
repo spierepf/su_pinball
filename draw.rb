@@ -10,6 +10,7 @@ playfield = Playfield.new()
 playfield.draw_floor
 playfield.draw_walls
 playfield.draw_ball_trough
+playfield.draw_handhold_notches
 
 def left_flipper_frame_x
   5.0 + 57.0/64.0 # left_flipper_frame_x = 5.0 + 41.0/64.0
@@ -343,19 +344,19 @@ def center_lenses(playfield)
   end
 end
 
-left_flipper_constellation(playfield)
-right_flipper_constellation(playfield)
-playfield.round_insert(frame(play_area_center_x, 5), 1.5)
-upper_left(playfield)
-left_kickout(playfield)
-right_kickout(playfield)
-left_drop_target_bank(playfield)
-right_drop_target_bank(playfield)
-inline_drop_target_bank(playfield)
-spinner_ramp(playfield)
-upper_playfield(playfield)
-top_curve(playfield)
-center_lenses(playfield)
+#left_flipper_constellation(playfield)
+#right_flipper_constellation(playfield)
+#playfield.round_insert(frame(play_area_center_x, 5), 1.5)
+#upper_left(playfield)
+#left_kickout(playfield)
+#right_kickout(playfield)
+#left_drop_target_bank(playfield)
+#right_drop_target_bank(playfield)
+#inline_drop_target_bank(playfield)
+#spinner_ramp(playfield)
+#upper_playfield(playfield)
+#top_curve(playfield)
+#center_lenses(playfield)
 
 puts Time.now.getutc - t0
 
@@ -380,7 +381,5 @@ draw_ball
 Sketchup.send_action("viewTop:")
 Sketchup.send_action("viewZoomExtents:")
 
-# wall screw pilot holes
-# handhold notches (left: 1-1/8x4-3/4 , right: 1-13/16x4-5/16)
 # shooter lane switch and centering guide trough thingie
 # flipper back guards (3-1/8 long)

@@ -202,7 +202,7 @@ class Playfield
     @floor.entities.add_face(pt1, pt2, pt3, pt4).pushpull @floor_thickness
   end
   
-  def draw_wall(x1, y1, x2, y2)
+  def draw_wall(x1, y1, x2, y2, pilot_spacing = 4.0)
     # TODO: Create screw holes
     entities = Sketchup.active_model.active_entities.add_group().entities
   
@@ -212,13 +212,27 @@ class Playfield
     pt4 = [x2, y1, 0.0]
     new_face = entities.add_face pt1, pt2, pt3, pt4
     new_face.pushpull -@wall_height
+    
+    xc = (x2 + x1) / 2.0
+    yc = (y2 + y1) / 2.0
+    if (x2 - x1) > 1.0 then
+      ((x2 - x1 - 2.0) / pilot_spacing).floor.times do |i|
+        pilot_hole(frame(xc + (i * pilot_spacing), yc))
+        pilot_hole(frame(xc - (i * pilot_spacing), yc)) if i != 0
+      end
+    elsif (y2 - y1) > 1.0 then
+      ((y2 - y1 - 2.0) / pilot_spacing).floor.times do |i|
+        pilot_hole(frame(xc, yc + (i * pilot_spacing)))
+        pilot_hole(frame(xc, yc - (i * pilot_spacing))) if i != 0
+      end
+    end
   end
   
   def draw_walls
-    draw_wall(0, 0, @wall_thickness, @floor_depth - @wall_thickness)
+    draw_wall(0, 4.0 + 3.0/4.0, @wall_thickness, @floor_depth - @wall_thickness)
     draw_wall(0, @floor_depth - @wall_thickness, @floor_width, @floor_depth)
-    draw_wall(@floor_width - @wall_thickness, 0, @floor_width, @floor_depth - @wall_thickness)
-    draw_wall(@floor_width - @wall_thickness - @shooter_lane_width - @wall_thickness, @shooter_lane_start_depth, @floor_width - @wall_thickness - @shooter_lane_width, @shooter_lane_end_depth)
+    draw_wall(@floor_width - @wall_thickness, 4.0 + 5.0/16.0, @floor_width, @floor_depth - @wall_thickness)
+    draw_wall(@floor_width - @wall_thickness - @shooter_lane_width - @wall_thickness, @shooter_lane_start_depth, @floor_width - @wall_thickness - @shooter_lane_width, @shooter_lane_end_depth, 3.0)
   end
   
   def hole_from_face(hole, face)
@@ -245,6 +259,11 @@ class Playfield
     hole_from_edges hole, join_arcs(hole, [right_arc, top_arc, bottom_arc])
   end
   
+  def draw_handhold_notches()
+    square_hole(frame(), 0.0, 0.0, 1.0 + 1.0/8.0, 4.0 + 3.0/4.0)
+    square_hole(frame(), 20.25 - (1.0 + 13.0/16.0), 0.0, 20.25, 4.0 + 5.0/16.0)
+  end
+    
   def template(t, name)
     filename = (File.dirname(__FILE__) + "/models/" + name + ".skp").gsub("/", "\\")
     component = Sketchup.active_model.definitions.load filename
