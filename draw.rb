@@ -420,17 +420,17 @@ def center_lenses(playfield)
   end
 end
 
-#left_flipper_constellation(playfield)
-#right_flipper_constellation(playfield)
-#upper_left(playfield)
-#left_kickout(playfield)
-#right_kickout(playfield)
-#left_drop_target_bank(playfield)
-#right_drop_target_bank(playfield)
-#inline_drop_target_bank(playfield)
-#spinner_ramp(playfield)
-#upper_playfield(playfield)
-#top_curve(playfield)
+left_flipper_constellation(playfield)
+right_flipper_constellation(playfield)
+upper_left(playfield)
+left_kickout(playfield)
+right_kickout(playfield)
+left_drop_target_bank(playfield)
+right_drop_target_bank(playfield)
+inline_drop_target_bank(playfield)
+spinner_ramp(playfield)
+upper_playfield(playfield)
+top_curve(playfield)
 center_lenses(playfield)
 
 puts Time.now.getutc - t0
