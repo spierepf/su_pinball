@@ -180,7 +180,7 @@ def spinner_ramp(playfield)
   plasticTrough = PlasticTrough.new()
   
   ballPath = BezierSpline.new([
-    Geom::Point3d.new((ramp_start_x0 + ramp_start_x1) / 2, ramp_start_y, 0.53125),
+    Geom::Point3d.new((ramp_start_x0 + ramp_start_x1) / 2, ramp_start_y, (1.0 + 1.0/16.0)/2.0),
     Geom::Point3d.new( 9.7, 31.6, 0.81673828125),
     Geom::Point3d.new(11.4, 34.4, 1.7370703125),
     Geom::Point3d.new(14.5, 35.9, 2.0),
@@ -214,7 +214,7 @@ def spinner_ramp(playfield)
   wireformTrough.doubleGuide(ballPath, 3, ballPath.length, 0.degrees)
   wireformTrough.doubleGuide(ballPath, 3, ballPath.length, 60.degrees)
   
-  plasticTrough.trough(ballPath, 0, 3)
+  plasticTrough.trough(ballPath, 2.0, 7.0/8.0, 0, 3)
   
   playfield.large_arrow_insert(frame((ramp_start_x0 + ramp_start_x1) / 2, 25.5))
 end
@@ -281,20 +281,25 @@ def upper_playfield(playfield)
   draw_wall(width - playfield.wall_thickness, playfield.floor_depth - depth, width, ramp_end_y - (2.0 + 1.0/16.0)/2, playfield.wall_height + gap + thickness, playfield.wall_height)
 
   ballPath = BezierSpline.new([
-    Geom::Point3d.new(ramp_end_x, ramp_end_y),
-    Geom::Point3d.new(playfield.floor_width - (8.0 + 13.0/16.0), playfield.floor_depth - (3.0 + 3.0/8.0)),
-    Geom::Point3d.new(playfield.floor_width - (7.0),             playfield.floor_depth - (4.0)),
-    Geom::Point3d.new(playfield.floor_width - (5.0 + 7.0/16.0),  playfield.floor_depth - (5.0 + 5.0/16.0)),
-    Geom::Point3d.new(playfield.floor_width - (4.0 + 5.0/16.0),  playfield.floor_depth - (6.0 + 7.0/8.0)),
-    Geom::Point3d.new(playfield.floor_width - (3.0 + 5.0/8.0),   playfield.floor_depth - (8.0 + 7.0/8.0)),
-    Geom::Point3d.new(playfield.floor_width - (3.0 + 3.0/4.0),   playfield.floor_depth - (10.0 + 13.0/16.0)),
-    Geom::Point3d.new(playfield.floor_width - (4.0 + 1.0/2.0),   playfield.floor_depth - (12.0 + 11.0/16.0)),
-    Geom::Point3d.new(playfield.floor_width - (5.0 + 1.0/2.0),   playfield.floor_depth - (14.0 + 1.0/2.0)),
+    Geom::Point3d.new(ramp_end_x, ramp_end_y, (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(playfield.floor_width - (8.0 + 13.0/16.0), playfield.floor_depth - (3.0 + 2.0/8.0),    (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(playfield.floor_width - (7.0),             playfield.floor_depth - (4.0),              (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(playfield.floor_width - (5.0 + 7.0/16.0),  playfield.floor_depth - (5.0 + 5.0/16.0),   (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(playfield.floor_width - (4.0 + 5.0/16.0),  playfield.floor_depth - (6.0 + 7.0/8.0),    (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(playfield.floor_width - (3.0 + 5.0/8.0),   playfield.floor_depth - (8.0 + 7.0/8.0),    (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(playfield.floor_width - (3.0 + 3.0/4.0),   playfield.floor_depth - (10.0 + 13.0/16.0), (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(playfield.floor_width - (4.0 + 1.0/2.0),   playfield.floor_depth - (12.0 + 11.0/16.0), (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(playfield.floor_width - (5.0 + 1.0/2.0),   playfield.floor_depth - (14.0 + 1.0/2.0),   (1.0 + 1.0/16.0)/2.0),
   ])
+  
+  9.times { ballPath = upgrade_spline(ballPath) }
   
   (0..ballPath.length).each do |t|
     Sketchup.active_model.active_entities.add_cpoint ballPath.f(t)
   end
+  
+  plasticTrough = PlasticTrough.new()
+  plasticTrough.trough(ballPath, 1.0 + 22.0/32.0)
   
 #  ramp_start_x0 = 20.25-(5.0 + 3.0/8.0)
 #  ramp_start_x1 = 20.25-(6.0 + 1.0/8.0)
@@ -415,17 +420,17 @@ def center_lenses(playfield)
   end
 end
 
-#left_flipper_constellation(playfield)
-#right_flipper_constellation(playfield)
-#upper_left(playfield)
-#left_kickout(playfield)
-#right_kickout(playfield)
+left_flipper_constellation(playfield)
+right_flipper_constellation(playfield)
+upper_left(playfield)
+left_kickout(playfield)
+right_kickout(playfield)
 left_drop_target_bank(playfield)
 right_drop_target_bank(playfield)
-#inline_drop_target_bank(playfield)
-#spinner_ramp(playfield)
-#upper_playfield(playfield)
-#top_curve(playfield)
+inline_drop_target_bank(playfield)
+spinner_ramp(playfield)
+upper_playfield(playfield)
+top_curve(playfield)
 center_lenses(playfield)
 
 puts Time.now.getutc - t0

@@ -129,10 +129,9 @@ class PlasticTrough
     edges = join_arcs(group, arcs)
   end
 
-  def trough spline, t0 = 0, t1 = nil
+  def trough spline, width0, width1 = nil, t0 = 0, t1 = nil
+    width1 = width0 if width1 == nil
     t1 = spline.length if t1 == nil
-    width0 = 2.0
-    width1 = 7.0/8.0
     
     m = (width1 - width0)/(t1 - t0)
     
