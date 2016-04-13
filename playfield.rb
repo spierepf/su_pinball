@@ -247,13 +247,14 @@ class Playfield
     draw_wall(@floor_width - @wall_thickness - @shooter_lane_width - @wall_thickness, @shooter_lane_start_depth, @floor_width - @wall_thickness - @shooter_lane_width, @shooter_lane_end_depth, 3.0)
   end
   
-  def hole_from_face(hole, face)
-    face.pushpull @floor_thickness
+  def hole_from_face(hole, face, depth = nil)
+    depth = @floor_thickness if depth == nil
+    face.pushpull depth
     @floor = hole.subtract @floor
   end
   
-  def hole_from_edges(hole, edges)
-    hole_from_face hole, hole.entities.add_face(edges)
+  def hole_from_edges(hole, edges, depth = nil)
+    hole_from_face hole, hole.entities.add_face(edges), depth
   end
   
   def draw_ball_trough()
@@ -302,7 +303,7 @@ class Playfield
     Sketchup.active_model.active_entities.add_instance(component, t)
   end
   
-  def circular_hole(t, r)
+  def circular_hole(t, r, depth = nil)
     hole = Sketchup.active_model.active_entities.add_group()
     entities = hole.entities
   
@@ -311,7 +312,7 @@ class Playfield
     normal = Geom::Vector3d.new 0,0,1
     edges = entities.add_circle t * centerpoint, normal, r
   
-    hole_from_edges hole, edges
+    hole_from_edges hole, edges, depth
   end
   
   def pilot_hole(t)
@@ -638,7 +639,8 @@ class Playfield
   end
   
   def round_insert t, diameter
-    circular_hole t, diameter / 2.0
+    circular_hole t, diameter / 2.0, 1.0/4.0
+    circular_hole t, diameter / 2.0 - 1.0/16.0
     component(t, "Insert 1-1`2 inch RND PL-112ROT") if diameter == 1.5
     component(t, "Insert_-_1_inch_RND_PL-1ROT") if diameter == 1.0
     component(t, "Insert_-_3`4_inch_RND_PL-34RAS") if diameter == 0.75
@@ -646,13 +648,15 @@ class Playfield
   
   def triangle_insert t
     zaxis = Geom::Vector3d.new(0.0, 0.0, 1.0)
-    hole = Sketchup.active_model.active_entities.add_group()
     vertices = []
     2.downto(0) do |i|
       t2 = t * rotate(i * 120)
       vertices.push(t2 * Geom::Point3d.new(0.0, 71.0/128.0, 0.0))
     end
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, 1.0/8.0)
+    hole = Sketchup.active_model.active_entities.add_group()
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, 1.0/8.0), 1.0/4.0
+    hole = Sketchup.active_model.active_entities.add_group()
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, 1.0/8.0 - 1.0/16.0)
     component(t, "Insert - 1-3`16 inch Tri PI-1316TOS")
   end
   
@@ -661,12 +665,14 @@ class Playfield
     height = 1.0 + 65.0/128.0
     corner_radius = 9.0/64.0
     
-    hole = Sketchup.active_model.active_entities.add_group()
     vertices = []
     vertices.push(t * Geom::Point3d.new(-(width/2.0 - corner_radius), corner_radius, 0.0))
     vertices.push(t * Geom::Point3d.new(0.0, height - corner_radius, 0.0))
     vertices.push(t * Geom::Point3d.new((width/2.0 - corner_radius), corner_radius, 0.0))
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius)
+    hole = Sketchup.active_model.active_entities.add_group()
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), 1.0/4.0
+    hole = Sketchup.active_model.active_entities.add_group()
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0)
     component(t, "Insert 1-1'2 inch Triangle PI-112TGT")
   end
   
@@ -675,12 +681,14 @@ class Playfield
     height = 2.0
     corner_radius = 12.0/64.0
     
-    hole = Sketchup.active_model.active_entities.add_group()
     vertices = []
     vertices.push(t * Geom::Point3d.new(-(width/2.0 - corner_radius), corner_radius, 0.0))
     vertices.push(t * Geom::Point3d.new(0.0, height - corner_radius, 0.0))
     vertices.push(t * Geom::Point3d.new((width/2.0 - corner_radius), corner_radius, 0.0))
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius)
+    hole = Sketchup.active_model.active_entities.add_group()
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), 1.0/4.0
+    hole = Sketchup.active_model.active_entities.add_group()
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0)
     component(t, "Insert 2 inch Arrow PI-T2RT")
   end
 
@@ -688,11 +696,13 @@ class Playfield
     width = 1.0 + 5.0/8.0
     height = 3.0/4.0
   
-    hole = Sketchup.active_model.active_entities.add_group()
     vertices = []
     vertices.push(t * Geom::Point3d.new(-(width - height)/2.0, 0.0, 0.0))
     vertices.push(t * Geom::Point3d.new((width - height)/2.0, 0.0, 0.0))
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, height / 2.0)
+    hole = Sketchup.active_model.active_entities.add_group()
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, height / 2.0), 1.0/4.0
+    hole = Sketchup.active_model.active_entities.add_group()
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, height / 2.0 - 1.0/16.0)
     insert = component(t, "Insert - 1-5`8 inch OVAL PI-11234--OGT")
   end
   
@@ -700,10 +710,10 @@ class Playfield
     width = 2.0 + 5.0/16.0
     height = 3.0/4.0
   
-    hole = Sketchup.active_model.active_entities.add_group()
     vertices = []
     vertices.push(t * Geom::Point3d.new(-(width - height)/2.0, 0.0, 0.0))
     vertices.push(t * Geom::Point3d.new((width - height)/2.0, 0.0, 0.0))
+    hole = Sketchup.active_model.active_entities.add_group()
     round_cornered_polygon(hole, vertices, height / 2.0)
     #hole_from_edges hole, round_cornered_polygon(hole, vertices, height / 2.0)
   end
