@@ -151,18 +151,17 @@ def inline_drop_target_bank(playfield)
   t = frame(20.25 - (7.0 + 13.0/16.0), 42.0 - (12.0 + 15.0/16.0)) * rotate(-13.0) * frame(0, 0.5)
   playfield.inline_drop_target_bank_2 t
   playfield.round_ended_hole(t * Geom::Transformation.translation(Geom::Point3d.new(0, 5.0 + 1.0/16.0, 0)) * rotate(90), 1.0 + 1.0/8.0, 0.5)
-  playfield.large_arrow_insert(frame(11.5, 24.75) * rotate(-13.0))
+  playfield.large_arrow_insert(t * frame(0.0, -4.5))
   playfield.post frame(20.25 - (6.0 + 5.0/8.0),  42.0 - (13.0 + 5.0/8.0))
-    
-  rightside = 20 + 1/4.0
-  topside = 42.0
+
   playfield.wire_guide(BezierSpline.new([
-    Geom::Point3d.new(rightside-5.5,topside-(7.0+15/16.0),0.0),
-    Geom::Point3d.new(rightside-(6+3/4.0),topside-(13+3/16.0),0.0)
+    t * Geom::Point3d.new(-18.0/16.0, -1.0, 0.0),
+    t * Geom::Point3d.new(-18.0/16.0,  5.0, 0.0)
   ]))
+  
   playfield.wire_guide(BezierSpline.new([
-    Geom::Point3d.new(rightside-(8+7/8.0),topside-(13+3/8.0),0.0),
-    Geom::Point3d.new(rightside-(7+7/16.0),topside-(7.0+5/8.0),0.0)
+    t * Geom::Point3d.new(18.0/16.0, -0.5, 0.0),
+    t * Geom::Point3d.new(18.0/16.0,  5.0, 0.0)
   ]))
 end
 
