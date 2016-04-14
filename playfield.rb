@@ -734,4 +734,11 @@ class Playfield
     round_cornered_polygon(hole, vertices, height / 2.0)
     #hole_from_edges hole, round_cornered_polygon(hole, vertices, height / 2.0)
   end
+  
+  def fixed_target t
+    round_ended_hole(t * rotate(90), 1.0 + 1.0/8.0, 0.5)
+    component(t * frame(0.0, -4.0/16.0, -@floor_thickness) * rotate(180), "Target 004 Assy")
+    pilot_hole(t * frame(-3.0/16.0, -9.0/16.0))
+    pilot_hole(t * frame(+3.0/16.0, -9.0/16.0))
+  end
 end

@@ -167,7 +167,7 @@ end
 def inline_drop_target_bank(playfield)
   t = frame(20.25 - (7.0 + 13.0/16.0), 42.0 - (12.0 + 15.0/16.0)) * rotate(-13.0) * frame(0, 0.5)
   playfield.inline_drop_target_bank_2 t
-  playfield.round_ended_hole(t * Geom::Transformation.translation(Geom::Point3d.new(0, 5.0 + 1.0/16.0, 0)) * rotate(90), 1.0 + 1.0/8.0, 0.5)
+  playfield.fixed_target(t * frame(0, 5.0 + 1.0/16.0))
   playfield.large_arrow_insert(t * frame(0.0, -4.5))
   playfield.post frame(20.25 - (6.0 + 5.0/8.0),  42.0 - (13.0 + 5.0/8.0)), :inline_drop_target_bank
   playfield.rubber([:inline_drop_target_bank])
