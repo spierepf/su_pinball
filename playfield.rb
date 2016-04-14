@@ -204,6 +204,7 @@ class Playfield
     @shooter_lane_width = 1.375
     @shooter_lane_start_depth = 7.5
     @shooter_lane_end_depth = 16.125
+    @posts = Hash.new
   end
 
   def draw_floor
@@ -372,11 +373,13 @@ class Playfield
     end
   end
   
-  def post t
+  def post t, name=nil
     pilot_hole(t)
     component(t, "Star_Post_1-1'16_-03-8319-13")
     component(t * Geom::Transformation.translation(Geom::Point3d.new(0, 0, 1.0 + 1.0/16.0)), "Threaded Post Screw 0001")
-    Post.new(t)
+    p = Post.new(t)
+    @posts[name] = p if name != nil
+#    puts name.to_s if name != nil 
   end
   
   def mini_post_6_32 t
@@ -412,29 +415,45 @@ class Playfield
     join_arcs(group, arcs)
   end
   
-  def rubber(posts)
-    rubber = Sketchup.active_model.active_entities.add_group()
-    arcs = []
-    posts.each_with_index do |post, i|
-      v0 = posts[i - 1].position - post.position
-      theta0 = Math::atan2(v0.y, v0.x)
-      v1 = posts[(i + 1) % posts.length].position - post.position
-      theta1 = Math::atan2(v1.y, v1.x)
-  
-      theta0 += 270.degrees
-      theta1 += 90.degrees
-      theta0 += 360.degrees if theta0 < 0 and posts.length > 2
-      theta1 += 360.degrees if theta1 < 0 and posts.length > 2
-
-      centerpoint = post.position + Geom::Vector3d.new(0,0,43.0/64.0)
-      arcs.push(rubber.entities.add_arc(centerpoint, Geom::Vector3d.new(1,0,0), Geom::Vector3d.new(0,0,1), 5.0/16.0, theta0, theta1))
+  def rubber(post_symbols)
+    posts = []
+    post_symbols.each do |s|
+      posts.push @posts[s] if @posts[s] != nil
     end
-    wireize(rubber, join_arcs(rubber, arcs), 3.0/32.0)
+    return if posts == []
+
+    rubber = Sketchup.active_model.active_entities.add_group()
+    if posts.length == 1 then
+      centerpoint = posts[0].position + Geom::Vector3d.new(0,0,43.0/64.0)
+      perimeter = rubber.entities.add_circle(centerpoint, Geom::Vector3d.new(0,0,1), 5.0/16.0)
+    else
+      arcs = []
+      posts.each_with_index do |post, i|
+        v0 = posts[i - 1].position - post.position
+        theta0 = Math::atan2(v0.y, v0.x)
+        v1 = posts[(i + 1) % posts.length].position - post.position
+        theta1 = Math::atan2(v1.y, v1.x)
+    
+        theta0 += 270.degrees
+        theta1 += 90.degrees
+        theta0 += 360.degrees if theta0 < 0 and posts.length > 2
+        theta1 += 360.degrees if theta1 < 0 and posts.length > 2
+  
+        centerpoint = post.position + Geom::Vector3d.new(0,0,43.0/64.0)
+        arcs.push(rubber.entities.add_arc(centerpoint, Geom::Vector3d.new(1,0,0), Geom::Vector3d.new(0,0,1), 5.0/16.0, theta0, theta1))
+      end
+      perimeter = join_arcs(rubber, arcs)
+    end
+    wireize(rubber, perimeter, 3.0/32.0)
   end
   
-  def rubber_with_switch(post1, post2)
-    rubber([post1, post2])
+  def rubber_with_switch(post_symbol1, post_symbol2)
+    rubber([post_symbol1, post_symbol2])
 
+    post1 = @posts[post_symbol1]
+    post2 = @posts[post_symbol2]
+    return if post1 == nil or post2 == nil
+    
     width = (post1.position - post2.position).length
     center = Geom::Point3d.new((post1.position.x + post2.position.x) / 2.0, (post1.position.y + post2.position.y) / 2.0, (post1.position.z + post2.position.z) / 2.0)
     xaxis = (post1.position - post2.position).normalize!
@@ -458,15 +477,13 @@ class Playfield
       m = Geom::Transformation.scaling(-1, 1, 1)
     end
     
-    posts = []
-    posts.push(post(t * m * frame(-(0.0 + 25.0/32.0), 3.0 + 5.0/16.0)))
-    posts.push(post(t * m * frame(-(2.0 + 3.0/32.0),  4.0 + 7.0/32.0)))
-    posts.push(post(t * m * frame(-(2.0 + 3.0/16.0),  5.0 + 1.0/4.0)))
-    posts.push(post(t * m * frame(-(2.0 + 1.0/64.0),  6.0 + 29.0/32.0)))
+    post(t * m * frame(-(0.0 + 25.0/32.0), 3.0 + 5.0/16.0),  ("flipper_slingshot_"+side.to_s+"_a").to_sym)
+    post(t * m * frame(-(2.0 + 3.0/32.0),  4.0 + 7.0/32.0),  ("flipper_slingshot_"+side.to_s+"_b").to_sym)
+    post(t * m * frame(-(2.0 + 3.0/16.0),  5.0 + 1.0/4.0),   ("flipper_slingshot_"+side.to_s+"_c").to_sym)
+    post(t * m * frame(-(2.0 + 1.0/64.0),  6.0 + 29.0/32.0), ("flipper_slingshot_"+side.to_s+"_d").to_sym)
     
-    posts.reverse! if side == :right
-      
-    rubber(posts)
+    rubber([:flipper_slingshot_left_a, :flipper_slingshot_left_b, :flipper_slingshot_left_c, :flipper_slingshot_left_d]) if side == :left
+    rubber([:flipper_slingshot_right_d, :flipper_slingshot_right_c, :flipper_slingshot_right_b, :flipper_slingshot_right_a]) if side == :right
     
     slingshot t * m * frame(-(1.0 + 13.0/32.0), 5.0 + 1.0/8.0) * rotate(111.2) * m
   end
@@ -480,26 +497,26 @@ class Playfield
     round_insert(t * frame(0.0, 2.0), 3.0/4.0) if(insert)
   end
   
-  def lane_guide(t)
-    post t * frame(0, 0.625)
-    post t * frame(0, -0.625)
+  def lane_guide(t, post_symbol_prefix)
+    post t * frame(0, 0.625), (post_symbol_prefix.to_s + "_a").to_sym
+    post t * frame(0, -0.625), (post_symbol_prefix.to_s + "_b").to_sym
     component t, "Lane_Guide_03-8318-25"
     lamp_hole t
   end
   
-  def rake(start, stop, count)
+  def rake(start, stop, count, post_symbol_prefix)
     d = stop - start
     d.x = d.x / (2.0 * count)
     d.y = d.y / (2.0 * count)
     d.z = d.z / (2.0 * count)
     
     p = Geom::Transformation.translation(start)
-    lane_guide p
-    (1..count).each do
+    lane_guide p, (post_symbol_prefix.to_s + "_lane_guide_0").to_sym
+    (1..count).each do |i|
       p = p * Geom::Transformation.translation(d)
       rollover_switch p
       p = p * Geom::Transformation.translation(d)
-      lane_guide p
+      lane_guide p, (post_symbol_prefix.to_s + "_lane_guide_" + i.to_s).to_sym
     end
   end
   

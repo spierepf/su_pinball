@@ -43,7 +43,9 @@ def left_flipper_constellation(playfield)
   playfield.rollover_switch left_flipper_frame * frame(-(3.0 + 9.0/64.0), 5.0 + 5.0/32.0)
   playfield.rollover_switch left_flipper_frame * frame(-(4.0 + 38.0/64.0), 5.0 + 5.0/32.0)
   playfield.flipper_slingshot left_flipper_frame, :left
-  playfield.rubber([playfield.post(frame(1.5, 42.0 - (23.0 + 7.0/16.0))), playfield.post(frame(1.0 + 1.0/8.0, 42.0 - (26.25)))])
+  playfield.post(frame(1.5, 42.0 - (23.0 + 7.0/16.0)), :left_flipper_constellation_a)
+  playfield.post(frame(1.0 + 1.0/8.0, 42.0 - (26.25)), :left_flipper_constellation_b)
+  playfield.rubber([:left_flipper_constellation_a, :left_flipper_constellation_b])
 end
 
 
@@ -55,7 +57,9 @@ def right_flipper_constellation(playfield)
   playfield.rollover_switch right_flipper_frame * frame((3.0 + 9.0/64.0), 5.0 + 5.0/32.0)
   playfield.rollover_switch right_flipper_frame * frame((4.0 + 38.0/64.0), 5.0 + 5.0/32.0)
   playfield.flipper_slingshot right_flipper_frame, :right
-  playfield.rubber([playfield.post(frame(20.25 - (3.0 + 7.0/16.0), 42.0 - (23.0 + 5.0/16.0))), playfield.post(frame(20.25 - (2.0 + 5.0/8.0), 42.0 - (24.0 + 13.0/16.0)))])
+  playfield.post(frame(20.25 - (3.0 + 7.0/16.0), 42.0 - (23.0 + 5.0/16.0)), :right_flipper_constellation_a)
+  playfield.post(frame(20.25 - (2.0 + 5.0/8.0), 42.0 - (24.0 + 13.0/16.0)), :right_flipper_constellation_b)
+  playfield.rubber([:right_flipper_constellation_a, :right_flipper_constellation_b])
 end
 
 def drain_insert(playfield)
@@ -64,20 +68,33 @@ end
 
 def upper_left(playfield)
   y = (42.0 - 5.0 - 5.0/16.0)
-  playfield.rake Geom::Point3d.new(2.25, y, 0.0), Geom::Point3d.new(8.5, y, 0.0), 3
+  playfield.rake Geom::Point3d.new(2.25, y, 0.0), Geom::Point3d.new(8.5, y, 0.0), 3, :upper_left_rake
   
   # pop bumpers
   playfield.pop_bumper frame(2.0 + 1.0/2.0, 42.0 - 9.0)
   playfield.pop_bumper frame(7.0,           42.0 - 9.0)
   playfield.pop_bumper frame(4.0 + 3.0/8.0, 42.0 - 12.5)
 
-  playfield.post frame(1.5,             42.0 - (3.0 + 7.0/16.0))
-  playfield.post frame(2.0 + 1.0/16.0,  42.0 - (7.0 + 3.0/16.0))
-  playfield.post frame(9.0 + 5.0/16.0,  42.0 - (4.0 + 3.0/16.0))
-  playfield.post frame(8.0,             42.0 - (7.0))
-  playfield.post frame(7.0 + 13.0/16.0, 42.0 - (10.0 + 5.0/8.0))
-  playfield.rubber_with_switch(playfield.post(frame(1.0 + 3.0/16.0, 42.0 - (10.0 + 9.0/16.0))), playfield.post(frame(15.0/16.0, 42.0 - (13.0 + 7.0/16.0))))
-  playfield.rubber_with_switch(playfield.post(frame(1.0 + 5.0/16.0,  42.0 - (14.25))), playfield.post(frame(4.0 + 3.0/8.0,   42.0 - (16.75))))
+  playfield.post frame(1.5,             42.0 - (3.0 + 7.0/16.0)),  :upper_left_a
+  playfield.post frame(2.0 + 1.0/16.0,  42.0 - (7.0 + 3.0/16.0)),  :upper_left_b
+  playfield.post frame(9.0 + 5.0/16.0,  42.0 - (4.0 + 3.0/16.0)),  :upper_left_c
+  playfield.post frame(8.0,             42.0 - (7.0))           ,  :upper_left_d
+  playfield.post frame(7.0 + 13.0/16.0, 42.0 - (10.0 + 5.0/8.0)),  :upper_left_e
+  playfield.post frame(1.0 + 3.0/16.0,  42.0 - (10.0 + 9.0/16.0)), :upper_left_f
+  playfield.post frame(15.0/16.0,       42.0 - (13.0 + 7.0/16.0)), :upper_left_g
+  playfield.post frame(1.0 + 5.0/16.0,  42.0 - (14.25)),           :upper_left_h
+  playfield.post frame(4.0 + 3.0/8.0,   42.0 - (16.75)),           :upper_left_i
+
+  playfield.rubber([:upper_left_rake_lane_guide_0_a, :upper_left_a])
+  playfield.rubber([:upper_left_rake_lane_guide_0_b, :upper_left_b])
+  playfield.rubber([:upper_left_rake_lane_guide_1_a])
+  playfield.rubber([:upper_left_rake_lane_guide_1_b])
+  playfield.rubber([:upper_left_rake_lane_guide_2_a])
+  playfield.rubber([:upper_left_rake_lane_guide_2_b])
+  playfield.rubber([:upper_left_rake_lane_guide_3_a, :upper_left_c])
+  playfield.rubber([:upper_left_rake_lane_guide_3_b, :upper_left_d])
+  playfield.rubber_with_switch(:upper_left_f, :upper_left_g)
+  playfield.rubber_with_switch(:upper_left_h, :upper_left_i)
 end
 
 def left_kickout(playfield)
@@ -152,8 +169,8 @@ def inline_drop_target_bank(playfield)
   playfield.inline_drop_target_bank_2 t
   playfield.round_ended_hole(t * Geom::Transformation.translation(Geom::Point3d.new(0, 5.0 + 1.0/16.0, 0)) * rotate(90), 1.0 + 1.0/8.0, 0.5)
   playfield.large_arrow_insert(t * frame(0.0, -4.5))
-  playfield.post frame(20.25 - (6.0 + 5.0/8.0),  42.0 - (13.0 + 5.0/8.0))
-
+  playfield.post frame(20.25 - (6.0 + 5.0/8.0),  42.0 - (13.0 + 5.0/8.0)), :inline_drop_target_bank
+  playfield.rubber([:inline_drop_target_bank])
   playfield.wire_guide(BezierSpline.new([
     t * Geom::Point3d.new(-18.0/16.0, -1.0, 0.0),
     t * Geom::Point3d.new(-18.0/16.0,  5.0, 0.0)
@@ -166,14 +183,16 @@ def inline_drop_target_bank(playfield)
 end
 
 def spinner_ramp(playfield)
-  ramp_start_x0 = 20.25 -  (9.0 + 1.0/4.0)
-  ramp_start_x1 = 20.25 - (12.0 + 3.0/8.0)
+  ramp_start_x0 = 20.25 - (12.0 + 3.0/8.0)
+  ramp_start_x1 = 20.25 -  (9.0 + 1.0/4.0)
   ramp_start_y = 42.0-(13.0 + 9.0/16.0)
-  playfield.post frame(ramp_start_x0, ramp_start_y)
-  playfield.post frame(ramp_start_x1, ramp_start_y)
+  playfield.post frame(ramp_start_x0, ramp_start_y), :spinner_ramp_left
+  playfield.post frame(ramp_start_x1, ramp_start_y), :spinner_ramp_right
+  playfield.rubber_with_switch(:upper_left_e, :spinner_ramp_left)
+  playfield.rubber([:spinner_ramp_right])
   
-  playfield.circular_hole(frame(ramp_start_x1 + 0.5, ramp_start_y), 1.0/8.0)
-  playfield.mini_post_6_32(frame(ramp_start_x1 + 0.5, ramp_start_y - 5.0/8.0))
+  playfield.circular_hole(frame(ramp_start_x0 + 0.5, ramp_start_y), 1.0/8.0)
+  playfield.mini_post_6_32(frame(ramp_start_x0 + 0.5, ramp_start_y - 5.0/8.0))
   
   wireformTrough = WireFormTrough.new()
   plasticTrough = PlasticTrough.new()
@@ -422,11 +441,10 @@ def draw_ball
 end
 
 draw_ball
-
+playfield.component(frame(), 'plastics')
 Sketchup.send_action("viewTop:")
 Sketchup.send_action("viewZoomExtents:")
 
 # flipper back guards (3-1/8 long)
 # flexible pilot hole code
 # GI lighting
-# adding rubbers to single posts
