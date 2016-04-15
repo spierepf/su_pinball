@@ -37,12 +37,15 @@ end
 
 def left_flipper_constellation(playfield)
   left_flipper_frame = frame(left_flipper_frame_x, 6 + 45.0/64.0) 
-  playfield.flipper_mechanics left_flipper_frame
-  playfield.flipper_bat left_flipper_frame
-  playfield.inlane_guide left_flipper_frame
-  playfield.rollover_switch left_flipper_frame * frame(-(3.0 + 9.0/64.0), 5.0 + 5.0/32.0)
-  playfield.rollover_switch left_flipper_frame * frame(-(4.0 + 38.0/64.0), 5.0 + 5.0/32.0)
-  playfield.flipper_slingshot left_flipper_frame, :left
+  playfield.flipper_mechanics      left_flipper_frame
+  playfield.flipper_bat            left_flipper_frame
+  playfield.flipper_index_pin_hole left_flipper_frame
+  playfield.flipper_biff_bar       left_flipper_frame
+  playfield.inlane_guide           left_flipper_frame
+  playfield.rollover_switch        left_flipper_frame * frame(-(3.0 + 9.0/64.0), 5.0 + 5.0/32.0)
+  playfield.rollover_switch        left_flipper_frame * frame(-(4.0 + 38.0/64.0), 5.0 + 5.0/32.0)
+  playfield.flipper_slingshot      left_flipper_frame, :left
+  
   playfield.post(frame(1.5, 42.0 - (23.0 + 7.0/16.0)), :left_flipper_constellation_a)
   playfield.post(frame(1.0 + 1.0/8.0, 42.0 - (26.25)), :left_flipper_constellation_b)
   playfield.rubber([:left_flipper_constellation_a, :left_flipper_constellation_b])
@@ -51,12 +54,15 @@ end
 
 def right_flipper_constellation(playfield)
   right_flipper_frame = frame(12.0 + 31.0/64.0, 6 + 45.0/64.0)
-  playfield.flipper_mechanics right_flipper_frame * Geom::Transformation.scaling(-1, 1, 1) * rotate(90)
-  playfield.flipper_bat right_flipper_frame * Geom::Transformation.scaling(-1, 1, 1)
-  playfield.inlane_guide right_flipper_frame * Geom::Transformation.scaling(-1, 1, 1)
-  playfield.rollover_switch right_flipper_frame * frame((3.0 + 9.0/64.0), 5.0 + 5.0/32.0)
-  playfield.rollover_switch right_flipper_frame * frame((4.0 + 38.0/64.0), 5.0 + 5.0/32.0)
-  playfield.flipper_slingshot right_flipper_frame, :right
+  playfield.flipper_mechanics      right_flipper_frame * Geom::Transformation.scaling(-1, 1, 1) * rotate(90)
+  playfield.flipper_bat            right_flipper_frame * Geom::Transformation.scaling(-1, 1, 1)
+  playfield.flipper_index_pin_hole right_flipper_frame * Geom::Transformation.scaling(-1, 1, 1)
+  playfield.flipper_biff_bar       right_flipper_frame * Geom::Transformation.scaling(-1, 1, 1)
+  playfield.inlane_guide           right_flipper_frame * Geom::Transformation.scaling(-1, 1, 1)
+  playfield.rollover_switch        right_flipper_frame * frame((3.0 + 9.0/64.0), 5.0 + 5.0/32.0)
+  playfield.rollover_switch        right_flipper_frame * frame((4.0 + 38.0/64.0), 5.0 + 5.0/32.0)
+  playfield.flipper_slingshot      right_flipper_frame, :right
+  
   playfield.post(frame(20.25 - (3.0 + 7.0/16.0), 42.0 - (23.0 + 5.0/16.0)), :right_flipper_constellation_a)
   playfield.post(frame(20.25 - (2.0 + 5.0/8.0), 42.0 - (24.0 + 13.0/16.0)), :right_flipper_constellation_b)
   playfield.rubber([:right_flipper_constellation_a, :right_flipper_constellation_b])
@@ -215,9 +221,9 @@ def spinner_ramp(playfield)
     Geom::Point3d.new(16.0, 13.6, 2.0)
   ])
   
-  (0..ballPath.length).each do |t|
-    Sketchup.active_model.active_entities.add_cpoint ballPath.f(t)
-  end
+#  (0..ballPath.length).each do |t|
+#    Sketchup.active_model.active_entities.add_cpoint ballPath.f(t)
+#  end
   
   (3..5).each do |t|
     wireformTrough.rib(ballPath, t, -60.degrees)
@@ -313,9 +319,9 @@ def upper_playfield(playfield)
   
   9.times { ballPath = upgrade_spline(ballPath) }
   
-  (0..ballPath.length).each do |t|
-    Sketchup.active_model.active_entities.add_cpoint ballPath.f(t)
-  end
+#  (0..ballPath.length).each do |t|
+#    Sketchup.active_model.active_entities.add_cpoint ballPath.f(t)
+#  end
   
   pathDiameter = 1.0 + 22.0/32.0
   
@@ -445,6 +451,5 @@ playfield.component(frame(), 'plastics')
 Sketchup.send_action("viewTop:")
 Sketchup.send_action("viewZoomExtents:")
 
-# flipper back guards (3-1/8 long)
 # flexible pilot hole code
 # GI lighting

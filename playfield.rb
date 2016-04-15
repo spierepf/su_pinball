@@ -362,6 +362,18 @@ class Playfield
     circular_hole(t, 0.25)
     component(t * rotate(-35.0), "flipper")
   end
+  
+  def flipper_index_pin_hole t
+    circular_hole(t * rotate(-35.0) * frame(2.0 + 3.0/32.0), 1.0/32.0)
+  end
+  
+  def flipper_biff_bar t
+    wire_guide(BezierSpline.new([
+      t * frame(0, -7.0/8.0, 3.0/64.0) * Geom::Point3d.new,
+      t * frame(0, -7.0/8.0, 3.0/64.0) * rotate(-35.0) * frame(3.0 + 1.0/8.0) * Geom::Point3d.new
+    ]))
+    
+  end
     
   def inlane_guide t
     t2 = t * rotate(325)
