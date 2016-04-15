@@ -651,8 +651,11 @@ class Playfield
       points.push spline.f(i)
     end
     
+    points.push Geom::Point3d.new(points.last.x, points.last.y, 0.0)
+    points.unshift Geom::Point3d.new(points.first.x, points.first.y, 0.0)
+    
     edges = group.entities.add_curve points
-    sheetmetalize(group, edges, 1.0+1.0/8.0, 1.0/16.0)
+    wireize(group, edges, 3.0/64.0)
   end
   
   def round_insert t, diameter

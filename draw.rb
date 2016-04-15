@@ -13,14 +13,14 @@ playfield.draw_ball_trough
 playfield.draw_handhold_notches
 playfield.draw_shooter_lane
 
-playfield.sheet_guide(BezierSpline.new([
-  Geom::Point3d.new(playfield.floor_width-(1+13/16.0), playfield.floor_depth-(25.5),0.0),
-  Geom::Point3d.new(playfield.floor_width-(1+13/16.0),playfield.floor_depth-(19+15/16.0),0.0)
+playfield.wire_guide(BezierSpline.new([
+  Geom::Point3d.new(playfield.floor_width-playfield.wall_thickness()-playfield.shooter_lane_width() - 3.0/64.0, playfield.floor_depth-(25.5),       (1.0 + 1.0/16.0)/2.0),
+  Geom::Point3d.new(playfield.floor_width-playfield.wall_thickness()-playfield.shooter_lane_width() - 3.0/64.0, playfield.floor_depth-(19+15/16.0), (1.0 + 1.0/16.0)/2.0)
 ]))
   
-playfield.sheet_guide(BezierSpline.new([
-  Geom::Point3d.new(playfield.floor_width-(1+13/16.0), playfield.floor_depth-(16+7/8.0),0.0),
-  Geom::Point3d.new(playfield.floor_width-(1+13/16.0),playfield.floor_depth-(7+5/8.0),0.0)
+playfield.wire_guide(BezierSpline.new([
+  Geom::Point3d.new(playfield.floor_width-playfield.wall_thickness()-playfield.shooter_lane_width() - 3.0/64.0, playfield.floor_depth-(16+7/8.0), (1.0 + 1.0/16.0)/2.0),
+  Geom::Point3d.new(playfield.floor_width-playfield.wall_thickness()-playfield.shooter_lane_width() - 3.0/64.0, playfield.floor_depth-(7+5/8.0),  (1.0 + 1.0/16.0)/2.0)
 ]))
 
 def left_flipper_frame_x
@@ -107,9 +107,9 @@ def left_kickout(playfield)
     Geom::Point3d.new(1.0+5.0/8.0,     42.0-(22.0 + 7.0/8.0),  0)
   ]))
   playfield.wire_guide(BezierSpline.new([
-    Geom::Point3d.new(3.0 + 3.0/16.0,  42.0-(17.0 + 3.0/8.0), 0),
-    Geom::Point3d.new(2.0 + 11.0/16.0, 42.0-(19.0 + 9.0/32.0), 0),
-    Geom::Point3d.new(3.0 + 1.0/8.0,   42.0-(21.0 + 3.0/16.0), 0)
+    Geom::Point3d.new(3.0 + 3.0/16.0,  42.0-(17.0 + 3.0/8.0),  (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(2.0 + 11.0/16.0, 42.0-(19.0 + 9.0/32.0), (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(3.0 + 1.0/8.0,   42.0-(21.0 + 3.0/16.0), (1.0 + 1.0/16.0)/2.0)
   ]))
   playfield.large_arrow_insert(frame(3.75, 17.5) * rotate(30.0))
 end
@@ -124,9 +124,9 @@ def right_kickout(playfield)
     Geom::Point3d.new(20.25-(3.0 + 9.0/16.0), 42.0-(22.0 + 13.0/16.0), 0)
   ]))
   playfield.wire_guide(BezierSpline.new([
-    Geom::Point3d.new(20.25-(3.0 + 11.0/16.0), 42.0-(15.0 + 11.0/16.0), 0),
-    Geom::Point3d.new(20.25-(3.0 + 4.0/16.0),  42.0-(17.0 + 5.0/8.0),   0),
-    Geom::Point3d.new(20.25-(3.0 + 11.0/16.0), 42.0-(19.0 + 9.0/16.0),  0)
+    Geom::Point3d.new(20.25-(3.0 + 11.0/16.0), 42.0-(15.0 + 11.0/16.0), (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(20.25-(3.0 + 4.0/16.0),  42.0-(17.0 + 5.0/8.0),   (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(20.25-(3.0 + 11.0/16.0), 42.0-(19.0 + 9.0/16.0),  (1.0 + 1.0/16.0)/2.0)
   ]))
   playfield.large_arrow_insert(frame(14.75, 17.5) * rotate(330.0))
 end
@@ -172,13 +172,13 @@ def inline_drop_target_bank(playfield)
   playfield.post frame(20.25 - (6.0 + 5.0/8.0),  42.0 - (13.0 + 5.0/8.0)), :inline_drop_target_bank
   playfield.rubber([:inline_drop_target_bank])
   playfield.wire_guide(BezierSpline.new([
-    t * Geom::Point3d.new(-18.0/16.0, -1.0, 0.0),
-    t * Geom::Point3d.new(-18.0/16.0,  5.0, 0.0)
+    t * Geom::Point3d.new(-18.0/16.0, -1.0, (1.0 + 1.0/16.0)/2.0),
+    t * Geom::Point3d.new(-18.0/16.0,  5.0, (1.0 + 1.0/16.0)/2.0)
   ]))
   
   playfield.wire_guide(BezierSpline.new([
-    t * Geom::Point3d.new(18.0/16.0, -0.5, 0.0),
-    t * Geom::Point3d.new(18.0/16.0,  5.0, 0.0)
+    t * Geom::Point3d.new(18.0/16.0, -0.5, (1.0 + 1.0/16.0)/2.0),
+    t * Geom::Point3d.new(18.0/16.0,  5.0, (1.0 + 1.0/16.0)/2.0)
   ]))
 end
 
@@ -327,7 +327,7 @@ def upper_playfield(playfield)
   
   wirePath = []
   (8..ballPath.length).each do |i|
-    wirePath.push ballPath.frame(i) * Geom::Point3d.new(-pathDiameter/2.0, 0, 0)
+    wirePath.push ballPath.frame(i) * Geom::Point3d.new(-pathDiameter/2.0, 0, (1.0 + 1.0/16.0)/2.0)
   end
   playfield.wire_guide(BezierSpline.new(wirePath))
   
@@ -356,11 +356,11 @@ def top_curve(playfield)
   
   # top right inner curve
   playfield.wire_guide(BezierSpline.new([
-    Geom::Point3d.new(20.25-(1.0 + 15.0/16.0), 42.0-(7.0 + 3.0/16.0),  0),
-    Geom::Point3d.new(20.25-(2.0 + 13.0/16.0), 42.0-(4.0 + 2.0/16.0), 0),
-    Geom::Point3d.new(20.25-(5.0 + 3.0/8.0),   42.0-(2.0 + 2.0/8.0),   0),
-    Geom::Point3d.new(20.25-(8.0 + 15.0/16.0), 42.0-(2.0 + 5.0/16.0),  0),
-    Geom::Point3d.new(20.25-(10.0 + 9.0/16.0), 42.0-(3.0 + 17.0/32.0), 0),
+    Geom::Point3d.new(20.25-(1.0 + 15.0/16.0), 42.0-(7.0 + 3.0/16.0),  (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(20.25-(2.0 + 13.0/16.0), 42.0-(4.0 + 2.0/16.0),  (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(20.25-(5.0 + 3.0/8.0),   42.0-(2.0 + 2.0/8.0),   (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(20.25-(8.0 + 15.0/16.0), 42.0-(2.0 + 5.0/16.0),  (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(20.25-(10.0 + 9.0/16.0), 42.0-(3.0 + 17.0/32.0), (1.0 + 1.0/16.0)/2.0),
   ]))
   
   # top curve
