@@ -327,13 +327,13 @@ def upper_playfield(playfield)
   
   sheetPath = []
   (8..ballPath.length).each do |i|
-    sheetPath.push ballPath.frame(i) * Geom::Point3d.new(pathDiameter/2.0, 0, 0)
+    sheetPath.push ballPath.frame(i) * Geom::Point3d.new((3.0/16.0 + pathDiameter/2.0), 0, 0)
   end
   playfield.sheet_guide(BezierSpline.new(sheetPath))
   
   wirePath = []
   (8..ballPath.length).each do |i|
-    wirePath.push ballPath.frame(i) * Geom::Point3d.new(-pathDiameter/2.0, 0, (1.0 + 1.0/16.0)/2.0)
+    wirePath.push ballPath.frame(i) * Geom::Point3d.new(-(3.0/16.0 + pathDiameter/2.0), 0, (1.0 + 1.0/16.0)/2.0)
   end
   playfield.wire_guide(BezierSpline.new(wirePath))
   
