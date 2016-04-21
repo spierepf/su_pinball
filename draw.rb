@@ -175,7 +175,7 @@ def inline_drop_target_bank(playfield)
   playfield.inline_drop_target_bank_2 t
   playfield.fixed_target(t * frame(0, 5.0 + 1.0/16.0))
   playfield.large_arrow_insert(t * frame(0.0, -4.5))
-  playfield.post frame(20.25 - (6.0 + 5.0/8.0),  42.0 - (13.0 + 5.0/8.0)), :inline_drop_target_bank
+  playfield.post frame(20.25 - (6.0 + 35.0/64.0),  42.0 - (13.0 + 5.0/8.0)), :inline_drop_target_bank
   playfield.rubber([:inline_drop_target_bank])
   playfield.wire_guide(BezierSpline.new([
     t * Geom::Point3d.new(-18.0/16.0, -1.0, (1.0 + 1.0/16.0)/2.0),
@@ -183,7 +183,7 @@ def inline_drop_target_bank(playfield)
   ]))
   
   playfield.wire_guide(BezierSpline.new([
-    t * Geom::Point3d.new(18.0/16.0, -0.5, (1.0 + 1.0/16.0)/2.0),
+    t * Geom::Point3d.new(18.0/16.0, -9.0/16.0, (1.0 + 1.0/16.0)/2.0),
     t * Geom::Point3d.new(18.0/16.0,  5.0, (1.0 + 1.0/16.0)/2.0)
   ]))
 end
@@ -324,18 +324,10 @@ def upper_playfield(playfield)
 #  end
   
   pathDiameter = 1.0 + 22.0/32.0
-  
-  sheetPath = []
-  (8..ballPath.length).each do |i|
-    sheetPath.push ballPath.frame(i) * Geom::Point3d.new((3.0/16.0 + pathDiameter/2.0), 0, 0)
-  end
-  playfield.sheet_guide(BezierSpline.new(sheetPath))
-  
-  wirePath = []
-  (8..ballPath.length).each do |i|
-    wirePath.push ballPath.frame(i) * Geom::Point3d.new(-(3.0/16.0 + pathDiameter/2.0), 0, (1.0 + 1.0/16.0)/2.0)
-  end
-  playfield.wire_guide(BezierSpline.new(wirePath))
+
+  playfield.large_arrow_insert(ballPath.frame(ballPath.length()-1) * frame(0, -1))
+  playfield.large_arrow_insert(ballPath.frame(ballPath.length()-4) * frame(0, -1))
+  playfield.large_arrow_insert(ballPath.frame(ballPath.length()-7) * frame(0, -1))
   
   troughPath = []
   (0..8).each do |i|
@@ -343,11 +335,19 @@ def upper_playfield(playfield)
   end
   PlasticTrough.new().trough(BezierSpline.new(troughPath), pathDiameter)
 
+  ballPath.length.times { ballPath = upgrade_spline(ballPath) }
   
-  playfield.large_arrow_insert(ballPath.frame(ballPath.length()-1) * frame(0, -1))
-  playfield.large_arrow_insert(ballPath.frame(ballPath.length()-4) * frame(0, -1))
-  playfield.large_arrow_insert(ballPath.frame(ballPath.length()-7) * frame(0, -1))
-
+  sheetPath = []
+  (16..ballPath.length).each do |i|
+    sheetPath.push ballPath.frame(i) * Geom::Point3d.new((3.0/16.0 + pathDiameter/2.0), 0, 0)
+  end
+  playfield.sheet_guide(BezierSpline.new(sheetPath))
+  
+  wirePath = []
+  (16..ballPath.length-1).each do |i|
+    wirePath.push ballPath.frame(i) * Geom::Point3d.new(-(3.0/16.0 + pathDiameter/2.0), 0, (1.0 + 1.0/16.0)/2.0)
+  end
+  playfield.wire_guide(BezierSpline.new(wirePath))
 end
 
 def top_curve(playfield)

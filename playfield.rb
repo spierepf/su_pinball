@@ -24,7 +24,7 @@ def wireize (group, edges, wireradius)
   v = edges.first.vertices()
   centerpoint = Geom::Point3d.new(v[0])
   normal = Geom::Vector3d.new v[0].position.x-v[1].position.x,v[0].position.y-v[1].position.y,v[0].position.z-v[1].position.z
-  group.entities.add_face(group.entities.add_circle(centerpoint, normal, wireradius)).followme(edges)
+  group.entities.add_face(group.entities.add_circle(centerpoint, normal, wireradius, 12)).followme(edges)
   group.entities.erase_entities edges
 end
 
