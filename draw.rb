@@ -11,7 +11,9 @@ playfield.draw_floor
 playfield.draw_walls
 playfield.draw_ball_trough
 playfield.draw_handhold_notches
+playfield.draw_hangers
 playfield.draw_shooter_lane
+playfield.draw_apron_mounts
 
 playfield.wire_guide(BezierSpline.new([
   Geom::Point3d.new(playfield.floor_width-playfield.wall_thickness()-playfield.shooter_lane_width() - 3.0/64.0, playfield.floor_depth-(25.5),       (1.0 + 1.0/16.0)/2.0),
@@ -37,7 +39,7 @@ end
 
 def left_flipper_constellation(playfield)
   left_flipper_frame = frame(left_flipper_frame_x, 6 + 45.0/64.0) 
-  playfield.flipper_mechanics      left_flipper_frame
+  playfield.flipper_mechanics      left_flipper_frame * rotate(270)
   playfield.flipper_bat            left_flipper_frame
   playfield.flipper_index_pin_hole left_flipper_frame
   playfield.flipper_biff_bar       left_flipper_frame
@@ -54,7 +56,7 @@ end
 
 def right_flipper_constellation(playfield)
   right_flipper_frame = frame(12.0 + 31.0/64.0, 6 + 45.0/64.0)
-  playfield.flipper_mechanics      right_flipper_frame * Geom::Transformation.scaling(-1, 1, 1) * rotate(90)
+  playfield.flipper_mechanics      right_flipper_frame * Geom::Transformation.scaling(-1, 1, 1) * rotate(180 - 29.2)
   playfield.flipper_bat            right_flipper_frame * Geom::Transformation.scaling(-1, 1, 1)
   playfield.flipper_index_pin_hole right_flipper_frame * Geom::Transformation.scaling(-1, 1, 1)
   playfield.flipper_biff_bar       right_flipper_frame * Geom::Transformation.scaling(-1, 1, 1)

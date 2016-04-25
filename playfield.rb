@@ -271,11 +271,36 @@ class Playfield
     bottom_arc = hole.entities.add_arc t * Geom::Point3d.new(-33.0/4.0, -7.0/16.0, 0.0), xaxis, normal, 3.0/16.0, 180.0.degrees, 270.0.degrees
   
     hole_from_edges hole, join_arcs(hole, [right_arc, top_arc, bottom_arc])
+
+    hole = Sketchup.active_model.active_entities.add_group()
+    hammer_arc = hole.entities.add_arc t * Geom::Point3d.new(-33.0/4.0 - 3.0/16.0 - 1.0/8.0, 0.0, 0.0), xaxis, normal, 5.0/16.0, 90.0.degrees, 270.0.degrees
+    hole_from_edges hole, join_arcs(hole, [hammer_arc, hole.entities.add_edges(t * Geom::Point3d.new(-33.0/4.0 - 3.0/16.0, -5.0/16.0, 0), t * Geom::Point3d.new(-33.0/4.0 - 3.0/16.0, 5.0/16.0, 0))]), 1.0/4.0
+
+    circular_hole(t * frame(-33.0/4.0 - 3.0/16.0 - 1.0/8.0, -(1.0 + 5.0/16.0)), 1.0/4.0, 1.0/4.0)
   end
   
   def draw_handhold_notches()
     square_hole(frame(), 0.0, 0.0, 1.0 + 1.0/8.0, 4.0 + 3.0/4.0)
     square_hole(frame(), 20.25 - (1.0 + 13.0/16.0), 0.0, 20.25, 4.0 + 5.0/16.0)
+  end
+  
+  def draw_hangers()
+    [1.0 + 1.0/8.0 + 13.0/16.0, 20.25 - (1.0 + 13.0/16.0) - 5.0/8.0].each do |x|
+      circular_hole(frame(x, 0), 1.0/4.0)
+      [1.0 + 5.0/16.0, 2.0 + 7.0/8.0].each do |y|
+        pilot_hole(frame(x, y))
+      end
+    end
+  end
+  
+  def apron_mount(t)
+    top_dimple(t)
+    top_dimple(t * frame(1.0 + 5.0/8.0))
+  end
+  
+  def draw_apron_mounts()
+    apron_mount(frame(4.0 + 1.0/4.0, 5.0) * rotate(144.5))
+    apron_mount(frame(4.0 + 1.0/4.0 + 9.0 + 3.0/4.0, 5.0) * rotate(29.5))
   end
   
   def draw_shooter_lane()
@@ -321,6 +346,14 @@ class Playfield
     circular_hole t, 1.0/32
   end
   
+  def top_dimple(t)
+    circular_hole t, 5.0/128.0, 5.0/128.0
+  end
+  
+  def bottom_dimple(t)
+    circular_hole t * frame(0, 0, -(@floor_thickness)), 5.0/128.0, 5.0/128.0
+  end
+  
   def round_ended_hole(t, h, w)
     hole = Sketchup.active_model.active_entities.add_group()
   
@@ -353,7 +386,7 @@ class Playfield
     template(t, "Flipper\ Assy\ -\ Williams\ A-15205\ \(Left\)")
     [-17.0/32.0, -5.0/32.0, 89.0/32.0, 101.0/32.0].each do |x|
         [-17.0/8.0, 43.0/32.0].each do |y|
-            pilot_hole(t * frame(x, y))
+            bottom_dimple(t * frame(x, y))
         end
     end
   end
@@ -386,12 +419,19 @@ class Playfield
   end
   
   def post t, name=nil
-    pilot_hole(t)
+    top_dimple(t)
     component(t, "Star_Post_1-1'16_-03-8319-13")
     component(t * Geom::Transformation.translation(Geom::Point3d.new(0, 0, 1.0 + 1.0/16.0)), "Threaded Post Screw 0001")
     p = Post.new(t)
     @posts[name] = p if name != nil
-#    puts name.to_s if name != nil 
+  end
+  
+  def post_with_tee t, name=nil
+    circular_hole(t, 3.0/32.0)
+    component(t, "Star_Post_1-1'16_-03-8319-13")
+    component(t * Geom::Transformation.translation(Geom::Point3d.new(0, 0, 1.0 + 1.0/16.0)), "Threaded Post Screw 0001")
+    p = Post.new(t)
+    @posts[name] = p if name != nil
   end
   
   def mini_post_6_32 t
@@ -399,10 +439,34 @@ class Playfield
     component(t, "Mini_Post_6-32_Thread_02-4195")
   end
   
+  def slingshot_solenoid_mount t
+    template(t, "Solenoid Mount")
+    [23.0/16.0, 15.0/16.0].each do |x|
+        [-3.0/16.0, 3.0/16.0].each do |y|
+            bottom_dimple(t * frame(x, y))
+        end
+    end
+  end
+
+  def slingshot_switch t
+    template(t, "Slingshot Switch")
+    bottom_dimple(t * frame(0, -19.0/32.0))
+    bottom_dimple(t * frame(0, -35.0/32.0))
+  end
+
   def slingshot t
     round_ended_hole(t, 1.0, 0.5)
     circular_hole(t * frame(-1.0), 0.25)
     circular_hole(t * frame(1.0), 0.25)
+    template(t * frame(0, -3.0/8.0), "Kicker_Arm_Sllingshot_Assembly_B-12665")
+    bottom_dimple(t * frame(31.0/64.0, -18.0/32.0))
+    bottom_dimple(t * frame(31.0/64.0, -6.0/32.0))
+    bottom_dimple(t * frame(-2.0/64.0, -22.0/32.0))
+    bottom_dimple(t * frame(-22.0/64.0, -22.0/32.0))
+
+    solenoid_mount(t * frame(1.0/8.0, -(1.0 + 31.0/32.0)))
+    slingshot_switch(t * frame(1.0))
+    slingshot_switch(t * frame(-1.0))
   end
   
   def round_cornered_polygon(group, vertices, arc_radius)
@@ -489,22 +553,23 @@ class Playfield
       m = Geom::Transformation.scaling(-1, 1, 1)
     end
     
-    post(t * m * frame(-(0.0 + 25.0/32.0), 3.0 + 5.0/16.0),  ("flipper_slingshot_"+side.to_s+"_a").to_sym)
+    post_with_tee(t * m * frame(-(0.0 + 25.0/32.0), 3.0 + 5.0/16.0),  ("flipper_slingshot_"+side.to_s+"_a").to_sym)
     post(t * m * frame(-(2.0 + 3.0/32.0),  4.0 + 7.0/32.0),  ("flipper_slingshot_"+side.to_s+"_b").to_sym)
     post(t * m * frame(-(2.0 + 3.0/16.0),  5.0 + 1.0/4.0),   ("flipper_slingshot_"+side.to_s+"_c").to_sym)
-    post(t * m * frame(-(2.0 + 1.0/64.0),  6.0 + 29.0/32.0), ("flipper_slingshot_"+side.to_s+"_d").to_sym)
+    post_with_tee(t * m * frame(-(2.0 + 1.0/64.0),  6.0 + 29.0/32.0), ("flipper_slingshot_"+side.to_s+"_d").to_sym)
     
     rubber([:flipper_slingshot_left_a, :flipper_slingshot_left_b, :flipper_slingshot_left_c, :flipper_slingshot_left_d]) if side == :left
     rubber([:flipper_slingshot_right_d, :flipper_slingshot_right_c, :flipper_slingshot_right_b, :flipper_slingshot_right_a]) if side == :right
     
-    slingshot t * m * frame(-(1.0 + 13.0/32.0), 5.0 + 1.0/8.0) * rotate(111.2) * m
+    theta = Math.atan2((3.0 + 5.0/16.0) - (6.0 + 29.0/32.0), (-(0.0 + 25.0/32.0)) - (-(2.0 + 1.0/64.0))).radians
+    slingshot t * m * frame(-(1.0 + 13.0/32.0), 5.0 + 1.0/8.0) * rotate(180.0 + theta) * m
   end
   
   def rollover_switch(t, insert = true)
     template(t, "Rollover_Switch_and_Bracket_A-12688")
     round_ended_hole(t, 25.0/16.0, 3.0/16.0)
-    pilot_hole(t * frame(31.0/64.0, -79.0/64.0, 0.0))
-    pilot_hole(t * frame(31.0/64.0, -103.0/64.0, 0.0))
+    bottom_dimple(t * frame(31.0/64.0, -79.0/64.0, 0.0))
+    bottom_dimple(t * frame(31.0/64.0, -103.0/64.0, 0.0))
     
     round_insert(t * frame(0.0, 2.0), 3.0/4.0) if(insert)
   end
