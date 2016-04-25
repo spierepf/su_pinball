@@ -670,7 +670,7 @@ class Playfield
     (1..4).each do
       y = 1.0 + 7.0/8.0
       (1..2).each do
-        pilot_hole(t * frame(x, y, 0.0))
+        bottom_dimple(t * frame(x, y, 0.0))
         y -= (1.0 + 1.0/8.0)
       end
       x -= (1.0 + 1.0/4.0)
