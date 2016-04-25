@@ -697,12 +697,12 @@ class Playfield
   def inline_drop_target_bank_2 t
     template(t, "bally_inline_3_target_bank_rough_2")
     
-    pilot_hole(t * frame(3.0/32.0, (-7.0/16.0) - (1.0 + 1.0/8.0),      0.0))
-    pilot_hole(t * frame(2.0,      (-7.0/16.0) - (1.0 + 1.0/8.0),      0.0))
-    pilot_hole(t * frame(7.0/8.0,  (3.0 + 1.0/16.0) - (1.0 + 1.0/8.0), 0.0))
-    pilot_hole(t * frame(7.0/8.0,  (1.0 + 9.0/16.0) - (1.0 + 1.0/8.0), 0.0))
-    pilot_hole(t * frame(3.0/32.0, (5.0) - (1.0 + 1.0/8.0),            0.0))
-    pilot_hole(t * frame(2.0,      (5.0) - (1.0 + 1.0/8.0),            0.0))
+    bottom_dimple(t * frame(3.0/32.0, (-7.0/16.0) - (1.0 + 1.0/8.0),      0.0))
+    bottom_dimple(t * frame(2.0,      (-7.0/16.0) - (1.0 + 1.0/8.0),      0.0))
+    bottom_dimple(t * frame(7.0/8.0,  (3.0 + 1.0/16.0) - (1.0 + 1.0/8.0), 0.0))
+    bottom_dimple(t * frame(7.0/8.0,  (1.0 + 9.0/16.0) - (1.0 + 1.0/8.0), 0.0))
+    bottom_dimple(t * frame(3.0/32.0, (5.0) - (1.0 + 1.0/8.0),            0.0))
+    bottom_dimple(t * frame(2.0,      (5.0) - (1.0 + 1.0/8.0),            0.0))
     
     y0 = 0
     (1..3).each do
@@ -821,7 +821,7 @@ class Playfield
   def fixed_target t
     round_ended_hole(t * rotate(90), 1.0 + 1.0/8.0, 0.5)
     component(t * frame(0.0, -4.0/16.0, -@floor_thickness) * rotate(180), "Target 004 Assy")
-    pilot_hole(t * frame(-3.0/16.0, -9.0/16.0))
-    pilot_hole(t * frame(+3.0/16.0, -9.0/16.0))
+    bottom_dimple(t * frame(-3.0/16.0, -9.0/16.0))
+    bottom_dimple(t * frame(+3.0/16.0, -9.0/16.0))
   end
 end
