@@ -640,20 +640,20 @@ class Playfield
     # Kickout insert
     [-11.0/16.0, 11.0/16.0].each do |x|
         [-9.0/16, 9.0/16].each do |y|
-            pilot_hole(t * frame(x, y, 0.0))
+          bottom_dimple(t * frame(x, y, 0.0))
         end
     end
     
     # Pivot bracket
-    pilot_hole(t * frame(1 + 7.0/16.0, -30.0/64.0, 0.0))
-    pilot_hole(t * frame(1 + 13.0/16.0, -30.0/64.0, 0.0))
-    pilot_hole(t * frame(1 + 15.0/16.0, 3.0/64.0, 0.0))
-    pilot_hole(t * frame(1 + 15.0/16.0, 23.0/64.0, 0.0))
+    bottom_dimple(t * frame(1 + 7.0/16.0, -30.0/64.0, 0.0))
+    bottom_dimple(t * frame(1 + 13.0/16.0, -30.0/64.0, 0.0))
+    bottom_dimple(t * frame(1 + 15.0/16.0, 3.0/64.0, 0.0))
+    bottom_dimple(t * frame(1 + 15.0/16.0, 23.0/64.0, 0.0))
       
     # Solenoid bracket
     [3 + 39.0/64.0, 4 + 7.0/64.0].each do |x|
         [39.0/64.0, 15.0/64.0].each do |y|
-            pilot_hole(t * frame(x, y, 0.0))
+            bottom_dimple(t * frame(x, y, 0.0))
         end
     end
   end
