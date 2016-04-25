@@ -194,9 +194,9 @@ def spinner_ramp(playfield)
   ramp_start_x0 = 20.25 - (12.0 + 3.0/8.0)
   ramp_start_x1 = 20.25 -  (9.0 + 1.0/4.0)
   ramp_start_y = 42.0-(13.0 + 9.0/16.0)
-  playfield.post frame(ramp_start_x0, ramp_start_y), :spinner_ramp_left
-  playfield.post frame(ramp_start_x1, ramp_start_y), :spinner_ramp_right
-  playfield.rubber_with_switch(:upper_left_e, :spinner_ramp_left)
+  playfield.post_with_tee frame(ramp_start_x0, ramp_start_y), :spinner_ramp_left
+  playfield.post_with_tee frame(ramp_start_x1, ramp_start_y), :spinner_ramp_right
+  playfield.rubber_with_switch(:spinner_ramp_left, :upper_left_e)
   playfield.rubber([:spinner_ramp_right])
   
   playfield.circular_hole(frame(ramp_start_x0 + 0.5, ramp_start_y), 1.0/8.0)
@@ -418,14 +418,16 @@ def center_lenses(playfield)
 end
 
 left_flipper_constellation(playfield)
-right_flipper_constellation(playfield)
-upper_left(playfield)
 left_kickout(playfield)
-right_kickout(playfield)
 left_drop_target_bank(playfield)
+
+right_flipper_constellation(playfield)
+right_kickout(playfield)
 right_drop_target_bank(playfield)
-inline_drop_target_bank(playfield)
+
+upper_left(playfield)
 spinner_ramp(playfield)
+inline_drop_target_bank(playfield)
 upper_playfield(playfield)
 top_curve(playfield)
 center_lenses(playfield)

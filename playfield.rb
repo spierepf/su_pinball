@@ -463,7 +463,7 @@ class Playfield
     bottom_dimple(t * frame(-2.0/64.0, -22.0/32.0))
     bottom_dimple(t * frame(-22.0/64.0, -22.0/32.0))
 
-    solenoid_mount(t * frame(1.0/8.0, -(1.0 + 31.0/32.0)))
+    slingshot_solenoid_mount(t * frame(1.0/8.0, -(1.0 + 31.0/32.0)))
     slingshot_switch(t * frame(1.0))
     slingshot_switch(t * frame(-1.0))
   end
