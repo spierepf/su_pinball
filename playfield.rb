@@ -449,6 +449,7 @@ class Playfield
   end
 
   def slingshot_switch t
+    circular_hole(t, 0.25)
     template(t, "Slingshot Switch")
     bottom_dimple(t * frame(0, -19.0/32.0))
     bottom_dimple(t * frame(0, -35.0/32.0))
@@ -456,8 +457,6 @@ class Playfield
 
   def slingshot t
     round_ended_hole(t, 1.0, 0.5)
-    circular_hole(t * frame(-1.0), 0.25)
-    circular_hole(t * frame(1.0), 0.25)
     template(t * frame(0, -3.0/8.0), "Kicker_Arm_Sllingshot_Assembly_B-12665")
     bottom_dimple(t * frame(31.0/64.0, -18.0/32.0))
     bottom_dimple(t * frame(31.0/64.0, -6.0/32.0))
@@ -537,13 +536,17 @@ class Playfield
     yaxis = zaxis * xaxis
     frame = Geom::Transformation.axes(center, xaxis, yaxis, zaxis)
     
-    circular_hole frame, 0.25
+    slingshot_switch frame
     
-    pilot_hole frame * Geom::Transformation.translation(Geom::Point3d.new(7.0/16.0, 0, 0))
-    pilot_hole frame * Geom::Transformation.translation(Geom::Point3d.new((width / 2.0 - 0.5), 0, 0))
-
-    pilot_hole frame * Geom::Transformation.translation(Geom::Point3d.new(-(7.0/16.0), 0, 0))
-    pilot_hole frame * Geom::Transformation.translation(Geom::Point3d.new(-(width / 2.0 - 0.5), 0, 0))
+    wire_guide(BezierSpline.new([
+      frame * Geom::Point3d.new(7.0/16.0, 0,            (1.0 + 1.0/16.0)/2.0 + 3.0/32.0),
+      frame * Geom::Point3d.new((width / 2.0 - 0.5), 0, (1.0 + 1.0/16.0)/2.0 + 3.0/32.0)
+    ]))
+    
+    wire_guide(BezierSpline.new([
+      frame * Geom::Point3d.new(-(7.0/16.0), 0,          (1.0 + 1.0/16.0)/2.0 + 3.0/32.0),
+      frame * Geom::Point3d.new(-(width / 2.0 - 0.5), 0, (1.0 + 1.0/16.0)/2.0 + 3.0/32.0)
+    ]))
   end
   
   def flipper_slingshot t, side
@@ -576,7 +579,7 @@ class Playfield
   
   def lane_guide(t, post_symbol_prefix)
     post t * frame(0, 0.625), (post_symbol_prefix.to_s + "_a").to_sym
-    post t * frame(0, -0.625), (post_symbol_prefix.to_s + "_b").to_sym
+    post_with_tee t * frame(0, -0.625), (post_symbol_prefix.to_s + "_b").to_sym
     component t, "Lane_Guide_03-8318-25"
     lamp_hole t
   end
@@ -616,12 +619,12 @@ class Playfield
     circular_hole(t * frame(-1.0, 7.0/16.0, 0.0), 3.0/64.0)
 
     # Body mounting pilot holes
-    pilot_hole(t * frame(-5.0/16.0, -5.0/16.0, 0.0))
-    pilot_hole(t * frame(5.0/16.0, 5.0/16.0, 0.0))
+    top_dimple(t * frame(-5.0/16.0, -5.0/16.0, 0.0))
+    top_dimple(t * frame(5.0/16.0, 5.0/16.0, 0.0))
 
     # Spoon switch bracket holes
-    pilot_hole(t * frame(-3.0/8.0, -29.0/16.0, 0.0))
-    pilot_hole(t * frame(-3.0/8.0, -35.0/16.0, 0.0))
+    bottom_dimple(t * rotate(5.0) * frame(-3.0/8.0, -29.0/16.0, 0.0))
+    bottom_dimple(t * rotate(5.0) * frame(-3.0/8.0, -35.0/16.0, 0.0))
 
     # Drill template
     template(t, "Pop\ Bumper\ Assembly\ Williams\ Bally")

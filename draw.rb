@@ -91,7 +91,7 @@ def upper_left(playfield)
   playfield.post frame(1.0 + 3.0/16.0,  42.0 - (10.0 + 9.0/16.0)), :upper_left_f
   playfield.post frame(15.0/16.0,       42.0 - (13.0 + 7.0/16.0)), :upper_left_g
   playfield.post frame(1.0 + 5.0/16.0,  42.0 - (14.25)),           :upper_left_h
-  playfield.post frame(4.0 + 3.0/8.0,   42.0 - (16.75)),           :upper_left_i
+  playfield.post_with_tee frame(4.0 + 3.0/8.0,   42.0 - (16.75)),           :upper_left_i
 
   playfield.rubber([:upper_left_rake_lane_guide_0_a, :upper_left_a])
   playfield.rubber([:upper_left_rake_lane_guide_0_b, :upper_left_b])
