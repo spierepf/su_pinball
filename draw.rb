@@ -70,10 +70,6 @@ def right_flipper_constellation(playfield)
   playfield.rubber([:right_flipper_constellation_a, :right_flipper_constellation_b])
 end
 
-def drain_insert(playfield)
-  playfield.round_insert(frame(play_area_center_x, 5), 1.5)
-end
-
 def upper_left(playfield)
   y = (42.0 - 5.0 - 5.0/16.0)
   playfield.rake Geom::Point3d.new(2.25, y, 0.0), Geom::Point3d.new(8.5, y, 0.0), 3, :upper_left_rake
