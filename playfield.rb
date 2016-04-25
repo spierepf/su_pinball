@@ -724,18 +724,25 @@ class Playfield
   end
   
   def wire_guide spline
-    group = Sketchup.active_model.active_entities.add_group()
-    
+    root_depth = 1.0/4.0
+    root_radius = 5.0/128.0
+    wire_radius = 6.0/128.0
+
     points = []
     (0..spline.length).step(1.0/8.0) do |i|
       points.push spline.f(i)
     end
     
-    points.push Geom::Point3d.new(points.last.x, points.last.y, 0.0)
-    points.unshift Geom::Point3d.new(points.first.x, points.first.y, 0.0)
+    circular_hole(frame(points.first.x, points.first.y), root_radius, root_depth)
+    circular_hole(frame(points.last.x, points.last.y), root_radius, root_depth)
+    
+    group = Sketchup.active_model.active_entities.add_group()
+
+    points.push Geom::Point3d.new(points.last.x, points.last.y, -root_depth)
+    points.unshift Geom::Point3d.new(points.first.x, points.first.y, -root_depth)
     
     edges = group.entities.add_curve points
-    wireize(group, edges, 3.0/64.0)
+    wireize(group, edges, wire_radius)
   end
   
   def round_insert t, diameter
@@ -800,22 +807,24 @@ class Playfield
     vertices.push(t * Geom::Point3d.new(-(width - height)/2.0, 0.0, 0.0))
     vertices.push(t * Geom::Point3d.new((width - height)/2.0, 0.0, 0.0))
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, height / 2.0), 1.0/4.0
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), 1.0/4.0
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, height / 2.0 - 1.0/16.0)
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0)
     insert = component(t, "Insert - 1-5`8 inch OVAL PI-11234--OGT")
   end
   
   def large_oval_insert t
     width = 2.0 + 5.0/16.0
     height = 3.0/4.0
-  
+    corner_radius = height / 2.0
+    
     vertices = []
     vertices.push(t * Geom::Point3d.new(-(width - height)/2.0, 0.0, 0.0))
     vertices.push(t * Geom::Point3d.new((width - height)/2.0, 0.0, 0.0))
     hole = Sketchup.active_model.active_entities.add_group()
-    round_cornered_polygon(hole, vertices, height / 2.0)
-    #hole_from_edges hole, round_cornered_polygon(hole, vertices, height / 2.0)
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), 1.0/4.0
+    hole = Sketchup.active_model.active_entities.add_group()
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0)
   end
   
   def fixed_target t
