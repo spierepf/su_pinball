@@ -665,7 +665,7 @@ class Playfield
     component(t * frame(0.0,                -4.0/8.0, 0.0), "Mini_Post_6-32_Thread_02-4195")
     component(t * frame(  1.0 + 11.0/32.0,  -4.0/8.0, 0.0), "Mini_Post_6-32_Thread_02-4195")
     
-    template(t, "williams_3_target_bank_model_rough")
+    template(t * frame(0.0, 3.0/16.0), "3_bank_Sys11_Drop_Target_Bank")
     x = 1.0 + 7.0/8.0
     (1..4).each do
       y = 1.0 + 7.0/8.0
