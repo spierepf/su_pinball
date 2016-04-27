@@ -658,12 +658,27 @@ class Playfield
     end
   end
   
+  def mini_post_6_32 t
+    component t, "Mini_Post_6-32_Thread_02-4195"
+    circular_hole t, 0.1380/2.0
+  end
+  
+  def mini_post_8_32 t
+    component t, "Mini_Post_8-32_Thread"
+    circular_hole t, 0.1640/2.0
+  end
+  
+  def bumper_post t
+    component t, "Bumper Post 8-32 Thread bottom 6-32 at Top 024056"
+    circular_hole t, 0.1640/2.0
+  end
+  
   def drop_target_bank t
     round_ended_hole(t * frame(0.0, -1.0/8.0, 0.0) * rotate(90), 4.0, 0.5)
     
-    component(t * frame(-(1.0 + 11.0/32.0), -4.0/8.0, 0.0), "Mini_Post_6-32_Thread_02-4195")
-    component(t * frame(0.0,                -4.0/8.0, 0.0), "Mini_Post_6-32_Thread_02-4195")
-    component(t * frame(  1.0 + 11.0/32.0,  -4.0/8.0, 0.0), "Mini_Post_6-32_Thread_02-4195")
+    mini_post_6_32(t * frame(-(1.0 + 11.0/32.0), -9.0/16.0, 0.0))
+    mini_post_8_32(t * frame(0.0,                -9.0/16.0, 0.0))
+    mini_post_6_32(t * frame(  1.0 + 11.0/32.0,  -9.0/16.0, 0.0))
     
     template(t * frame(0.0, 3.0/16.0), "3_bank_Sys11_Drop_Target_Bank")
     x = 1.0 + 7.0/8.0

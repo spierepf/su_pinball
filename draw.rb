@@ -137,8 +137,8 @@ end
 
 def left_drop_target_bank(playfield)
   playfield.drop_target_bank frame(4.5, 42.0 - 20.0) * rotate(250.0)
-  playfield.component frame(4.0 + 11.0/16.0, 42.0 - (17.0 + 11.0/16.0)), 'Bumper Post 8-32 Thread bottom 6-32 at Top 024056'
-  playfield.component frame(3.0 +  5.0/16.0, 42.0 - (21.0 + 11.0/16.0)), 'Bumper Post 8-32 Thread bottom 6-32 at Top 024056'
+  playfield.bumper_post frame(4.0 + 11.0/16.0, 42.0 - (17.0 + 11.0/16.0))
+  playfield.bumper_post frame(3.0 +  5.0/16.0, 42.0 - (21.0 + 11.0/16.0))
 
     
   insert_spray_x = 11.25
@@ -154,8 +154,8 @@ end
 
 def right_drop_target_bank(playfield)
   playfield.drop_target_bank frame(20.25 - 4.5, 42.0 - 17.5) * rotate(100.0)
-  playfield.component frame(20.25 - (4.0 +   1.0/2.0),  42.0 - (15.0 +  5.0/16.0)), 'Bumper Post 8-32 Thread bottom 6-32 at Top 024056'
-  playfield.component frame(20.25 - (3.0 + 15.0/16.0),  42.0 - (19.0 + 11.0/16.0)), 'Bumper Post 8-32 Thread bottom 6-32 at Top 024056'
+  playfield.bumper_post frame(20.25 - (4.0 +   1.0/2.0),  42.0 - (15.0 +  5.0/16.0))
+  playfield.bumper_post frame(20.25 - (3.0 + 15.0/16.0),  42.0 - (19.0 + 11.0/16.0))
     
   insert_spray_x = 8.0 + 3.0/4.0
   insert_spray_y = 20.0 + 1.0/4.0
