@@ -307,7 +307,7 @@ class Playfield
     shooter_lane_start_x = @floor_width - @wall_thickness - (@shooter_lane_width / 2.0)
     shooter_lane_start_y = 4.0 + 5.0/16.0
     
-    rollover_switch(frame(shooter_lane_start_x, shooter_lane_start_y + 11.0/16.0) * rotate(180.0), false)
+    rollover_switch(frame(shooter_lane_start_x, shooter_lane_start_y + (1.0 + 3.0/4.0 - 3.0/16.0) / 2.0 ), false)
       
     launch_guide = Sketchup.active_model.active_entities.add_group()
     launch_angle = 1.0.degrees
@@ -569,12 +569,18 @@ class Playfield
   end
   
   def rollover_switch(t, insert = true)
-    template(t, "Rollover_Switch_and_Bracket_A-12688")
-    round_ended_hole(t, 25.0/16.0, 3.0/16.0)
-    bottom_dimple(t * frame(31.0/64.0, -79.0/64.0, 0.0))
-    bottom_dimple(t * frame(31.0/64.0, -103.0/64.0, 0.0))
+    template(t, "Switch Rollover - Sys7")
+    round_ended_hole(t, 1.0 + 3.0/4.0, 3.0/16.0)
     
-    round_insert(t * frame(0.0, 2.0), 3.0/4.0) if(insert)
+    bottom_dimple(t * frame(23.0/32.0, 15.0/16.0))
+    bottom_dimple(t * frame(23.0/32.0, 1.0 + 5.0/16.0))
+    bottom_dimple(t * frame(-5.0/32.0, 1.0 + 5.0/16.0))
+      
+    template(t * frame((23.0/32.0 - 5.0/32.0)/2, 1.25), "Rollover Switch")
+    bottom_dimple(t * frame((23.0/32.0 - 5.0/32.0)/2, 1.25) * frame(0, -(1.0 + 15.0/16.0)))
+    bottom_dimple(t * frame((23.0/32.0 - 5.0/32.0)/2, 1.25) * frame(0, -(1.0 + 15.0/16.0 + 3.0/8.0)))
+
+    round_insert(t * frame(0.0, 2.25), 3.0/4.0) if(insert)
   end
   
   def lane_guide(t, post_symbol_prefix)

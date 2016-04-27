@@ -413,6 +413,25 @@ def center_lenses(playfield)
   end
 end
 
+#def draw_ball
+#  xaxis = Geom::Vector3d.new 1,0,0
+#  yaxis = Geom::Vector3d.new 1,0,0
+#  zaxis = Geom::Vector3d.new 0,0,1
+#  
+#  radius = (1.0 + 1.0/16.0)/2.0
+#  centerpoint = Geom::Point3d.new(12.0 + 1.0/4.0, 40.0 + 13.0/32.0, radius)
+#  
+#  # Create a circle perpendicular to the normal or Z axis
+#  circle1 = Sketchup.active_model.active_entities.add_circle centerpoint, zaxis, radius
+#  circle2 = Sketchup.active_model.active_entities.add_circle centerpoint, yaxis, radius * 2
+#  
+#  Sketchup.active_model.active_entities.add_face(circle1).followme(circle2)
+#  Sketchup.active_model.active_entities.erase_entities(circle2)
+#end
+#
+#draw_ball
+#playfield.component(frame(), 'plastics')
+
 left_flipper_constellation(playfield)
 left_kickout(playfield)
 left_drop_target_bank(playfield)
@@ -429,27 +448,8 @@ top_curve(playfield)
 center_lenses(playfield)
 
 puts Time.now.getutc - t0
-
-def draw_ball
-  xaxis = Geom::Vector3d.new 1,0,0
-  yaxis = Geom::Vector3d.new 1,0,0
-  zaxis = Geom::Vector3d.new 0,0,1
-  
-  radius = (1.0 + 1.0/16.0)/2.0
-  centerpoint = Geom::Point3d.new(12.0 + 1.0/4.0, 40.0 + 13.0/32.0, radius)
-  
-  # Create a circle perpendicular to the normal or Z axis
-  circle1 = Sketchup.active_model.active_entities.add_circle centerpoint, zaxis, radius
-  circle2 = Sketchup.active_model.active_entities.add_circle centerpoint, yaxis, radius * 2
-  
-  Sketchup.active_model.active_entities.add_face(circle1).followme(circle2)
-  Sketchup.active_model.active_entities.erase_entities(circle2)
-end
-
-draw_ball
-playfield.component(frame(), 'plastics')
-Sketchup.send_action("viewTop:")
-Sketchup.send_action("viewZoomExtents:")
+#Sketchup.send_action("viewTop:")
+#Sketchup.send_action("viewZoomExtents:")
 
 # flexible pilot hole code
 # GI lighting
