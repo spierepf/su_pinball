@@ -448,8 +448,8 @@ top_curve(playfield)
 center_lenses(playfield)
 
 puts Time.now.getutc - t0
-#Sketchup.send_action("viewTop:")
-#Sketchup.send_action("viewZoomExtents:")
+Sketchup.send_action("viewTop:")
+Sketchup.send_action("viewZoomExtents:")
 
 # flexible pilot hole code
 # GI lighting
