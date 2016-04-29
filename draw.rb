@@ -44,8 +44,15 @@ def left_flipper_constellation(playfield)
   playfield.flipper_index_pin_hole left_flipper_frame
   playfield.flipper_biff_bar       left_flipper_frame
   playfield.inlane_guide           left_flipper_frame
+  
+  #inlane
   playfield.rollover_switch        left_flipper_frame * frame(-(3.0 + 9.0/64.0), 5.0 + 5.0/32.0)
-  playfield.rollover_switch        left_flipper_frame * frame(-(4.0 + 38.0/64.0), 5.0 + 5.0/32.0)
+  
+  #outlane
+  x0 = playfield.wall_thickness
+  x1 = left_flipper_frame_x - (4.0 + 1.0/16.0)  
+  playfield.rollover_switch        frame((x0 + x1) / 2, 6 + 45.0/64.0 + 5.0 + 5.0/32.0)
+  
   playfield.flipper_slingshot      left_flipper_frame, :left
   
   playfield.post(frame(1.5, 42.0 - (23.0 + 7.0/16.0)), :left_flipper_constellation_a)
@@ -61,8 +68,15 @@ def right_flipper_constellation(playfield)
   playfield.flipper_index_pin_hole right_flipper_frame * Geom::Transformation.scaling(-1, 1, 1)
   playfield.flipper_biff_bar       right_flipper_frame * Geom::Transformation.scaling(-1, 1, 1)
   playfield.inlane_guide           right_flipper_frame * Geom::Transformation.scaling(-1, 1, 1)
+  
+  #inlane
   playfield.rollover_switch        right_flipper_frame * frame((3.0 + 9.0/64.0), 5.0 + 5.0/32.0)
-  playfield.rollover_switch        right_flipper_frame * frame((4.0 + 38.0/64.0), 5.0 + 5.0/32.0)
+  
+  #outlane
+  x0 = playfield.floor_width - (playfield.wall_thickness + playfield.shooter_lane_width + playfield.wall_thickness)
+  x1 = right_flipper_frame_x + (4.0 + 1.0/16.0)  
+  playfield.rollover_switch        frame((x0 + x1) / 2, 6 + 45.0/64.0 + 5.0 + 5.0/32.0)
+  
   playfield.flipper_slingshot      right_flipper_frame, :right
   
   playfield.post(frame(20.25 - (3.0 + 7.0/16.0), 42.0 - (23.0 + 5.0/16.0)), :right_flipper_constellation_a)
@@ -82,7 +96,7 @@ def upper_left(playfield)
   playfield.post frame(1.5,             42.0 - (3.0 + 7.0/16.0)),  :upper_left_a
   playfield.post frame(2.0 + 1.0/16.0,  42.0 - (7.0 + 3.0/16.0)),  :upper_left_b
   playfield.post frame(9.0 + 5.0/16.0,  42.0 - (4.0 + 3.0/16.0)),  :upper_left_c
-  playfield.post frame(8.0,             42.0 - (7.0))           ,  :upper_left_d
+  playfield.post frame(8.0,             42.0 - (7.0 + 5.0/16.0)),  :upper_left_d
   playfield.post frame(7.0 + 13.0/16.0, 42.0 - (10.0 + 5.0/8.0)),  :upper_left_e
   playfield.post frame(1.0 + 3.0/16.0,  42.0 - (10.0 + 9.0/16.0)), :upper_left_f
   playfield.post frame(15.0/16.0,       42.0 - (13.0 + 7.0/16.0)), :upper_left_g
@@ -111,9 +125,9 @@ def left_kickout(playfield)
     Geom::Point3d.new(1.0+5.0/8.0,     42.0-(22.0 + 7.0/8.0),  0)
   ]))
   playfield.wire_guide(BezierSpline.new([
-    Geom::Point3d.new(3.0 + 3.0/16.0,  42.0-(17.0 + 3.0/8.0),  (1.0 + 1.0/16.0)/2.0),
-    Geom::Point3d.new(2.0 + 11.0/16.0, 42.0-(19.0 + 9.0/32.0), (1.0 + 1.0/16.0)/2.0),
-    Geom::Point3d.new(3.0 + 1.0/8.0,   42.0-(21.0 + 3.0/16.0), (1.0 + 1.0/16.0)/2.0)
+    Geom::Point3d.new(3.0 + 3.0/16.0,  42.0-(17.0 + 3.0/8.0),  (1.0 + 1.0/8.0)/2.0),
+    Geom::Point3d.new(2.0 + 11.0/16.0, 42.0-(19.0 + 9.0/32.0), (1.0 + 1.0/8.0)/2.0),
+    Geom::Point3d.new(3.0 + 1.0/8.0,   42.0-(21.0 + 3.0/16.0), (1.0 + 1.0/8.0)/2.0)
   ]))
   playfield.large_arrow_insert(frame(3.75, 17.5) * rotate(30.0))
 end
@@ -128,9 +142,9 @@ def right_kickout(playfield)
     Geom::Point3d.new(20.25-(3.0 + 9.0/16.0), 42.0-(22.0 + 13.0/16.0), 0)
   ]))
   playfield.wire_guide(BezierSpline.new([
-    Geom::Point3d.new(20.25-(3.0 + 11.0/16.0), 42.0-(15.0 + 11.0/16.0), (1.0 + 1.0/16.0)/2.0),
-    Geom::Point3d.new(20.25-(3.0 + 4.0/16.0),  42.0-(17.0 + 5.0/8.0),   (1.0 + 1.0/16.0)/2.0),
-    Geom::Point3d.new(20.25-(3.0 + 11.0/16.0), 42.0-(19.0 + 9.0/16.0),  (1.0 + 1.0/16.0)/2.0)
+    Geom::Point3d.new(20.25-(3.0 + 11.0/16.0), 42.0-(15.0 + 11.0/16.0), (1.0 + 1.0/8.0)/2.0),
+    Geom::Point3d.new(20.25-(3.0 + 4.0/16.0),  42.0-(17.0 + 5.0/8.0),   (1.0 + 1.0/8.0)/2.0),
+    Geom::Point3d.new(20.25-(3.0 + 11.0/16.0), 42.0-(19.0 + 9.0/16.0),  (1.0 + 1.0/8.0)/2.0)
   ]))
   playfield.large_arrow_insert(frame(14.75, 17.5) * rotate(330.0))
 end
@@ -171,18 +185,18 @@ end
 def inline_drop_target_bank(playfield)
   t = frame(20.25 - (7.0 + 13.0/16.0), 42.0 - (12.0 + 15.0/16.0)) * rotate(-13.0) * frame(0, 0.5)
   playfield.inline_drop_target_bank_2 t
-  playfield.fixed_target(t * frame(0, 5.0 + 1.0/16.0))
+  playfield.fixed_target(t * frame(0, 5.0 + 8.0/16.0))
   playfield.large_arrow_insert(t * frame(0.0, -4.5))
   playfield.post frame(20.25 - (6.0 + 35.0/64.0),  42.0 - (13.0 + 5.0/8.0)), :inline_drop_target_bank
   playfield.rubber([:inline_drop_target_bank])
   playfield.wire_guide(BezierSpline.new([
-    t * Geom::Point3d.new(-18.0/16.0, -1.0, (1.0 + 1.0/16.0)/2.0),
-    t * Geom::Point3d.new(-18.0/16.0,  5.0, (1.0 + 1.0/16.0)/2.0)
+    t * Geom::Point3d.new(-18.0/16.0, -1.0, (1.0 + 1.0/8.0)/2.0),
+    t * Geom::Point3d.new(-18.0/16.0,  5.25, (1.0 + 1.0/8.0)/2.0)
   ]))
   
   playfield.wire_guide(BezierSpline.new([
-    t * Geom::Point3d.new(18.0/16.0, -9.0/16.0, (1.0 + 1.0/16.0)/2.0),
-    t * Geom::Point3d.new(18.0/16.0,  5.0, (1.0 + 1.0/16.0)/2.0)
+    t * Geom::Point3d.new(18.0/16.0, -9.0/16.0, (1.0 + 1.0/8.0)/2.0),
+    t * Geom::Point3d.new(18.0/16.0,  5.25, (1.0 + 1.0/8.0)/2.0)
   ]))
 end
 
@@ -196,7 +210,7 @@ def spinner_ramp(playfield)
   playfield.rubber([:spinner_ramp_right])
   
   playfield.circular_hole(frame(ramp_start_x0 + 0.5, ramp_start_y), 1.0/8.0)
-  playfield.mini_post_6_32(frame(ramp_start_x0 + 0.5, ramp_start_y - 5.0/8.0))
+  playfield.mini_post_6_32_with_tee(frame(ramp_start_x0 + 0.5, ramp_start_y - 5.0/8.0))
   
   wireformTrough = WireFormTrough.new()
   plasticTrough = PlasticTrough.new()
@@ -343,7 +357,7 @@ def upper_playfield(playfield)
   
   wirePath = []
   (16..ballPath.length-1).each do |i|
-    wirePath.push ballPath.frame(i) * Geom::Point3d.new(-(3.0/16.0 + pathDiameter/2.0), 0, (1.0 + 1.0/16.0)/2.0)
+    wirePath.push ballPath.frame(i) * Geom::Point3d.new(-(3.0/16.0 + pathDiameter/2.0), 0, (1.0 + 1.0/8.0)/2.0)
   end
   playfield.wire_guide(BezierSpline.new(wirePath))
 end
@@ -360,11 +374,11 @@ def top_curve(playfield)
   
   # top right inner curve
   playfield.wire_guide(BezierSpline.new([
-    Geom::Point3d.new(20.25-(1.0 + 15.0/16.0), 42.0-(7.0 + 3.0/16.0),  (1.0 + 1.0/16.0)/2.0),
-    Geom::Point3d.new(20.25-(2.0 + 13.0/16.0), 42.0-(4.0 + 2.0/16.0),  (1.0 + 1.0/16.0)/2.0),
-    Geom::Point3d.new(20.25-(5.0 + 3.0/8.0),   42.0-(2.0 + 2.0/8.0),   (1.0 + 1.0/16.0)/2.0),
-    Geom::Point3d.new(20.25-(8.0 + 15.0/16.0), 42.0-(2.0 + 5.0/16.0),  (1.0 + 1.0/16.0)/2.0),
-    Geom::Point3d.new(20.25-(10.0 + 9.0/16.0), 42.0-(3.0 + 17.0/32.0), (1.0 + 1.0/16.0)/2.0),
+    Geom::Point3d.new(20.25-(1.0 + 15.0/16.0), 42.0-(7.0 + 3.0/16.0),  (1.0 + 1.0/8.0)/2.0),
+    Geom::Point3d.new(20.25-(2.0 + 13.0/16.0), 42.0-(4.0 + 2.0/16.0),  (1.0 + 1.0/8.0)/2.0),
+    Geom::Point3d.new(20.25-(5.0 + 3.0/8.0),   42.0-(2.0 + 2.0/8.0),   (1.0 + 1.0/8.0)/2.0),
+    Geom::Point3d.new(20.25-(8.0 + 15.0/16.0), 42.0-(2.0 + 5.0/16.0),  (1.0 + 1.0/8.0)/2.0),
+    Geom::Point3d.new(20.25-(10.0 + 9.0/16.0), 42.0-(3.0 + 17.0/32.0), (1.0 + 1.0/8.0)/2.0),
   ]))
   
   # top curve
@@ -413,23 +427,23 @@ def center_lenses(playfield)
   end
 end
 
-#def draw_ball
-#  xaxis = Geom::Vector3d.new 1,0,0
-#  yaxis = Geom::Vector3d.new 1,0,0
-#  zaxis = Geom::Vector3d.new 0,0,1
-#  
-#  radius = (1.0 + 1.0/16.0)/2.0
-#  centerpoint = Geom::Point3d.new(12.0 + 1.0/4.0, 40.0 + 13.0/32.0, radius)
-#  
-#  # Create a circle perpendicular to the normal or Z axis
-#  circle1 = Sketchup.active_model.active_entities.add_circle centerpoint, zaxis, radius
-#  circle2 = Sketchup.active_model.active_entities.add_circle centerpoint, yaxis, radius * 2
-#  
-#  Sketchup.active_model.active_entities.add_face(circle1).followme(circle2)
-#  Sketchup.active_model.active_entities.erase_entities(circle2)
-#end
-#
-#draw_ball
+def draw_ball
+  xaxis = Geom::Vector3d.new 1,0,0
+  yaxis = Geom::Vector3d.new 1,0,0
+  zaxis = Geom::Vector3d.new 0,0,1
+  
+  radius = (1.0 + 1.0/16.0)/2.0
+  centerpoint = Geom::Point3d.new(12.0 + 1.0/4.0, 40.0 + 13.0/32.0, radius)
+  
+  # Create a circle perpendicular to the normal or Z axis
+  circle1 = Sketchup.active_model.active_entities.add_circle centerpoint, zaxis, radius
+  circle2 = Sketchup.active_model.active_entities.add_circle centerpoint, yaxis, radius * 2
+  
+  Sketchup.active_model.active_entities.add_face(circle1).followme(circle2)
+  Sketchup.active_model.active_entities.erase_entities(circle2)
+end
+
+draw_ball
 #playfield.component(frame(), 'plastics')
 
 left_flipper_constellation(playfield)
@@ -451,5 +465,4 @@ puts Time.now.getutc - t0
 Sketchup.send_action("viewTop:")
 Sketchup.send_action("viewZoomExtents:")
 
-# flexible pilot hole code
 # GI lighting

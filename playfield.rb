@@ -205,6 +205,9 @@ class Playfield
     @shooter_lane_start_depth = 7.5
     @shooter_lane_end_depth = 16.125
     @posts = Hash.new
+    
+    @insert_thickness = 1.0/4.0
+    @insert_depth = 7.0/32.0
   end
 
   def draw_floor
@@ -257,6 +260,66 @@ class Playfield
   def hole_from_edges(hole, edges, depth = nil)
     hole_from_face hole, hole.entities.add_face(edges), depth
   end
+
+  def circular_hole(t, r, depth = nil)
+    hole = Sketchup.active_model.active_entities.add_group()
+    entities = hole.entities
+  
+    centerpoint = Geom::Point3d.new
+    # Create a circle perpendicular to the normal or Z axis
+    normal = Geom::Vector3d.new 0,0,1
+    edges = entities.add_circle t * centerpoint, normal, r
+  
+    hole_from_edges hole, edges, depth
+  end
+  
+  def bottom_dimple(t)
+  #  circular_hole t * frame(0, 0, -(@floor_thickness)), 5.0/128.0, 5.0/128.0
+  end
+  
+  def pilot_hole(t, depth = nil)
+    circular_hole t, 5.0/128.0, depth
+  end
+  
+  def tee_pilot_hole_6_32 t
+    circular_hole(t, (13.0/64.0)/2.0)
+  end
+  
+  def tee_pilot_hole_8_32 t
+    circular_hole(t, (7.0/32.0)/2.0)
+  end
+  
+  def tee_pilot_hole_10_32 t
+    circular_hole(t, (1.0/4.0)/2.0)
+  end
+  
+  def round_ended_hole(t, h, w)
+    hole = Sketchup.active_model.active_entities.add_group()
+  
+    centerpoint = Geom::Point3d.new
+    # Create a circle perpendicular to the normal or Z axis
+    normal = Geom::Vector3d.new(0,0,1)
+    xaxis = t * Geom::Vector3d.new(1,0,0)
+  
+    bottom_arc = hole.entities.add_arc t * frame(0.0, -(h - w) / 2.0) * centerpoint, xaxis, normal, w/2.0, 180.0.degrees, 360.0.degrees
+    top_arc =    hole.entities.add_arc t * frame(0.0,  (h - w) / 2.0) * centerpoint, xaxis, normal, w/2.0, 0.0.degrees, 180.0.degrees
+  
+    hole_from_edges hole, join_arcs(hole, [bottom_arc, top_arc]) 
+  end
+  
+  def lamp_hole(t)
+    circular_hole(t, 0.25)
+  end
+  
+  def square_hole(t, x0, y0, x1, y1)
+    hole = Sketchup.active_model.active_entities.add_group()
+  
+    pt1 = t * Geom::Point3d.new(x0, y0, 0.0)
+    pt2 = t * Geom::Point3d.new(x1, y0, 0.0)
+    pt3 = t * Geom::Point3d.new(x1, y1, 0.0)
+    pt4 = t * Geom::Point3d.new(x0, y1, 0.0)
+    hole_from_face hole, hole.entities.add_face(pt1, pt2, pt3, pt4)
+  end
   
   def draw_ball_trough()
     t = frame(@floor_width - (2.0 + 11.0/16.0), 47.0/8.0) * rotate(29.2)
@@ -294,8 +357,8 @@ class Playfield
   end
   
   def apron_mount(t)
-    top_dimple(t)
-    top_dimple(t * frame(1.0 + 5.0/8.0))
+    pilot_hole(t, 3.0/8.0)
+    pilot_hole(t * frame(1.0 + 5.0/8.0), 3.0/8.0)
   end
   
   def draw_apron_mounts()
@@ -329,59 +392,6 @@ class Playfield
     Sketchup.active_model.active_entities.add_instance(component, t)
   end
   
-  def circular_hole(t, r, depth = nil)
-    hole = Sketchup.active_model.active_entities.add_group()
-    entities = hole.entities
-  
-    centerpoint = Geom::Point3d.new
-    # Create a circle perpendicular to the normal or Z axis
-    normal = Geom::Vector3d.new 0,0,1
-    edges = entities.add_circle t * centerpoint, normal, r
-  
-    hole_from_edges hole, edges, depth
-  end
-  
-  def pilot_hole(t)
-    # TODO: pilot holes should not be full depth
-    circular_hole t, 1.0/32
-  end
-  
-  def top_dimple(t)
-    circular_hole t, 5.0/128.0, 5.0/128.0
-  end
-  
-  def bottom_dimple(t)
-    circular_hole t * frame(0, 0, -(@floor_thickness)), 5.0/128.0, 5.0/128.0
-  end
-  
-  def round_ended_hole(t, h, w)
-    hole = Sketchup.active_model.active_entities.add_group()
-  
-    centerpoint = Geom::Point3d.new
-    # Create a circle perpendicular to the normal or Z axis
-    normal = Geom::Vector3d.new(0,0,1)
-    xaxis = t * Geom::Vector3d.new(1,0,0)
-  
-    bottom_arc = hole.entities.add_arc t * frame(0.0, -(h - w) / 2.0) * centerpoint, xaxis, normal, w/2.0, 180.0.degrees, 360.0.degrees
-    top_arc =    hole.entities.add_arc t * frame(0.0,  (h - w) / 2.0) * centerpoint, xaxis, normal, w/2.0, 0.0.degrees, 180.0.degrees
-  
-    hole_from_edges hole, join_arcs(hole, [bottom_arc, top_arc]) 
-  end
-
-  def lamp_hole(t)
-    circular_hole(t, 0.25)
-  end
-
-  def square_hole(t, x0, y0, x1, y1)
-    hole = Sketchup.active_model.active_entities.add_group()
-  
-    pt1 = t * Geom::Point3d.new(x0, y0, 0.0)
-    pt2 = t * Geom::Point3d.new(x1, y0, 0.0)
-    pt3 = t * Geom::Point3d.new(x1, y1, 0.0)
-    pt4 = t * Geom::Point3d.new(x0, y1, 0.0)
-    hole_from_face hole, hole.entities.add_face(pt1, pt2, pt3, pt4)
-  end
-
   def flipper_mechanics t
     template(t, "Flipper\ Assy\ -\ Williams\ A-15205\ \(Left\)")
     [-17.0/32.0, -5.0/32.0, 89.0/32.0, 101.0/32.0].each do |x|
@@ -413,30 +423,10 @@ class Playfield
     component(t2, "Inlane_DE-sega-stern")
     x = -4.25
     (0..2).each do
-      pilot_hole(t2 * frame(x))
+      pilot_hole(t2 * frame(x), 3.0/8.0)
       x += 1 + 5.0/8.0
     end
-  end
-  
-  def post t, name=nil
-    top_dimple(t)
-    component(t, "Star_Post_1-1'16_-03-8319-13")
-    component(t * Geom::Transformation.translation(Geom::Point3d.new(0, 0, 1.0 + 1.0/16.0)), "Threaded Post Screw 0001")
-    p = Post.new(t)
-    @posts[name] = p if name != nil
-  end
-  
-  def post_with_tee t, name=nil
-    circular_hole(t, 3.0/32.0)
-    component(t, "Star_Post_1-1'16_-03-8319-13")
-    component(t * Geom::Transformation.translation(Geom::Point3d.new(0, 0, 1.0 + 1.0/16.0)), "Threaded Post Screw 0001")
-    p = Post.new(t)
-    @posts[name] = p if name != nil
-  end
-  
-  def mini_post_6_32 t
-    pilot_hole(t)
-    component(t, "Mini_Post_6-32_Thread_02-4195")
+    pilot_hole(t * frame(-(3.0 + 15.0/16.0), 7 + 17.0/64.0), 3.0/8.0)
   end
   
   def slingshot_solenoid_mount t
@@ -539,13 +529,13 @@ class Playfield
     slingshot_switch frame
     
     wire_guide(BezierSpline.new([
-      frame * Geom::Point3d.new(7.0/16.0, 0,            (1.0 + 1.0/16.0)/2.0 + 3.0/32.0),
-      frame * Geom::Point3d.new((width / 2.0 - 0.5), 0, (1.0 + 1.0/16.0)/2.0 + 3.0/32.0)
+      frame * Geom::Point3d.new(7.0/16.0, 0,            (1.0 + 1.0/8.0)/2.0),
+      frame * Geom::Point3d.new((width / 2.0 - 0.5), 0, (1.0 + 1.0/8.0)/2.0)
     ]))
     
     wire_guide(BezierSpline.new([
-      frame * Geom::Point3d.new(-(7.0/16.0), 0,          (1.0 + 1.0/16.0)/2.0 + 3.0/32.0),
-      frame * Geom::Point3d.new(-(width / 2.0 - 0.5), 0, (1.0 + 1.0/16.0)/2.0 + 3.0/32.0)
+      frame * Geom::Point3d.new(-(7.0/16.0), 0,          (1.0 + 1.0/8.0)/2.0),
+      frame * Geom::Point3d.new(-(width / 2.0 - 0.5), 0, (1.0 + 1.0/8.0)/2.0)
     ]))
   end
   
@@ -612,7 +602,7 @@ class Playfield
     circular_hole(t * frame(-11.0/16.0, 0.0, 0.0), 3.0/16.0)
     
     # Skirt shaft hole
-    circular_hole(t, 11.0/32.0)
+    circular_hole(t, 5.0/16.0)
 
     # Lamp lead holes
     t2 = t * rotate(-45.0)
@@ -625,8 +615,8 @@ class Playfield
     circular_hole(t * frame(-1.0, 7.0/16.0, 0.0), 3.0/64.0)
 
     # Body mounting pilot holes
-    top_dimple(t * frame(-5.0/16.0, -5.0/16.0, 0.0))
-    top_dimple(t * frame(5.0/16.0, 5.0/16.0, 0.0))
+    pilot_hole(t * frame(-5.0/16.0, -5.0/16.0, 0.0), 3.0/8.0)
+    pilot_hole(t * frame(5.0/16.0, 5.0/16.0, 0.0), 3.0/8.0)
 
     # Spoon switch bracket holes
     bottom_dimple(t * rotate(5.0) * frame(-3.0/8.0, -29.0/16.0, 0.0))
@@ -664,14 +654,30 @@ class Playfield
     end
   end
   
-  def mini_post_6_32 t
-    component t, "Mini_Post_6-32_Thread_02-4195"
-    circular_hole t, 0.1380/2.0
+  def post t, name=nil
+    pilot_hole(t, 3.0/8.0)
+    component(t, "Star_Post_1-1'16_-03-8319-13")
+    component(t * Geom::Transformation.translation(Geom::Point3d.new(0, 0, 1.0 + 1.0/16.0)), "Threaded Post Screw 0001")
+    p = Post.new(t)
+    @posts[name] = p if name != nil
   end
   
+  def post_with_tee t, name=nil
+    tee_pilot_hole_6_32 t
+    component(t, "Star_Post_1-1'16_-03-8319-13")
+    component(t * Geom::Transformation.translation(Geom::Point3d.new(0, 0, 1.0 + 1.0/16.0)), "Threaded Post Screw 0001")
+    p = Post.new(t)
+    @posts[name] = p if name != nil
+  end
+  
+  def mini_post_6_32_with_tee t
+    tee_pilot_hole_6_32(t)
+    component(t, "Mini_Post_6-32_Thread_02-4195")
+  end
+
   def mini_post_8_32 t
-    component t, "Mini_Post_8-32_Thread"
     circular_hole t, 0.1640/2.0
+    component t, "Mini_Post_8-32_Thread"
   end
   
   def bumper_post t
@@ -682,9 +688,9 @@ class Playfield
   def drop_target_bank t
     round_ended_hole(t * frame(0.0, -1.0/8.0, 0.0) * rotate(90), 4.0, 0.5)
     
-    mini_post_6_32(t * frame(-(1.0 + 11.0/32.0), -9.0/16.0, 0.0))
+    mini_post_8_32(t * frame(-(1.0 + 11.0/32.0), -9.0/16.0, 0.0))
     mini_post_8_32(t * frame(0.0,                -9.0/16.0, 0.0))
-    mini_post_6_32(t * frame(  1.0 + 11.0/32.0,  -9.0/16.0, 0.0))
+    mini_post_8_32(t * frame(  1.0 + 11.0/32.0,  -9.0/16.0, 0.0))
     
     template(t * frame(0.0, 3.0/16.0), "3_bank_Sys11_Drop_Target_Bank")
     x = 1.0 + 7.0/8.0
@@ -701,12 +707,12 @@ class Playfield
   def inline_drop_target_bank t
     template(t, "bally_inline_3_target_bank_rough")
     
-    pilot_hole(t * frame(3.0/32.0, -7.0/16.0, 0.0))
-    pilot_hole(t * frame(2.0, -7.0/16.0, 0.0))
-    pilot_hole(t * frame(7.0/8.0, 3.0 + 1.0/16.0, 0.0))
-    pilot_hole(t * frame(7.0/8.0, 1.0 + 9.0/16.0, 0.0))
-    pilot_hole(t * frame(3.0/32.0, 5.0, 0.0))
-    pilot_hole(t * frame(2.0, 5.0, 0.0))
+    bottom_dimple(t * frame(3.0/32.0, -7.0/16.0, 0.0))
+    bottom_dimple(t * frame(2.0, -7.0/16.0, 0.0))
+    bottom_dimple(t * frame(7.0/8.0, 3.0 + 1.0/16.0, 0.0))
+    bottom_dimple(t * frame(7.0/8.0, 1.0 + 9.0/16.0, 0.0))
+    bottom_dimple(t * frame(3.0/32.0, 5.0, 0.0))
+    bottom_dimple(t * frame(2.0, 5.0, 0.0))
     
     y0 = 0
     (1..3).each do
@@ -727,7 +733,7 @@ class Playfield
     
     y0 = 0
     (1..3).each do
-      square_hole t, -7.0/16.0, y0, 7.0/16.0, y0 + 0.5
+      square_hole t, -15.0/32.0, y0, 15.0/32.0, y0 + (35.0/64.0)
       y0 += 1.5
     end
   end
@@ -745,7 +751,7 @@ class Playfield
   end
   
   def wire_guide spline
-    root_depth = 1.0/4.0
+    root_depth = 3.0/8.0
     root_radius = 5.0/128.0
     wire_radius = 6.0/128.0
 
@@ -767,11 +773,11 @@ class Playfield
   end
   
   def round_insert t, diameter
-    circular_hole t, diameter / 2.0, 1.0/4.0
+    circular_hole t, diameter / 2.0, @insert_depth
     circular_hole t, diameter / 2.0 - 1.0/16.0
-    component(t, "Insert 1-1`2 inch RND PL-112ROT") if diameter == 1.5
-    component(t, "Insert_-_1_inch_RND_PL-1ROT") if diameter == 1.0
-    component(t, "Insert_-_3`4_inch_RND_PL-34RAS") if diameter == 0.75
+    component(t * frame(0, 0, @insert_thickness - @insert_depth), "Insert 1-1`2 inch RND PL-112ROT") if diameter == 1.5
+    component(t * frame(0, 0, @insert_thickness - @insert_depth), "Insert_-_1_inch_RND_PL-1ROT") if diameter == 1.0
+    component(t * frame(0, 0, @insert_thickness - @insert_depth), "Insert_-_3`4_inch_RND_PL-34RAS") if diameter == 0.75
   end
   
   def triangle_insert t
@@ -782,10 +788,10 @@ class Playfield
       vertices.push(t2 * Geom::Point3d.new(0.0, 71.0/128.0, 0.0))
     end
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, 1.0/8.0), 1.0/4.0
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, 1.0/8.0), @insert_depth
     hole = Sketchup.active_model.active_entities.add_group()
     hole_from_edges hole, round_cornered_polygon(hole, vertices, 1.0/8.0 - 1.0/16.0)
-    component(t, "Insert - 1-3`16 inch Tri PI-1316TOS")
+    component(t * frame(0, 0, @insert_thickness - @insert_depth), "Insert - 1-3`16 inch Tri PI-1316TOS")
   end
   
   def small_arrow_insert t
@@ -798,10 +804,10 @@ class Playfield
     vertices.push(t * Geom::Point3d.new(0.0, height - corner_radius, 0.0))
     vertices.push(t * Geom::Point3d.new((width/2.0 - corner_radius), corner_radius, 0.0))
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), 1.0/4.0
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), @insert_depth
     hole = Sketchup.active_model.active_entities.add_group()
     hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0)
-    component(t, "Insert 1-1'2 inch Triangle PI-112TGT")
+    component(t * frame(0, 0, @insert_thickness - @insert_depth), "Insert 1-1'2 inch Triangle PI-112TGT")
   end
   
   def large_arrow_insert t
@@ -814,10 +820,10 @@ class Playfield
     vertices.push(t * Geom::Point3d.new(0.0, height - corner_radius, 0.0))
     vertices.push(t * Geom::Point3d.new((width/2.0 - corner_radius), corner_radius, 0.0))
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), 1.0/4.0
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), @insert_depth
     hole = Sketchup.active_model.active_entities.add_group()
     hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0)
-    component(t, "Insert 2 inch Arrow PI-T2RT")
+    component(t * frame(0, 0, @insert_thickness - @insert_depth), "Insert 2 inch Arrow PI-T2RT")
   end
 
   def small_oval_insert t
@@ -828,10 +834,10 @@ class Playfield
     vertices.push(t * Geom::Point3d.new(-(width - height)/2.0, 0.0, 0.0))
     vertices.push(t * Geom::Point3d.new((width - height)/2.0, 0.0, 0.0))
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), 1.0/4.0
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), @insert_depth
     hole = Sketchup.active_model.active_entities.add_group()
     hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0)
-    insert = component(t, "Insert - 1-5`8 inch OVAL PI-11234--OGT")
+    insert = component(t * frame(0, 0, @insert_thickness - @insert_depth), "Insert - 1-5`8 inch OVAL PI-11234--OGT")
   end
   
   def large_oval_insert t
@@ -843,7 +849,7 @@ class Playfield
     vertices.push(t * Geom::Point3d.new(-(width - height)/2.0, 0.0, 0.0))
     vertices.push(t * Geom::Point3d.new((width - height)/2.0, 0.0, 0.0))
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), 1.0/4.0
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), @insert_depth
     hole = Sketchup.active_model.active_entities.add_group()
     hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0)
   end
