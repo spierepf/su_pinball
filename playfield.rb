@@ -349,7 +349,6 @@ class Playfield
   
   def draw_hangers()
     [1.0 + 1.0/8.0 + 13.0/16.0, 20.25 - (1.0 + 13.0/16.0) - 5.0/8.0].each do |x|
-      circular_hole(frame(x, 0), 1.0/4.0)
       [1.0 + 5.0/16.0, 2.0 + 7.0/8.0].each do |y|
         pilot_hole(frame(x, y))
       end
@@ -610,9 +609,12 @@ class Playfield
     circular_hole(t2 * frame(-11.0/32.0, 0.0, 0.0), 3.0/16.0)
 
     # Coil bracket (hammer screw) holes
-    circular_hole(t * frame(0.0, 17.0/16.0, 0.0), 3.0/64.0)
-    circular_hole(t * frame(1.0, 7.0/16.0, 0.0), 3.0/64.0)
-    circular_hole(t * frame(-1.0, 7.0/16.0, 0.0), 3.0/64.0)
+#    circular_hole(t * frame(0.0, 17.0/16.0, 0.0), 3.0/64.0)
+#    circular_hole(t * frame(1.0, 7.0/16.0, 0.0), 3.0/64.0)
+#    circular_hole(t * frame(-1.0, 7.0/16.0, 0.0), 3.0/64.0)
+    circular_hole(t * frame(0.0, 1.0 + 7.0/64.0, 0.0), 3.0/64.0)
+    circular_hole(t * frame(63.0/64.0, 29.0/64.0, 0.0), 3.0/64.0)
+    circular_hole(t * frame(-63.0/64.0, 29.0/64.0, 0.0), 3.0/64.0)
 
     # Body mounting pilot holes
     pilot_hole(t * frame(-5.0/16.0, -5.0/16.0, 0.0), 3.0/8.0)
@@ -622,11 +624,10 @@ class Playfield
     bottom_dimple(t * rotate(5.0) * frame(-3.0/8.0, -29.0/16.0, 0.0))
     bottom_dimple(t * rotate(5.0) * frame(-3.0/8.0, -35.0/16.0, 0.0))
 
-    # Drill template
-    template(t, "Pop\ Bumper\ Assembly\ Williams\ Bally")
-
     # Pop bumper
-    component(t, "pop-bumper")
+    component(t, "Pop Bumper Body")
+    template(t, "Pop Bumper Solenoid")
+    template(t * rotate(15.0), "Pop Bumper Spoon Switch")
   end
   
   def kickout(t)
