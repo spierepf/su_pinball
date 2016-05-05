@@ -786,7 +786,7 @@ class Playfield
     vertices = []
     2.downto(0) do |i|
       t2 = t * rotate(i * 120)
-      vertices.push(t2 * Geom::Point3d.new(0.0, 71.0/128.0, 0.0))
+      vertices.push(t2 * Geom::Point3d.new(0.0, 69.0/128.0, 0.0))
     end
     hole = Sketchup.active_model.active_entities.add_group()
     hole_from_edges hole, round_cornered_polygon(hole, vertices, 1.0/8.0), @insert_depth
@@ -812,8 +812,8 @@ class Playfield
   end
   
   def large_arrow_insert t
-    width = 1.0
-    height = 2.0
+    width = 1.0 + 1.0/64.0
+    height = 2.0 + 1.0/64.0
     corner_radius = 12.0/64.0
     
     vertices = []
@@ -842,7 +842,7 @@ class Playfield
   end
   
   def large_oval_insert t
-    width = 2.0 + 5.0/16.0
+    width = 2.0 + 6.0/16.0
     height = 3.0/4.0
     corner_radius = height / 2.0
     
