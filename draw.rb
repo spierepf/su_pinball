@@ -56,7 +56,7 @@ def left_flipper_constellation(playfield)
   playfield.flipper_slingshot      left_flipper_frame, :left
   
   playfield.post(frame(1.5, 42.0 - (23.0 + 7.0/16.0)), :left_flipper_constellation_a)
-  playfield.post(frame(1.0 + 1.0/8.0, 42.0 - (26.25)), :left_flipper_constellation_b)
+  playfield.post(frame(1.0 + 1.0/8.0, 42.0 - (25.75)), :left_flipper_constellation_b)
   playfield.rubber([:left_flipper_constellation_a, :left_flipper_constellation_b])
 end
 
