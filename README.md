@@ -1,5 +1,5 @@
 # su_pinball
-A SketchUp API for designing pinball playfields
+A SketchUp library for designing pinball playfields
 
 The goal of the project is to take a description of a pinball playfield and produce a SketchUp model. The generated model should be as complete as possible, with a view to (eventually) generating a model that can be used by a CNC machine.
 
@@ -12,7 +12,7 @@ To run this code:
 ```ruby
 load 'su_pinball/draw.rb'
 ```
- - Wait (mine takes about four minutes) 
+ - Wait (mine takes about twenty minutes) 
 
 The file `description.rb` contains the description of the playfield (a list of components and their locations.)
 
