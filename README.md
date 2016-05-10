@@ -14,8 +14,6 @@ load 'su_pinball/draw.rb'
 ```
  - Wait (mine takes about twenty minutes) 
 
-The file `description.rb` contains the description of the playfield (a list of components and their locations.)
-
 I've included a number of SketchUp models that are included as components in the generated playfield. They are sourced from:
 
 - [Pinball Makers Wiki](http://pinballmakers.com/wiki/index.php/Main_Page) (a highly recommended site for anyone interested in making their own machine)
