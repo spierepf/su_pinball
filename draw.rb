@@ -281,44 +281,15 @@ def upgrade_spline(spline)
 end
 
 def upper_playfield(playfield)
-  return if playfield.cnc()
   
-  upper_playfield = Sketchup.active_model.active_entities.add_group()
   width = 9.0
   depth = 6.0 + 3.0/8.0
   thickness = 1.0/4.0
   gap = 1.0/2.0
   
-  pt1 = [0.0, playfield.floor_depth, playfield.wall_height + gap]
-  pt2 = [width, playfield.floor_depth, playfield.wall_height + gap]
-  pt3 = [width, playfield.floor_depth - depth, playfield.wall_height + gap]
-  pt4 = [0.0, playfield.floor_depth - depth, playfield.wall_height + gap]
-  upper_playfield.entities.add_face(pt1, pt2, pt3, pt4).pushpull -thickness
-
-  13.times do |i|
-    hole = Sketchup.active_model.active_entities.add_group()
-    pt1 = [3.0/8.0 + i * (39.3701 / 60), playfield.floor_depth, playfield.wall_height + gap]
-    pt2 = [3.0/8.0 + i * (39.3701 / 60) + 3.0/8.0, playfield.floor_depth, playfield.wall_height + gap]
-    pt3 = [3.0/8.0 + i * (39.3701 / 60) + 3.0/8.0, playfield.floor_depth - 0.10, playfield.wall_height + gap]
-    pt4 = [3.0/8.0 + i * (39.3701 / 60), playfield.floor_depth - 0.10, playfield.wall_height + gap]
-    hole.entities.add_face(pt1, pt2, pt3, pt4).pushpull -thickness
-    upper_playfield = hole.subtract(upper_playfield)
-  end
-    
-  plastic = Sketchup.active_model.materials.add
-  plastic.color = 'white'
-  plastic.alpha = 0.5
-  upper_playfield.material = plastic
-  
-  draw_wall(0, playfield.floor_depth - depth, playfield.wall_thickness, playfield.floor_depth - playfield.wall_thickness, playfield.wall_height + gap + thickness, playfield.wall_height)
-  draw_wall(0, playfield.floor_depth - playfield.wall_thickness, width, playfield.floor_depth, playfield.wall_height + gap + thickness, playfield.wall_height)
-
   ramp_end_x = playfield.floor_width - (11.0 + 1.0/4.0)
   ramp_end_y = playfield.floor_depth - (3.0 + 1.0/16.0)
-
-  draw_wall(width - playfield.wall_thickness, ramp_end_y + (2.0 + 1.0/16.0)/2, width, playfield.floor_depth - playfield.wall_thickness, playfield.wall_height + gap + thickness, playfield.wall_height)
-  draw_wall(width - playfield.wall_thickness, playfield.floor_depth - depth, width, ramp_end_y - (2.0 + 1.0/16.0)/2, playfield.wall_height + gap + thickness, playfield.wall_height)
-
+  
   pinballDiameter = 1.0 + 1.0/16.0
   ballPath = BezierSpline.new([
     Geom::Point3d.new(ramp_end_x, ramp_end_y, 0),
@@ -343,12 +314,11 @@ def upper_playfield(playfield)
   playfield.large_arrow_insert(ballPath.frame(ballPath.length()-1) * frame(0, -1))
   playfield.large_arrow_insert(ballPath.frame(ballPath.length()-4) * frame(0, -1))
   playfield.large_arrow_insert(ballPath.frame(ballPath.length()-7) * frame(0, -1))
-  
+
   troughPath = []
   (0..8).each do |i|
     troughPath.push ballPath.frame(i) * Geom::Point3d.new(0, 0, (1.0 + 7.0/8.0) * (1.0 / (1.0 + Math.exp(-(3.0 - i)/0.9))) + (pinballDiameter / 2.0))
   end
-  PlasticTrough.new().trough(BezierSpline.new(troughPath), pathDiameter)
 
   ballPath.length.times { ballPath = upgrade_spline(ballPath) }
   
@@ -363,6 +333,39 @@ def upper_playfield(playfield)
     wirePath.push ballPath.frame(i) * Geom::Point3d.new(-(3.0/16.0 + pathDiameter/2.0), 0, (1.0 + 1.0/8.0)/2.0)
   end
   playfield.wire_guide(BezierSpline.new(wirePath))
+
+  return if playfield.cnc()
+  
+  upper_playfield = Sketchup.active_model.active_entities.add_group()
+
+  pt1 = [0.0, playfield.floor_depth, playfield.wall_height + gap]
+  pt2 = [width, playfield.floor_depth, playfield.wall_height + gap]
+  pt3 = [width, playfield.floor_depth - depth, playfield.wall_height + gap]
+  pt4 = [0.0, playfield.floor_depth - depth, playfield.wall_height + gap]
+  upper_playfield.entities.add_face(pt1, pt2, pt3, pt4).pushpull -thickness
+
+  13.times do |i|
+    hole = Sketchup.active_model.active_entities.add_group()
+    pt1 = [3.0/8.0 + i * (39.3701 / 60), playfield.floor_depth, playfield.wall_height + gap]
+    pt2 = [3.0/8.0 + i * (39.3701 / 60) + 3.0/8.0, playfield.floor_depth, playfield.wall_height + gap]
+    pt3 = [3.0/8.0 + i * (39.3701 / 60) + 3.0/8.0, playfield.floor_depth - 0.10, playfield.wall_height + gap]
+    pt4 = [3.0/8.0 + i * (39.3701 / 60), playfield.floor_depth - 0.10, playfield.wall_height + gap]
+    hole.entities.add_face(pt1, pt2, pt3, pt4).pushpull -thickness
+    upper_playfield = hole.subtract(upper_playfield)
+  end
+    
+  plastic = Sketchup.active_model.materials.add
+  plastic.color = 'white'
+  plastic.alpha = 0.5
+  upper_playfield.material = plastic
+  
+  PlasticTrough.new().trough(BezierSpline.new(troughPath), pathDiameter)
+
+  draw_wall(0, playfield.floor_depth - depth, playfield.wall_thickness, playfield.floor_depth - playfield.wall_thickness, playfield.wall_height + gap + thickness, playfield.wall_height)
+  draw_wall(0, playfield.floor_depth - playfield.wall_thickness, width, playfield.floor_depth, playfield.wall_height + gap + thickness, playfield.wall_height)
+  
+  draw_wall(width - playfield.wall_thickness, ramp_end_y + (2.0 + 1.0/16.0)/2, width, playfield.floor_depth - playfield.wall_thickness, playfield.wall_height + gap + thickness, playfield.wall_height)
+  draw_wall(width - playfield.wall_thickness, playfield.floor_depth - depth, width, ramp_end_y - (2.0 + 1.0/16.0)/2, playfield.wall_height + gap + thickness, playfield.wall_height)
 end
 
 def top_curve(playfield)
