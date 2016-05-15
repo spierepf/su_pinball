@@ -192,7 +192,7 @@ class UpperPlayfield
 end
 
 class Playfield
-  attr_reader :floor_width, :floor_depth, :floor_thickness, :wall_thickness, :wall_height, :shooter_lane_width, :shooter_lane_start_depth, :shooter_lane_end_depth 
+  attr_reader :floor_width, :floor_depth, :floor_thickness, :wall_thickness, :wall_height, :shooter_lane_width, :shooter_lane_start_depth, :shooter_lane_end_depth, :cnc 
   
   def initialize
     @floor = Sketchup.active_model.active_entities.add_group()
@@ -208,6 +208,8 @@ class Playfield
     
     @insert_thickness = 1.0/4.0
     @insert_depth = 7.0/32.0
+    
+    @cnc = true
   end
 
   def draw_floor
@@ -219,7 +221,21 @@ class Playfield
   end
   
   def draw_wall(x1, y1, x2, y2, pilot_spacing = 4.0)
-    # TODO: Create screw holes
+    xc = (x2 + x1) / 2.0
+    yc = (y2 + y1) / 2.0
+    if (x2 - x1) > 1.0 then
+      (((x2 - x1) / 2.0) / pilot_spacing).ceil.times do |i|
+        pilot_hole(frame(xc + (i * pilot_spacing), yc))
+        pilot_hole(frame(xc - (i * pilot_spacing), yc)) if i != 0
+      end
+    elsif (y2 - y1) > 1.0 then
+      (((y2 - y1) / 2.0) / pilot_spacing).ceil.times do |i|
+        pilot_hole(frame(xc, yc + (i * pilot_spacing)))
+        pilot_hole(frame(xc, yc - (i * pilot_spacing))) if i != 0
+      end
+    end
+    
+    return if cnc
     entities = Sketchup.active_model.active_entities.add_group().entities
   
     pt1 = [x1, y1, 0.0]
@@ -228,20 +244,6 @@ class Playfield
     pt4 = [x2, y1, 0.0]
     new_face = entities.add_face pt1, pt2, pt3, pt4
     new_face.pushpull -@wall_height
-    
-    xc = (x2 + x1) / 2.0
-    yc = (y2 + y1) / 2.0
-    if (x2 - x1) > 1.0 then
-      ((x2 - x1 - 2.0) / pilot_spacing).floor.times do |i|
-        pilot_hole(frame(xc + (i * pilot_spacing), yc))
-        pilot_hole(frame(xc - (i * pilot_spacing), yc)) if i != 0
-      end
-    elsif (y2 - y1) > 1.0 then
-      ((y2 - y1 - 2.0) / pilot_spacing).floor.times do |i|
-        pilot_hole(frame(xc, yc + (i * pilot_spacing)))
-        pilot_hole(frame(xc, yc - (i * pilot_spacing))) if i != 0
-      end
-    end
   end
   
   def draw_walls
@@ -251,26 +253,35 @@ class Playfield
     draw_wall(@floor_width - @wall_thickness - @shooter_lane_width - @wall_thickness, @shooter_lane_start_depth, @floor_width - @wall_thickness - @shooter_lane_width, @shooter_lane_end_depth, 3.0)
   end
   
-  def hole_from_face(hole, face, depth = nil)
+  def hole_from_face(hole, face, depth = nil, layer = nil)
+    if layer != nil then
+      Sketchup.active_model.layers.add layer
+      hole.layer = layer if layer != nil
+    end
+
+    return if cnc
+    
     depth = @floor_thickness if depth == nil
     face.pushpull depth
     @floor = hole.subtract @floor
   end
   
-  def hole_from_edges(hole, edges, depth = nil)
-    hole_from_face hole, hole.entities.add_face(edges), depth
+  def hole_from_edges(hole, edges, depth = nil, layer = nil)
+    hole_from_face hole, hole.entities.add_face(edges), depth, layer
   end
 
-  def circular_hole(t, r, depth = nil)
+  def circular_hole(t, r, depth = nil, layer = nil)
     hole = Sketchup.active_model.active_entities.add_group()
     entities = hole.entities
+    edgeCount = 24
+    edgeCount = 96 if @cnc
   
     centerpoint = Geom::Point3d.new
     # Create a circle perpendicular to the normal or Z axis
     normal = Geom::Vector3d.new 0,0,1
-    edges = entities.add_circle t * centerpoint, normal, r
+    edges = entities.add_circle t * centerpoint, normal, r, edgeCount
   
-    hole_from_edges hole, edges, depth
+    hole_from_edges hole, edges, depth, layer
   end
   
   def bottom_dimple(t)
@@ -278,22 +289,26 @@ class Playfield
   end
   
   def pilot_hole(t, depth = nil)
-    circular_hole t, 5.0/128.0, depth
+    circular_hole t, (5.0/64.0)/2.0, depth, "pilot_hole"
   end
   
   def tee_pilot_hole_6_32 t
-    circular_hole(t, (13.0/64.0)/2.0)
+    circular_hole(t, (13.0/64.0)/2.0, nil, "tee_6_32")
   end
   
   def tee_pilot_hole_8_32 t
-    circular_hole(t, (7.0/32.0)/2.0)
+    circular_hole(t, (7.0/32.0)/2.0, nil, "tee_8_32")
   end
   
   def tee_pilot_hole_10_32 t
-    circular_hole(t, (1.0/4.0)/2.0)
+    circular_hole(t, (1.0/4.0)/2.0, nil, "tee_10_32")
   end
   
-  def round_ended_hole(t, h, w)
+  def clearance_hole_8_32 t
+    circular_hole t, 0.1640/2.0, nil, "clearance_8_32"
+  end
+  
+  def round_ended_hole(t, h, w, depth = nil, layer=nil)
     hole = Sketchup.active_model.active_entities.add_group()
   
     centerpoint = Geom::Point3d.new
@@ -304,21 +319,21 @@ class Playfield
     bottom_arc = hole.entities.add_arc t * frame(0.0, -(h - w) / 2.0) * centerpoint, xaxis, normal, w/2.0, 180.0.degrees, 360.0.degrees
     top_arc =    hole.entities.add_arc t * frame(0.0,  (h - w) / 2.0) * centerpoint, xaxis, normal, w/2.0, 0.0.degrees, 180.0.degrees
   
-    hole_from_edges hole, join_arcs(hole, [bottom_arc, top_arc]) 
+    hole_from_edges hole, join_arcs(hole, [bottom_arc, top_arc]), depth, layer 
   end
   
   def lamp_hole(t)
-    circular_hole(t, 0.25)
+    circular_hole(t, 0.25, nil, "mechanical")
   end
   
-  def square_hole(t, x0, y0, x1, y1)
+  def square_hole(t, x0, y0, x1, y1, depth = nil, layer = nil)
     hole = Sketchup.active_model.active_entities.add_group()
   
     pt1 = t * Geom::Point3d.new(x0, y0, 0.0)
     pt2 = t * Geom::Point3d.new(x1, y0, 0.0)
     pt3 = t * Geom::Point3d.new(x1, y1, 0.0)
     pt4 = t * Geom::Point3d.new(x0, y1, 0.0)
-    hole_from_face hole, hole.entities.add_face(pt1, pt2, pt3, pt4)
+    hole_from_face hole, hole.entities.add_face(pt1, pt2, pt3, pt4), depth, layer
   end
   
   def draw_ball_trough()
@@ -333,13 +348,14 @@ class Playfield
     top_arc = hole.entities.add_arc t * Geom::Point3d.new(-33.0/4.0, 7.0/16.0, 0.0), xaxis, normal, 3.0/16.0, 90.0.degrees, 180.0.degrees
     bottom_arc = hole.entities.add_arc t * Geom::Point3d.new(-33.0/4.0, -7.0/16.0, 0.0), xaxis, normal, 3.0/16.0, 180.0.degrees, 270.0.degrees
   
-    hole_from_edges hole, join_arcs(hole, [right_arc, top_arc, bottom_arc])
+    hole_from_edges hole, join_arcs(hole, [right_arc, top_arc, bottom_arc]), nil, "mechanical"
 
-    hole = Sketchup.active_model.active_entities.add_group()
-    hammer_arc = hole.entities.add_arc t * Geom::Point3d.new(-33.0/4.0 - 3.0/16.0 - 1.0/8.0, 0.0, 0.0), xaxis, normal, 5.0/16.0, 90.0.degrees, 270.0.degrees
-    hole_from_edges hole, join_arcs(hole, [hammer_arc, hole.entities.add_edges(t * Geom::Point3d.new(-33.0/4.0 - 3.0/16.0, -5.0/16.0, 0), t * Geom::Point3d.new(-33.0/4.0 - 3.0/16.0, 5.0/16.0, 0))]), 1.0/4.0
-
-    circular_hole(t * frame(-33.0/4.0 - 3.0/16.0 - 1.0/8.0, -(1.0 + 5.0/16.0)), 1.0/4.0, 1.0/4.0)
+#    hole = Sketchup.active_model.active_entities.add_group()
+#    hammer_arc = hole.entities.add_arc t * Geom::Point3d.new(-33.0/4.0 - 3.0/16.0 - 1.0/8.0, 0.0, 0.0), xaxis, normal, 5.0/16.0, 90.0.degrees, 270.0.degrees
+#    hole_from_edges hole, join_arcs(hole, [hammer_arc, hole.entities.add_edges(t * Geom::Point3d.new(-33.0/4.0 - 3.0/16.0, -5.0/16.0, 0), t * Geom::Point3d.new(-33.0/4.0 - 3.0/16.0, 5.0/16.0, 0))]), 1.0/4.0
+    round_ended_hole(t * frame(-33.0/4.0 - 1.0/16.0 - 1.0/8.0) * rotate(90.0), 7.0/8.0, 5.0/8.0, 1.0/4.0, "mechanical_shallow")
+    
+    circular_hole(t * frame(-33.0/4.0 - 3.0/16.0 - 1.0/8.0, -(1.0 + 5.0/16.0)), 1.0/4.0, 1.0/4.0, "mechanical_shallow")
   end
   
   def draw_handhold_notches()
@@ -370,7 +386,9 @@ class Playfield
     shooter_lane_start_y = 4.0 + 5.0/16.0
     
     rollover_switch(frame(shooter_lane_start_x, shooter_lane_start_y + (1.0 + 3.0/4.0 - 3.0/16.0) / 2.0 ), false)
-      
+    
+    return if cnc
+  
     launch_guide = Sketchup.active_model.active_entities.add_group()
     launch_angle = 1.0.degrees
     edges = launch_guide.entities.add_circle(Geom::Point3d.new(shooter_lane_start_x, shooter_lane_start_y - 1.0/8.0, 0.25), Geom::Vector3d.new(0, Math.cos(launch_angle), Math.sin(launch_angle)) , (1.0 + 1.0/16.0) / 2.0)
@@ -380,12 +398,14 @@ class Playfield
   end
   
   def template(t, name)
+    return if cnc
     filename = (File.dirname(__FILE__) + "/models/" + name + ".skp").gsub("/", "\\")
     component = Sketchup.active_model.definitions.load filename
     Sketchup.active_model.active_entities.add_instance(component, t * frame(0.0, 0.0, -@floor_thickness))
   end
 
   def component(t, name)
+    return if cnc
     filename = (File.dirname(__FILE__) + "/models/" + name + ".skp").gsub("/", "\\")
     component = Sketchup.active_model.definitions.load filename
     Sketchup.active_model.active_entities.add_instance(component, t)
@@ -401,12 +421,12 @@ class Playfield
   end
 
   def flipper_bat t
-    circular_hole(t, 0.25)
+    circular_hole(t, 0.25, nil, "mechanical")
     component(t * rotate(-35.0), "flipper")
   end
   
   def flipper_index_pin_hole t
-    circular_hole(t * rotate(-35.0) * frame(2.0 + 3.0/32.0), 1.0/32.0)
+    circular_hole(t * rotate(-35.0) * frame(2.0 + 3.0/32.0), 1.0/32.0, nil, "flipper_index_pin")
   end
   
   def flipper_biff_bar t
@@ -438,14 +458,14 @@ class Playfield
   end
 
   def slingshot_switch t
-    circular_hole(t, 0.25)
+    circular_hole(t, 0.25, nil, "mechanical")
     template(t, "Slingshot Switch")
     bottom_dimple(t * frame(0, -19.0/32.0))
     bottom_dimple(t * frame(0, -35.0/32.0))
   end
 
   def slingshot t
-    round_ended_hole(t, 1.0, 0.5)
+    round_ended_hole(t, 1.0, 0.5, nil, "mechanical")
     template(t * frame(0, -3.0/8.0), "Kicker_Arm_Sllingshot_Assembly_B-12665")
     bottom_dimple(t * frame(31.0/64.0, -18.0/32.0))
     bottom_dimple(t * frame(31.0/64.0, -6.0/32.0))
@@ -480,6 +500,7 @@ class Playfield
   end
   
   def rubber(post_symbols)
+    return if cnc
     posts = []
     post_symbols.each do |s|
       posts.push @posts[s] if @posts[s] != nil
@@ -559,7 +580,7 @@ class Playfield
   
   def rollover_switch(t, insert = true)
     template(t, "Switch Rollover - Sys7")
-    round_ended_hole(t, 1.0 + 3.0/4.0, 3.0/16.0)
+    round_ended_hole(t, 1.0 + 3.0/4.0, 3.0/16.0, nil, "rollover_switch")
     
     bottom_dimple(t * frame(23.0/32.0, 15.0/16.0))
     bottom_dimple(t * frame(23.0/32.0, 1.0 + 5.0/16.0))
@@ -597,24 +618,25 @@ class Playfield
   
   def pop_bumper(t)
     # Ring and rod holes
-    circular_hole(t * frame(11.0/16.0, 0.0, 0.0), 3.0/16.0)
-    circular_hole(t * frame(-11.0/16.0, 0.0, 0.0), 3.0/16.0)
+    circular_hole(t * frame(11.0/16.0, 0.0, 0.0), 3.0/16.0, nil, "mechanical")
+    circular_hole(t * frame(-11.0/16.0, 0.0, 0.0), 3.0/16.0, nil, "mechanical")
     
     # Skirt shaft hole
-    circular_hole(t, 5.0/16.0)
+    circular_hole(t, 5.0/16.0, nil, "mechanical")
 
     # Lamp lead holes
     t2 = t * rotate(-45.0)
-    circular_hole(t2 * frame(11.0/32.0, 0.0, 0.0), 3.0/16.0)
-    circular_hole(t2 * frame(-11.0/32.0, 0.0, 0.0), 3.0/16.0)
+#    circular_hole(t2 * frame(11.0/32.0, 0.0, 0.0), 3.0/16.0)
+#    circular_hole(t2 * frame(-11.0/32.0, 0.0, 0.0), 3.0/16.0)
+    round_ended_hole(t2 * rotate(90.0), 34.0/32.0, 6.0/16.0, nil, "mechanical")
 
     # Coil bracket (hammer screw) holes
 #    circular_hole(t * frame(0.0, 17.0/16.0, 0.0), 3.0/64.0)
 #    circular_hole(t * frame(1.0, 7.0/16.0, 0.0), 3.0/64.0)
 #    circular_hole(t * frame(-1.0, 7.0/16.0, 0.0), 3.0/64.0)
-    circular_hole(t * frame(0.0, 1.0 + 7.0/64.0, 0.0), 3.0/64.0)
-    circular_hole(t * frame(63.0/64.0, 29.0/64.0, 0.0), 3.0/64.0)
-    circular_hole(t * frame(-63.0/64.0, 29.0/64.0, 0.0), 3.0/64.0)
+    circular_hole(t * frame(0.0, 1.0 + 7.0/64.0, 0.0), 3.0/64.0, nil, "fin_shank_screw")
+    circular_hole(t * frame(63.0/64.0, 29.0/64.0, 0.0), 3.0/64.0, nil, "fin_shank_screw")
+    circular_hole(t * frame(-63.0/64.0, 29.0/64.0, 0.0), 3.0/64.0, nil, "fin_shank_screw")
 
     # Body mounting pilot holes
     pilot_hole(t * frame(-5.0/16.0, -5.0/16.0, 0.0), 3.0/8.0)
@@ -631,7 +653,7 @@ class Playfield
   end
   
   def kickout(t)
-    circular_hole(t, (1.0 + 3.0/16.0) / 2.0)
+    circular_hole(t, (1.0 + 3.0/16.0) / 2.0, nil, "mechanical")
     template(t, "Kickout_Hole_SYS7")
     
     # Kickout insert
@@ -672,22 +694,22 @@ class Playfield
   end
   
   def mini_post_6_32_with_tee t
-    tee_pilot_hole_6_32(t)
+    tee_pilot_hole_6_32 t
     component(t, "Mini_Post_6-32_Thread_02-4195")
   end
 
   def mini_post_8_32 t
-    circular_hole t, 0.1640/2.0
+    clearance_hole_8_32 t
     component t, "Mini_Post_8-32_Thread"
   end
   
   def bumper_post t
+    clearance_hole_8_32 t
     component t, "Bumper Post 8-32 Thread bottom 6-32 at Top 024056"
-    circular_hole t, 0.1640/2.0
   end
   
   def drop_target_bank t
-    round_ended_hole(t * frame(0.0, -1.0/8.0, 0.0) * rotate(90), 4.0, 0.5)
+    round_ended_hole(t * frame(0.0, -1.0/8.0, 0.0) * rotate(90), 4.0, 0.5, nil, "mechanical")
     
     mini_post_8_32(t * frame(-(1.0 + 11.0/32.0), -9.0/16.0, 0.0))
     mini_post_8_32(t * frame(0.0,                -9.0/16.0, 0.0))
@@ -717,7 +739,7 @@ class Playfield
     
     y0 = 0
     (1..3).each do
-      square_hole t, -7.0/16.0, y0, 7.0/16.0, y0 + 0.5
+      square_hole t, -7.0/16.0, y0, 7.0/16.0, y0 + 0.5, nil, "mechanical"
       y0 += 1.5
     end
   end
@@ -734,12 +756,13 @@ class Playfield
     
     y0 = 0
     (1..3).each do
-      square_hole t, -15.0/32.0, y0, 15.0/32.0, y0 + (35.0/64.0)
+      square_hole t, -15.0/32.0, y0, 15.0/32.0, y0 + (35.0/64.0), nil, "mechanical"
       y0 += 1.5
     end
   end
   
   def sheet_guide spline
+    return if cnc
     group = Sketchup.active_model.active_entities.add_group()
     
     points = []
@@ -761,8 +784,10 @@ class Playfield
       points.push spline.f(i)
     end
     
-    circular_hole(frame(points.first.x, points.first.y), root_radius, root_depth)
-    circular_hole(frame(points.last.x, points.last.y), root_radius, root_depth)
+    circular_hole(frame(points.first.x, points.first.y), root_radius, root_depth, "wireform_mount")
+    circular_hole(frame(points.last.x, points.last.y), root_radius, root_depth, "wireform_mount")
+
+    return if cnc
     
     group = Sketchup.active_model.active_entities.add_group()
 
@@ -774,14 +799,18 @@ class Playfield
   end
   
   def round_insert t, diameter
-    circular_hole t, diameter / 2.0, @insert_depth
-    circular_hole t, diameter / 2.0 - 1.0/16.0
+    radius = (diameter / 2.0) + 0.005
+    
+    circular_hole t, radius, @insert_depth, "insert"
+    circular_hole t, radius - 1.0/16.0, nil, "insert_shelf"
     component(t * frame(0, 0, @insert_thickness - @insert_depth), "Insert 1-1`2 inch RND PL-112ROT") if diameter == 1.5
     component(t * frame(0, 0, @insert_thickness - @insert_depth), "Insert_-_1_inch_RND_PL-1ROT") if diameter == 1.0
     component(t * frame(0, 0, @insert_thickness - @insert_depth), "Insert_-_3`4_inch_RND_PL-34RAS") if diameter == 0.75
   end
   
   def triangle_insert t
+    corner_radius = ((1.0/4.0) / 2.0) + 0.005
+    
     zaxis = Geom::Vector3d.new(0.0, 0.0, 1.0)
     vertices = []
     2.downto(0) do |i|
@@ -789,74 +818,75 @@ class Playfield
       vertices.push(t2 * Geom::Point3d.new(0.0, 69.0/128.0, 0.0))
     end
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, 1.0/8.0), @insert_depth
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), @insert_depth, "insert"
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, 1.0/8.0 - 1.0/16.0)
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0), nil, "insert_shelf"
     component(t * frame(0, 0, @insert_thickness - @insert_depth), "Insert - 1-3`16 inch Tri PI-1316TOS")
   end
   
   def small_arrow_insert t
     width = 21.0/32.0
     height = 1.0 + 65.0/128.0
-    corner_radius = 9.0/64.0
+    corner_radius = 9.0/64.0 + 0.005
     
     vertices = []
     vertices.push(t * Geom::Point3d.new(-(width/2.0 - corner_radius), corner_radius, 0.0))
     vertices.push(t * Geom::Point3d.new(0.0, height - corner_radius, 0.0))
     vertices.push(t * Geom::Point3d.new((width/2.0 - corner_radius), corner_radius, 0.0))
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), @insert_depth
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), @insert_depth, "insert"
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0)
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0), nil, "insert_shelf"
     component(t * frame(0, 0, @insert_thickness - @insert_depth), "Insert 1-1'2 inch Triangle PI-112TGT")
   end
   
   def large_arrow_insert t
     width = 1.0 + 1.0/64.0
     height = 2.0 + 1.0/64.0
-    corner_radius = 12.0/64.0
+    corner_radius = 12.0/64.0 + 0.005
     
     vertices = []
     vertices.push(t * Geom::Point3d.new(-(width/2.0 - corner_radius), corner_radius, 0.0))
     vertices.push(t * Geom::Point3d.new(0.0, height - corner_radius, 0.0))
     vertices.push(t * Geom::Point3d.new((width/2.0 - corner_radius), corner_radius, 0.0))
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), @insert_depth
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), @insert_depth, "insert"
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0)
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0), nil, "insert_shelf"
     component(t * frame(0, 0, @insert_thickness - @insert_depth), "Insert 2 inch Arrow PI-T2RT")
   end
 
   def small_oval_insert t
     width = 1.0 + 5.0/8.0
     height = 3.0/4.0
+    corner_radius = (height / 2.0) - 0.005
   
     vertices = []
     vertices.push(t * Geom::Point3d.new(-(width - height)/2.0, 0.0, 0.0))
     vertices.push(t * Geom::Point3d.new((width - height)/2.0, 0.0, 0.0))
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), @insert_depth
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), @insert_depth, "insert"
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0)
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0), nil, "insert_shelf"
     insert = component(t * frame(0, 0, @insert_thickness - @insert_depth), "Insert - 1-5`8 inch OVAL PI-11234--OGT")
   end
   
   def large_oval_insert t
     width = 2.0 + 6.0/16.0
     height = 3.0/4.0
-    corner_radius = height / 2.0
+    corner_radius = (height / 2.0) - 0.005
     
     vertices = []
     vertices.push(t * Geom::Point3d.new(-(width - height)/2.0, 0.0, 0.0))
     vertices.push(t * Geom::Point3d.new((width - height)/2.0, 0.0, 0.0))
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), @insert_depth
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius), @insert_depth, "insert"
     hole = Sketchup.active_model.active_entities.add_group()
-    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0)
+    hole_from_edges hole, round_cornered_polygon(hole, vertices, corner_radius - 1.0/16.0), nil, "insert_shelf"
   end
   
   def fixed_target t
-    round_ended_hole(t * rotate(90), 1.0 + 1.0/8.0, 0.5)
+    round_ended_hole(t * rotate(90), 1.0 + 1.0/8.0, 0.5, nil, "mechanical")
     component(t * frame(0.0, -4.0/16.0, -@floor_thickness) * rotate(180), "Target 004 Assy")
     bottom_dimple(t * frame(-3.0/16.0, -9.0/16.0))
     bottom_dimple(t * frame(+3.0/16.0, -9.0/16.0))

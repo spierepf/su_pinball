@@ -153,7 +153,6 @@ def left_drop_target_bank(playfield)
   playfield.drop_target_bank frame(4.5, 42.0 - 20.0) * rotate(250.0)
   playfield.bumper_post frame(4.0 + 11.0/16.0, 42.0 - (17.0 + 11.0/16.0))
   playfield.bumper_post frame(3.0 +  5.0/16.0, 42.0 - (21.0 + 11.0/16.0))
-
     
   insert_spray_x = 11.25
   insert_spray_y = 18.0
@@ -209,8 +208,10 @@ def spinner_ramp(playfield)
   playfield.rubber_with_switch(:spinner_ramp_left, :upper_left_e)
   playfield.rubber([:spinner_ramp_right])
   
-  playfield.circular_hole(frame(ramp_start_x0 + 0.5, ramp_start_y), 1.0/8.0)
+  playfield.circular_hole(frame(ramp_start_x0 + 0.5, ramp_start_y), 1.0/8.0, nil, "mechanical")
   playfield.mini_post_6_32_with_tee(frame(ramp_start_x0 + 0.5, ramp_start_y - 5.0/8.0))
+    
+  return if playfield.cnc
   
   wireformTrough = WireFormTrough.new()
   plasticTrough = PlasticTrough.new()
@@ -280,6 +281,8 @@ def upgrade_spline(spline)
 end
 
 def upper_playfield(playfield)
+  return if playfield.cnc()
+  
   upper_playfield = Sketchup.active_model.active_entities.add_group()
   width = 9.0
   depth = 6.0 + 3.0/8.0
@@ -443,7 +446,7 @@ def draw_ball
   Sketchup.active_model.active_entities.erase_entities(circle2)
 end
 
-draw_ball
+#draw_ball
 #playfield.component(frame(), 'plastics')
 
 left_flipper_constellation(playfield)
