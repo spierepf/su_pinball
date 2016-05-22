@@ -48,6 +48,11 @@ def puts_point(p)
   puts "Geom::Point3d.new(" + p.x.to_f.to_s + ", " + p.y.to_f.to_s + ", " + p.z.to_f.to_s + "),"
 end
 
+def local_pushpull(face, height)
+  height = -height if face.normal.z < 0
+  face.pushpull height
+end
+
 class Post
   attr_reader :position
 
@@ -217,7 +222,7 @@ class Playfield
     pt2 = [@floor_width, 0.0, 0.0]
     pt3 = [@floor_width, @floor_depth, 0.0]
     pt4 = [0.0, @floor_depth, 0.0]
-    @floor.entities.add_face(pt1, pt2, pt3, pt4).pushpull @floor_thickness
+    local_pushpull(@floor.entities.add_face(pt1, pt2, pt3, pt4), -@floor_thickness)
   end
   
   def draw_wall(x1, y1, x2, y2, pilot_spacing = 4.0)
@@ -243,7 +248,7 @@ class Playfield
     pt3 = [x2, y2, 0.0]
     pt4 = [x2, y1, 0.0]
     new_face = entities.add_face pt1, pt2, pt3, pt4
-    new_face.pushpull -@wall_height
+    local_pushpull(new_face, @wall_height)
   end
   
   def draw_walls
@@ -261,8 +266,8 @@ class Playfield
 
     return if cnc
     
-    depth = @floor_thickness if depth == nil
-    face.pushpull depth
+    depth = -@floor_thickness if depth == nil
+    local_pushpull face, depth
     @floor = hole.subtract @floor
   end
   
