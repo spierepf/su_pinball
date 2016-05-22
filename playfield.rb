@@ -600,22 +600,6 @@ class Playfield
     lamp_hole t
   end
   
-  def rake(start, stop, count, post_symbol_prefix)
-    d = stop - start
-    d.x = d.x / (2.0 * count)
-    d.y = d.y / (2.0 * count)
-    d.z = d.z / (2.0 * count)
-    
-    p = Geom::Transformation.translation(start)
-    lane_guide p, (post_symbol_prefix.to_s + "_lane_guide_0").to_sym
-    (1..count).each do |i|
-      p = p * Geom::Transformation.translation(d)
-      rollover_switch p
-      p = p * Geom::Transformation.translation(d)
-      lane_guide p, (post_symbol_prefix.to_s + "_lane_guide_" + i.to_s).to_sym
-    end
-  end
-  
   def pop_bumper(t)
     # Ring and rod holes
     circular_hole(t * frame(11.0/16.0, 0.0, 0.0), 3.0/16.0, nil, "mechanical")

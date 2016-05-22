@@ -86,7 +86,25 @@ end
 
 def upper_left(playfield)
   y = (42.0 - 5.0 - 5.0/16.0)
-  playfield.rake Geom::Point3d.new(2.25, y, 0.0), Geom::Point3d.new(8.5, y, 0.0), 3, :upper_left_rake
+
+  start = Geom::Point3d.new(2.25, y, 0.0)
+  stop = Geom::Point3d.new(8.5, y, 0.0)
+  count = 3
+  post_symbol_prefix = :upper_left_rake
+  
+  d = stop - start
+  d.x = d.x / (2.0 * count)
+  d.y = d.y / (2.0 * count)
+  d.z = d.z / (2.0 * count)
+  
+  p = Geom::Transformation.translation(start)
+  playfield.lane_guide p, (post_symbol_prefix.to_s + "_lane_guide_0").to_sym
+  (1..count).each do |i|
+    p = p * Geom::Transformation.translation(d)
+    playfield.rollover_switch p
+    p = p * Geom::Transformation.translation(d)
+    playfield.lane_guide p, (post_symbol_prefix.to_s + "_lane_guide_" + i.to_s).to_sym
+  end
   
   playfield.post frame(1.5,             42.0 - (3.0 + 7.0/16.0)),  :upper_left_a
   playfield.post frame(2.0 + 1.0/16.0,  42.0 - (7.0 + 3.0/16.0)),  :upper_left_b
