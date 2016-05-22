@@ -101,13 +101,13 @@ def upper_left(playfield)
   d.z = d.z / (2.0 * count)
   
   p = Geom::Transformation.translation(start)
-  playfield.lane_guide p, (post_symbol_prefix.to_s + "_lane_guide_0").to_sym
-  (1..count).each do |i|
+  (0..count-1).each do |i|
+    playfield.lane_guide p, (post_symbol_prefix.to_s + "_lane_guide_" + i.to_s).to_sym
     p = p * Geom::Transformation.translation(d)
     playfield.rollover_switch p
     p = p * Geom::Transformation.translation(d)
-    playfield.lane_guide p, (post_symbol_prefix.to_s + "_lane_guide_" + i.to_s).to_sym
   end
+  playfield.lane_guide p, (post_symbol_prefix.to_s + "_lane_guide_3").to_sym
   
   playfield.post frame(1.5,             42.0 - (3.0 + 7.0/16.0)),  :upper_left_a
   playfield.post frame(2.0 + 1.0/16.0,  42.0 - (7.0 + 3.0/16.0)),  :upper_left_b
