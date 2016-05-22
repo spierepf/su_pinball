@@ -209,7 +209,7 @@ class Playfield
     @insert_thickness = 1.0/4.0
     @insert_depth = 7.0/32.0
     
-    @cnc = true
+    @cnc = false
   end
 
   def draw_floor

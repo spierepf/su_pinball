@@ -88,20 +88,10 @@ def upper_left(playfield)
   y = (42.0 - 5.0 - 5.0/16.0)
   playfield.rake Geom::Point3d.new(2.25, y, 0.0), Geom::Point3d.new(8.5, y, 0.0), 3, :upper_left_rake
   
-  # pop bumpers
-  playfield.pop_bumper frame(2.0 + 1.0/2.0, 42.0 - 9.0)
-  playfield.pop_bumper frame(7.0,           42.0 - 9.0)
-  playfield.pop_bumper frame(4.0 + 3.0/8.0, 42.0 - 12.5)
-
   playfield.post frame(1.5,             42.0 - (3.0 + 7.0/16.0)),  :upper_left_a
   playfield.post frame(2.0 + 1.0/16.0,  42.0 - (7.0 + 3.0/16.0)),  :upper_left_b
   playfield.post frame(9.0 + 5.0/16.0,  42.0 - (4.0 + 3.0/16.0)),  :upper_left_c
   playfield.post frame(8.0,             42.0 - (7.0 + 5.0/16.0)),  :upper_left_d
-  playfield.post frame(7.0 + 13.0/16.0, 42.0 - (10.0 + 5.0/8.0)),  :upper_left_e
-  playfield.post frame(1.0 + 3.0/16.0,  42.0 - (10.0 + 9.0/16.0)), :upper_left_f
-  playfield.post frame(15.0/16.0,       42.0 - (13.0 + 7.0/16.0)), :upper_left_g
-  playfield.post frame(1.0 + 5.0/16.0,  42.0 - (14.25)),           :upper_left_h
-  playfield.post_with_tee frame(4.0 + 3.0/8.0,   42.0 - (16.75)),           :upper_left_i
 
   playfield.rubber([:upper_left_rake_lane_guide_0_a, :upper_left_a])
   playfield.rubber([:upper_left_rake_lane_guide_0_b, :upper_left_b])
@@ -111,6 +101,20 @@ def upper_left(playfield)
   playfield.rubber([:upper_left_rake_lane_guide_2_b])
   playfield.rubber([:upper_left_rake_lane_guide_3_a, :upper_left_c])
   playfield.rubber([:upper_left_rake_lane_guide_3_b, :upper_left_d])
+end
+
+def vendor_area(playfield)
+  # pop bumpers
+  playfield.pop_bumper frame(2.0 + 1.0/2.0, 42.0 - 9.0)
+  playfield.pop_bumper frame(7.0,           42.0 - 9.0)
+  playfield.pop_bumper frame(4.0 + 3.0/8.0, 42.0 - 12.5)
+
+  playfield.post frame(7.0 + 13.0/16.0, 42.0 - (10.0 + 5.0/8.0)),  :upper_left_e
+  playfield.post frame(1.0 + 3.0/16.0,  42.0 - (10.0 + 9.0/16.0)), :upper_left_f
+  playfield.post frame(15.0/16.0,       42.0 - (13.0 + 7.0/16.0)), :upper_left_g
+  playfield.post frame(1.0 + 5.0/16.0,  42.0 - (14.25)),           :upper_left_h
+  playfield.post_with_tee frame(4.0 + 3.0/8.0,   42.0 - (16.75)),           :upper_left_i
+
   playfield.rubber_with_switch(:upper_left_f, :upper_left_g)
   playfield.rubber_with_switch(:upper_left_h, :upper_left_i)
 end
@@ -452,23 +456,25 @@ end
 #draw_ball
 #playfield.component(frame(), 'plastics')
 
-left_flipper_constellation(playfield)
-left_kickout(playfield)
-left_drop_target_bank(playfield)
+#left_flipper_constellation(playfield)
+#left_kickout(playfield)
+#left_drop_target_bank(playfield)
 
-right_flipper_constellation(playfield)
-right_kickout(playfield)
-right_drop_target_bank(playfield)
+#right_flipper_constellation(playfield)
+#right_kickout(playfield)
+#right_drop_target_bank(playfield)
 
 upper_left(playfield)
-spinner_ramp(playfield)
-inline_drop_target_bank(playfield)
-upper_playfield(playfield)
-top_curve(playfield)
-center_lenses(playfield)
+#vendor_area(playfield)
+
+#spinner_ramp(playfield)
+#inline_drop_target_bank(playfield)
+#upper_playfield(playfield)
+#top_curve(playfield)
+#center_lenses(playfield)
 
 puts Time.now.getutc - t0
-Sketchup.send_action("viewTop:")
-Sketchup.send_action("viewZoomExtents:")
+#Sketchup.send_action("viewTop:")
+#Sketchup.send_action("viewZoomExtents:")
 
 # GI lighting
