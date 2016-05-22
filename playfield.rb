@@ -183,19 +183,6 @@ class PlasticTrough
   end
 end
 
-class UpperPlayfield
-  attr_reader :floor_width, :floor_depth, :floor_height, :floor_thickness, :wall_thickness, :wall_height 
-  
-  def initialize
-    @floor = Sketchup.active_model.active_entities.add_group()
-    @floor_width = 20.25
-    @floor_depth = 42.0
-    @floor_thickness = 17.0/32.0
-    @wall_thickness = 0.5
-    @wall_height = 1.125
-  end
-end
-
 class Playfield
   attr_reader :floor_width, :floor_depth, :floor_thickness, :wall_thickness, :wall_height, :shooter_lane_width, :shooter_lane_start_depth, :shooter_lane_end_depth, :cnc 
   
@@ -214,14 +201,18 @@ class Playfield
     @insert_thickness = 1.0/4.0
     @insert_depth = 7.0/32.0
     
+    @x_offset = 0.0
+    @y_offset = 0.0
+    @z_offset = 0.0
+    
     @cnc = false
   end
 
   def draw_floor
-    pt1 = [0.0, 0.0, 0.0]
-    pt2 = [@floor_width, 0.0, 0.0]
-    pt3 = [@floor_width, @floor_depth, 0.0]
-    pt4 = [0.0, @floor_depth, 0.0]
+    pt1 = [@x_offset,                @y_offset,                @z_offset]
+    pt2 = [@x_offset + @floor_width, @y_offset,                @z_offset]
+    pt3 = [@x_offset + @floor_width, @y_offset + @floor_depth, @z_offset]
+    pt4 = [@x_offset + 0.0,          @y_offset + @floor_depth, @z_offset]
     local_pushpull(@floor.entities.add_face(pt1, pt2, pt3, pt4), -@floor_thickness)
   end
   
@@ -879,5 +870,31 @@ class Playfield
     component(t * frame(0.0, -4.0/16.0, -@floor_thickness) * rotate(180), "Target 004 Assy")
     bottom_dimple(t * frame(-3.0/16.0, -9.0/16.0))
     bottom_dimple(t * frame(+3.0/16.0, -9.0/16.0))
+  end
+end
+
+class UpperPlayfield < Playfield  
+  attr_reader :floor_height
+  
+  def initialize(parent)
+    @floor = Sketchup.active_model.active_entities.add_group()
+    
+    @floor_width = 9.0
+    @floor_depth = 6.0 + 3.0/4.0
+    @floor_thickness = 1.0/4.0
+    @gap = 1.0/2.0
+    
+    @x_offset = 0.0
+    @y_offset = parent.floor_depth - @floor_depth
+    @z_offset = parent.wall_height + @gap + @floor_thickness
+  end
+  
+  def draw_floor
+    super
+    
+    plastic = Sketchup.active_model.materials.add
+    plastic.color = 'white'
+    plastic.alpha = 0.5
+    @floor.material = plastic
   end
 end

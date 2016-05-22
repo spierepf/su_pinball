@@ -15,6 +15,9 @@ playfield.draw_hangers
 playfield.draw_shooter_lane
 playfield.draw_apron_mounts
 
+upper_playfield = UpperPlayfield.new(playfield)
+upper_playfield.draw_floor
+
 playfield.wire_guide(BezierSpline.new([
   Geom::Point3d.new(playfield.floor_width-playfield.wall_thickness()-playfield.shooter_lane_width() - 3.0/64.0, playfield.floor_depth-(25.5),       (1.0 + 1.0/16.0)/2.0),
   Geom::Point3d.new(playfield.floor_width-playfield.wall_thickness()-playfield.shooter_lane_width() - 3.0/64.0, playfield.floor_depth-(19+15/16.0), (1.0 + 1.0/16.0)/2.0)
