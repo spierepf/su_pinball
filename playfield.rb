@@ -880,7 +880,7 @@ class Playfield
 end
 
 class UpperPlayfield < Playfield  
-  attr_reader :floor_height
+  attr_reader :z_offset
   
   def initialize(parent)
     @floor = Sketchup.active_model.active_entities.add_group()

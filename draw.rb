@@ -116,7 +116,22 @@ def upper_left(playfield, upper_playfield)
     upper_playfield.hole_from_points(hole, [p * Geom::Point3d.new(x0, y2), p * Geom::Point3d.new(x0, y3), p * Geom::Point3d.new(x1, y3), p * Geom::Point3d.new(x1, y2)])
     
     p = p * Geom::Transformation.translation(d)
+
     playfield.rollover_switch p
+    
+    c1 = p * Geom::Point3d.new(0, 0, upper_playfield.z_offset)
+    hypotenuse = 1.0
+    c2 = p * frame(0.0, hypotenuse) * Geom::Point3d.new(0, 0, upper_playfield.z_offset)
+    r1 = (1.0 + 3.0/16.0)/2.0
+    r2 = (1.0/4.0)/2.0
+    adjacent = r1 - r2
+    theta = Math.acos(adjacent / hypotenuse)
+    hole = Sketchup.active_model.active_entities.add_group
+    upper_playfield.hole_from_edges(hole, join_arcs(hole, [hole.entities.add_arc(c2, Y_AXIS, Z_AXIS, r2, -theta, theta, 48), hole.entities.add_arc(c1, Y_AXIS, Z_AXIS, r1, theta, 360.degrees-theta, 48)]))
+    
+    hole = Sketchup.active_model.active_entities.add_group
+    upper_playfield.hole_from_edges(hole, hole.entities.add_circle(p * Geom::Point3d.new(0.0, -(1.0 + 35.0/32.0), upper_playfield.z_offset), Z_AXIS, 1.0 + 1.0/8.0, 96))
+    
     p = p * Geom::Transformation.translation(d)
   end
   playfield.lane_guide p, (post_symbol_prefix.to_s + "_lane_guide_3").to_sym
