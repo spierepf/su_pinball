@@ -87,7 +87,7 @@ def right_flipper_constellation(playfield)
   playfield.rubber([:right_flipper_constellation_a, :right_flipper_constellation_b])
 end
 
-def upper_left(playfield)
+def upper_left(playfield, upper_playfield)
   y = (42.0 - 5.0 - 5.0/16.0)
 
   start = Geom::Point3d.new(2.25, y, 0.0)
@@ -103,6 +103,18 @@ def upper_left(playfield)
   p = Geom::Transformation.translation(start)
   (0..count-1).each do |i|
     playfield.lane_guide p, (post_symbol_prefix.to_s + "_lane_guide_" + i.to_s).to_sym
+
+    x0 = 1.0/8.0
+    x1 = -1.0/8.0
+    y0 = 31.0/64.0 - (1.0 + 7.0/16.0)
+    y1 = y0 + 1.0/2.0
+    y2 = y1 + 3.0/4.0
+    y3 = y2 + 1.0/2.0
+    hole = Sketchup.active_model.active_entities.add_group
+    upper_playfield.hole_from_points(hole, [p * Geom::Point3d.new(x0, y0), p * Geom::Point3d.new(x0, y1), p * Geom::Point3d.new(x1, y1), p * Geom::Point3d.new(x1, y0)])
+    hole = Sketchup.active_model.active_entities.add_group
+    upper_playfield.hole_from_points(hole, [p * Geom::Point3d.new(x0, y2), p * Geom::Point3d.new(x0, y3), p * Geom::Point3d.new(x1, y3), p * Geom::Point3d.new(x1, y2)])
+    
     p = p * Geom::Transformation.translation(d)
     playfield.rollover_switch p
     p = p * Geom::Transformation.translation(d)
@@ -305,93 +317,92 @@ def upgrade_spline(spline)
   BezierSpline.new(tmp)
 end
 
-def upper_playfield(playfield)
-  
-  width = 9.0
-  depth = 6.0 + 3.0/8.0
-  thickness = 1.0/4.0
-  gap = 1.0/2.0
-  
-  ramp_end_x = playfield.floor_width - (11.0 + 1.0/4.0)
-  ramp_end_y = playfield.floor_depth - (3.0 + 1.0/16.0)
-  
-  pinballDiameter = 1.0 + 1.0/16.0
-  ballPath = BezierSpline.new([
-    Geom::Point3d.new(ramp_end_x, ramp_end_y, 0),
-    Geom::Point3d.new(playfield.floor_width - (8.0 + 13.0/16.0), playfield.floor_depth - (3.0 + 2.0/8.0),    0),
-    Geom::Point3d.new(playfield.floor_width - (7.0),             playfield.floor_depth - (4.0),              0),
-    Geom::Point3d.new(playfield.floor_width - (5.0 + 7.0/16.0),  playfield.floor_depth - (5.0 + 5.0/16.0),   0),
-    Geom::Point3d.new(playfield.floor_width - (4.0 + 5.0/16.0),  playfield.floor_depth - (6.0 + 7.0/8.0),    0),
-    Geom::Point3d.new(playfield.floor_width - (3.0 + 5.0/8.0),   playfield.floor_depth - (8.0 + 7.0/8.0),    0),
-    Geom::Point3d.new(playfield.floor_width - (3.0 + 3.0/4.0),   playfield.floor_depth - (10.0 + 13.0/16.0), 0),
-    Geom::Point3d.new(playfield.floor_width - (4.0 + 1.0/2.0),   playfield.floor_depth - (12.0 + 11.0/16.0), 0),
-    Geom::Point3d.new(playfield.floor_width - (5.0 + 1.0/2.0),   playfield.floor_depth - (14.0 + 1.0/2.0),   0),
-  ])
-  
-  9.times { ballPath = upgrade_spline(ballPath) }
-  
-#  (0..ballPath.length).each do |t|
-#    Sketchup.active_model.active_entities.add_cpoint ballPath.f(t)
+#def upper_playfield(playfield)
+#  width = 9.0
+#  depth = 6.0 + 3.0/8.0
+#  thickness = 1.0/4.0
+#  gap = 1.0/2.0
+#  
+#  ramp_end_x = playfield.floor_width - (11.0 + 1.0/4.0)
+#  ramp_end_y = playfield.floor_depth - (3.0 + 1.0/16.0)
+#  
+#  pinballDiameter = 1.0 + 1.0/16.0
+#  ballPath = BezierSpline.new([
+#    Geom::Point3d.new(ramp_end_x, ramp_end_y, 0),
+#    Geom::Point3d.new(playfield.floor_width - (8.0 + 13.0/16.0), playfield.floor_depth - (3.0 + 2.0/8.0),    0),
+#    Geom::Point3d.new(playfield.floor_width - (7.0),             playfield.floor_depth - (4.0),              0),
+#    Geom::Point3d.new(playfield.floor_width - (5.0 + 7.0/16.0),  playfield.floor_depth - (5.0 + 5.0/16.0),   0),
+#    Geom::Point3d.new(playfield.floor_width - (4.0 + 5.0/16.0),  playfield.floor_depth - (6.0 + 7.0/8.0),    0),
+#    Geom::Point3d.new(playfield.floor_width - (3.0 + 5.0/8.0),   playfield.floor_depth - (8.0 + 7.0/8.0),    0),
+#    Geom::Point3d.new(playfield.floor_width - (3.0 + 3.0/4.0),   playfield.floor_depth - (10.0 + 13.0/16.0), 0),
+#    Geom::Point3d.new(playfield.floor_width - (4.0 + 1.0/2.0),   playfield.floor_depth - (12.0 + 11.0/16.0), 0),
+#    Geom::Point3d.new(playfield.floor_width - (5.0 + 1.0/2.0),   playfield.floor_depth - (14.0 + 1.0/2.0),   0),
+#  ])
+#  
+#  9.times { ballPath = upgrade_spline(ballPath) }
+#  
+##  (0..ballPath.length).each do |t|
+##    Sketchup.active_model.active_entities.add_cpoint ballPath.f(t)
+##  end
+#  
+#  pathDiameter = 1.0 + 22.0/32.0
+#
+#  playfield.large_arrow_insert(ballPath.frame(ballPath.length()-1) * frame(0, -1))
+#  playfield.large_arrow_insert(ballPath.frame(ballPath.length()-4) * frame(0, -1))
+#  playfield.large_arrow_insert(ballPath.frame(ballPath.length()-7) * frame(0, -1))
+#
+#  troughPath = []
+#  (0..8).each do |i|
+#    troughPath.push ballPath.frame(i) * Geom::Point3d.new(0, 0, (1.0 + 7.0/8.0) * (1.0 / (1.0 + Math.exp(-(3.0 - i)/0.9))) + (pinballDiameter / 2.0))
 #  end
-  
-  pathDiameter = 1.0 + 22.0/32.0
-
-  playfield.large_arrow_insert(ballPath.frame(ballPath.length()-1) * frame(0, -1))
-  playfield.large_arrow_insert(ballPath.frame(ballPath.length()-4) * frame(0, -1))
-  playfield.large_arrow_insert(ballPath.frame(ballPath.length()-7) * frame(0, -1))
-
-  troughPath = []
-  (0..8).each do |i|
-    troughPath.push ballPath.frame(i) * Geom::Point3d.new(0, 0, (1.0 + 7.0/8.0) * (1.0 / (1.0 + Math.exp(-(3.0 - i)/0.9))) + (pinballDiameter / 2.0))
-  end
-
-  ballPath.length.times { ballPath = upgrade_spline(ballPath) }
-  
-  sheetPath = []
-  (16..ballPath.length).each do |i|
-    sheetPath.push ballPath.frame(i) * Geom::Point3d.new((3.0/16.0 + pathDiameter/2.0), 0, 0)
-  end
-  playfield.sheet_guide(BezierSpline.new(sheetPath))
-  
-  wirePath = []
-  (16..ballPath.length-1).each do |i|
-    wirePath.push ballPath.frame(i) * Geom::Point3d.new(-(3.0/16.0 + pathDiameter/2.0), 0, (1.0 + 1.0/8.0)/2.0)
-  end
-  playfield.wire_guide(BezierSpline.new(wirePath))
-
-  return if playfield.cnc()
-  
-  upper_playfield = Sketchup.active_model.active_entities.add_group()
-
-  pt1 = [0.0, playfield.floor_depth, playfield.wall_height + gap]
-  pt2 = [width, playfield.floor_depth, playfield.wall_height + gap]
-  pt3 = [width, playfield.floor_depth - depth, playfield.wall_height + gap]
-  pt4 = [0.0, playfield.floor_depth - depth, playfield.wall_height + gap]
-  upper_playfield.entities.add_face(pt1, pt2, pt3, pt4).pushpull -thickness
-
-  13.times do |i|
-    hole = Sketchup.active_model.active_entities.add_group()
-    pt1 = [3.0/8.0 + i * (39.3701 / 60), playfield.floor_depth, playfield.wall_height + gap]
-    pt2 = [3.0/8.0 + i * (39.3701 / 60) + 3.0/8.0, playfield.floor_depth, playfield.wall_height + gap]
-    pt3 = [3.0/8.0 + i * (39.3701 / 60) + 3.0/8.0, playfield.floor_depth - 0.10, playfield.wall_height + gap]
-    pt4 = [3.0/8.0 + i * (39.3701 / 60), playfield.floor_depth - 0.10, playfield.wall_height + gap]
-    hole.entities.add_face(pt1, pt2, pt3, pt4).pushpull -thickness
-    upper_playfield = hole.subtract(upper_playfield)
-  end
-    
-  plastic = Sketchup.active_model.materials.add
-  plastic.color = 'white'
-  plastic.alpha = 0.5
-  upper_playfield.material = plastic
-  
-  PlasticTrough.new().trough(BezierSpline.new(troughPath), pathDiameter)
-
-  draw_wall(0, playfield.floor_depth - depth, playfield.wall_thickness, playfield.floor_depth - playfield.wall_thickness, playfield.wall_height + gap + thickness, playfield.wall_height)
-  draw_wall(0, playfield.floor_depth - playfield.wall_thickness, width, playfield.floor_depth, playfield.wall_height + gap + thickness, playfield.wall_height)
-  
-  draw_wall(width - playfield.wall_thickness, ramp_end_y + (2.0 + 1.0/16.0)/2, width, playfield.floor_depth - playfield.wall_thickness, playfield.wall_height + gap + thickness, playfield.wall_height)
-  draw_wall(width - playfield.wall_thickness, playfield.floor_depth - depth, width, ramp_end_y - (2.0 + 1.0/16.0)/2, playfield.wall_height + gap + thickness, playfield.wall_height)
-end
+#
+#  ballPath.length.times { ballPath = upgrade_spline(ballPath) }
+#  
+#  sheetPath = []
+#  (16..ballPath.length).each do |i|
+#    sheetPath.push ballPath.frame(i) * Geom::Point3d.new((3.0/16.0 + pathDiameter/2.0), 0, 0)
+#  end
+#  playfield.sheet_guide(BezierSpline.new(sheetPath))
+#  
+#  wirePath = []
+#  (16..ballPath.length-1).each do |i|
+#    wirePath.push ballPath.frame(i) * Geom::Point3d.new(-(3.0/16.0 + pathDiameter/2.0), 0, (1.0 + 1.0/8.0)/2.0)
+#  end
+#  playfield.wire_guide(BezierSpline.new(wirePath))
+#
+#  return if playfield.cnc()
+#  
+#  upper_playfield = Sketchup.active_model.active_entities.add_group()
+#
+#  pt1 = [0.0, playfield.floor_depth, playfield.wall_height + gap]
+#  pt2 = [width, playfield.floor_depth, playfield.wall_height + gap]
+#  pt3 = [width, playfield.floor_depth - depth, playfield.wall_height + gap]
+#  pt4 = [0.0, playfield.floor_depth - depth, playfield.wall_height + gap]
+#  upper_playfield.entities.add_face(pt1, pt2, pt3, pt4).pushpull -thickness
+#
+#  13.times do |i|
+#    hole = Sketchup.active_model.active_entities.add_group()
+#    pt1 = [3.0/8.0 + i * (39.3701 / 60), playfield.floor_depth, playfield.wall_height + gap]
+#    pt2 = [3.0/8.0 + i * (39.3701 / 60) + 3.0/8.0, playfield.floor_depth, playfield.wall_height + gap]
+#    pt3 = [3.0/8.0 + i * (39.3701 / 60) + 3.0/8.0, playfield.floor_depth - 0.10, playfield.wall_height + gap]
+#    pt4 = [3.0/8.0 + i * (39.3701 / 60), playfield.floor_depth - 0.10, playfield.wall_height + gap]
+#    hole.entities.add_face(pt1, pt2, pt3, pt4).pushpull -thickness
+#    upper_playfield = hole.subtract(upper_playfield)
+#  end
+#    
+#  plastic = Sketchup.active_model.materials.add
+#  plastic.color = 'white'
+#  plastic.alpha = 0.5
+#  upper_playfield.material = plastic
+#  
+#  PlasticTrough.new().trough(BezierSpline.new(troughPath), pathDiameter)
+#
+#  draw_wall(0, playfield.floor_depth - depth, playfield.wall_thickness, playfield.floor_depth - playfield.wall_thickness, playfield.wall_height + gap + thickness, playfield.wall_height)
+#  draw_wall(0, playfield.floor_depth - playfield.wall_thickness, width, playfield.floor_depth, playfield.wall_height + gap + thickness, playfield.wall_height)
+#  
+#  draw_wall(width - playfield.wall_thickness, ramp_end_y + (2.0 + 1.0/16.0)/2, width, playfield.floor_depth - playfield.wall_thickness, playfield.wall_height + gap + thickness, playfield.wall_height)
+#  draw_wall(width - playfield.wall_thickness, playfield.floor_depth - depth, width, ramp_end_y - (2.0 + 1.0/16.0)/2, playfield.wall_height + gap + thickness, playfield.wall_height)
+#end
 
 def top_curve(playfield)
   # top right outer curve
@@ -485,7 +496,7 @@ end
 #right_kickout(playfield)
 #right_drop_target_bank(playfield)
 
-upper_left(playfield)
+upper_left(playfield, upper_playfield)
 #vendor_area(playfield)
 
 #spinner_ramp(playfield)

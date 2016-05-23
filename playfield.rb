@@ -265,6 +265,12 @@ class Playfield
   def hole_from_edges(hole, edges, depth = nil, layer = nil)
     hole_from_face hole, hole.entities.add_face(edges), depth, layer
   end
+  
+  def hole_from_points(hole, points, depth = nil, layer = nil)
+    points.each { |point| point.z = @z_offset }
+    face = hole.entities.add_face(points)
+    hole_from_face(hole, face, depth, layer)
+  end
 
   def circular_hole(t, r, depth = nil, layer = nil)
     hole = Sketchup.active_model.active_entities.add_group()
