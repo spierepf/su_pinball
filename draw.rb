@@ -115,6 +115,7 @@ def upper_left(playfield, upper_playfield)
     hole = Sketchup.active_model.active_entities.add_group
     upper_playfield.hole_from_points(hole, [p * Geom::Point3d.new(x0, y2), p * Geom::Point3d.new(x0, y3), p * Geom::Point3d.new(x1, y3), p * Geom::Point3d.new(x1, y2)])
     
+    upper_playfield.component(p * frame(0.0, -(1.0 + 7.0/16.0), upper_playfield.z_offset), 'upper_playfield_lane_guide')
     p = p * Geom::Transformation.translation(d)
 
     playfield.rollover_switch p
