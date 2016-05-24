@@ -150,8 +150,8 @@ def upper_left(playfield, upper_playfield)
   playfield.rubber([:upper_left_rake_lane_guide_3_a, :upper_left_c])
   playfield.rubber([:upper_left_rake_lane_guide_3_b, :upper_left_d])
 
-  upper_playfield.draw_wall(0.0, upper_playfield.y_offset, upper_playfield.wall_thickness, playfield.floor_depth, 3.0)
-  upper_playfield.draw_wall(upper_playfield.wall_thickness, playfield.floor_depth - upper_playfield.wall_thickness, upper_playfield.floor_width - upper_playfield.wall_thickness, playfield.floor_depth, 3.0)
+  upper_playfield.draw_wall(0.0, upper_playfield.y_offset, upper_playfield.wall_thickness, playfield.floor_depth, 2.5)
+  upper_playfield.draw_wall(upper_playfield.wall_thickness, playfield.floor_depth - upper_playfield.wall_thickness, upper_playfield.floor_width - upper_playfield.wall_thickness, playfield.floor_depth, 4.0 + 5.0/8.0)
 end
 
 def vendor_area(playfield)

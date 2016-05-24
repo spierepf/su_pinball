@@ -220,14 +220,22 @@ class Playfield
     xc = (x2 + x1) / 2.0
     yc = (y2 + y1) / 2.0
     if (x2 - x1) > 1.0 then
-      (((x2 - x1) / 2.0) / pilot_spacing).ceil.times do |i|
-        pilot_hole(frame(xc + (i * pilot_spacing), yc))
-        pilot_hole(frame(xc - (i * pilot_spacing), yc)) if i != 0
+      count = ((x2 - x1 - 1.0) / pilot_spacing).ceil
+      offset = 0
+      offset = pilot_spacing / 2.0 if count % 2 == 0
+      (count / 2.0).ceil.times do |i|
+        pilot_hole(frame(xc + offset, yc))
+        pilot_hole(frame(xc - offset, yc)) if offset != 0
+        offset += pilot_spacing
       end
     elsif (y2 - y1) > 1.0 then
-      (((y2 - y1) / 2.0) / pilot_spacing).ceil.times do |i|
-        pilot_hole(frame(xc, yc + (i * pilot_spacing)))
-        pilot_hole(frame(xc, yc - (i * pilot_spacing))) if i != 0
+      count = ((y2 - y1 - 1.0) / pilot_spacing).ceil
+      offset = 0
+      offset = pilot_spacing / 2.0 if count % 2 == 0
+      (count / 2.0).ceil.times do |i|
+        pilot_hole(frame(xc, yc + offset))
+        pilot_hole(frame(xc, yc - offset)) if offset != 0
+        offset += pilot_spacing
       end
     end
     
@@ -257,8 +265,8 @@ class Playfield
 
     return if cnc
     
-    depth = -@floor_thickness if depth == nil
-    local_pushpull face, depth
+    depth = @floor_thickness if depth == nil
+    local_pushpull face, -depth
     @floor = hole.subtract @floor
   end
   
@@ -845,7 +853,7 @@ class Playfield
   def small_oval_insert t
     width = 1.0 + 5.0/8.0
     height = 3.0/4.0
-    corner_radius = (height / 2.0) - 0.005
+    corner_radius = (height / 2.0) + 0.005
   
     vertices = []
     vertices.push(t * Geom::Point3d.new(-(width - height)/2.0, 0.0, 0.0))
@@ -860,7 +868,7 @@ class Playfield
   def large_oval_insert t
     width = 2.0 + 6.0/16.0
     height = 3.0/4.0
-    corner_radius = (height / 2.0) - 0.005
+    corner_radius = (height / 2.0) + 0.005
     
     vertices = []
     vertices.push(t * Geom::Point3d.new(-(width - height)/2.0, 0.0, 0.0))
