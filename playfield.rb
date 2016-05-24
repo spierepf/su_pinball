@@ -234,10 +234,10 @@ class Playfield
     return if cnc
     entities = Sketchup.active_model.active_entities.add_group().entities
   
-    pt1 = [x1, y1, 0.0]
-    pt2 = [x1, y2, 0.0]
-    pt3 = [x2, y2, 0.0]
-    pt4 = [x2, y1, 0.0]
+    pt1 = [x1, y1, @z_offset]
+    pt2 = [x1, y2, @z_offset]
+    pt3 = [x2, y2, @z_offset]
+    pt4 = [x2, y1, @z_offset]
     new_face = entities.add_face pt1, pt2, pt3, pt4
     local_pushpull(new_face, @wall_height)
   end
@@ -278,7 +278,7 @@ class Playfield
     edgeCount = 24
     edgeCount = 96 if @cnc
   
-    centerpoint = Geom::Point3d.new
+    centerpoint = Geom::Point3d.new(0.0, 0.0, @z_offset)
     # Create a circle perpendicular to the normal or Z axis
     normal = Geom::Vector3d.new 0,0,1
     edges = entities.add_circle t * centerpoint, normal, r, edgeCount
@@ -879,8 +879,8 @@ class Playfield
   end
 end
 
-class UpperPlayfield < Playfield  
-  attr_reader :z_offset
+class UpperPlayfield < Playfield
+  attr_reader :x_offset, :y_offset, :z_offset
   
   def initialize(parent)
     @floor = Sketchup.active_model.active_entities.add_group()
@@ -889,6 +889,9 @@ class UpperPlayfield < Playfield
     @floor_depth = 6.0 + 3.0/4.0
     @floor_thickness = 1.0/4.0
     @gap = 1.0/2.0
+    
+    @wall_height = 1.125
+    @wall_thickness = 0.5
     
     @x_offset = 0.0
     @y_offset = parent.floor_depth - @floor_depth
