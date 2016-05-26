@@ -510,6 +510,10 @@ class Playfield
   end
   
   def rubber(post_symbols)
+    rubberRadius = 3.0/32.0
+    postRadius = 7.0/32.0
+    postHeight = 43.0/64.0
+    
     return if cnc
     posts = []
     post_symbols.each do |s|
@@ -519,8 +523,8 @@ class Playfield
 
     rubber = Sketchup.active_model.active_entities.add_group()
     if posts.length == 1 then
-      centerpoint = posts[0].position + Geom::Vector3d.new(0,0,43.0/64.0)
-      perimeter = rubber.entities.add_circle(centerpoint, Geom::Vector3d.new(0,0,1), 5.0/16.0)
+      centerpoint = posts[0].position + Geom::Vector3d.new(0,0,postHeight)
+      perimeter = rubber.entities.add_circle(centerpoint, Geom::Vector3d.new(0,0,1), postRadius + rubberRadius)
     else
       arcs = []
       posts.each_with_index do |post, i|
@@ -534,11 +538,16 @@ class Playfield
         theta0 += 360.degrees if theta0 < 0 and posts.length > 2
         theta1 += 360.degrees if theta1 < 0 and posts.length > 2
   
-        centerpoint = post.position + Geom::Vector3d.new(0,0,43.0/64.0)
-        arcs.push(rubber.entities.add_arc(centerpoint, Geom::Vector3d.new(1,0,0), Geom::Vector3d.new(0,0,1), 5.0/16.0, theta0, theta1))
+        centerpoint = post.position + Geom::Vector3d.new(0,0,postHeight)
+        arcs.push(rubber.entities.add_arc(centerpoint, Geom::Vector3d.new(1,0,0), Geom::Vector3d.new(0,0,1), postRadius + rubberRadius, theta0, theta1))
       end
       perimeter = join_arcs(rubber, arcs)
     end
+    circumference = 0.0
+    perimeter.each { |edge| circumference = circumference + edge.length }
+    innerDiameter = (circumference / Math::PI) - 2 * rubberRadius
+    puts "Ring inner diameter: #{innerDiameter}"
+    
     wireize(rubber, perimeter, 3.0/32.0)
   end
   
