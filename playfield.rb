@@ -216,6 +216,10 @@ class Playfield
     local_pushpull(@floor.entities.add_face(pt1, pt2, pt3, pt4), -@floor_thickness)
   end
   
+  def set_floor_material(material)
+    @floor.material = material
+  end
+  
   def draw_wall(x1, y1, x2, y2, pilot_spacing = 4.0)
     xc = (x2 + x1) / 2.0
     yc = (y2 + y1) / 2.0
@@ -913,14 +917,5 @@ class UpperPlayfield < Playfield
     @x_offset = 0.0
     @y_offset = parent.floor_depth - @floor_depth
     @z_offset = parent.wall_height + @gap + @floor_thickness
-  end
-  
-  def draw_floor
-    super
-    
-    plastic = Sketchup.active_model.materials.add
-    plastic.color = 'white'
-    plastic.alpha = 0.5
-    @floor.material = plastic
   end
 end

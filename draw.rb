@@ -508,6 +508,15 @@ upper_playfield_ramp(playfield, upper_playfield)
 top_curve(playfield)
 center_lenses(playfield)
 
+wood = Sketchup.active_model.materials.add
+wood.color = '#ffd98d'
+playfield.set_floor_material(wood)
+
+plastic = Sketchup.active_model.materials.add
+plastic.color = 'white'
+plastic.alpha = 0.5
+upper_playfield.set_floor_material(plastic)
+
 puts Time.now.getutc - t0
 #Sketchup.send_action("viewTop:")
 #Sketchup.send_action("viewZoomExtents:")
