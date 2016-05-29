@@ -415,6 +415,9 @@ def upper_playfield_ramp(playfield, upper_playfield)
   y1 = playfield.floor_depth - upper_playfield.floor_depth
   y2 = ramp_end_y - (2.0 + 1.0/16.0)/2
   upper_playfield.draw_wall(x1, y1, x2, y2, 1.0)
+  
+  upper_playfield.circular_hole(frame(upper_playfield.floor_width - 0.25, ramp_end_y - 1.25), 3.0/32.0)
+  upper_playfield.circular_hole(frame(upper_playfield.floor_width - 0.25, ramp_end_y + 1.25), 3.0/32.0)
 end
 
 def top_curve(playfield)
