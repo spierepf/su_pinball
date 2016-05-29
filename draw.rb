@@ -155,7 +155,7 @@ def upper_left(playfield, upper_playfield)
   playfield.rubber([:upper_left_rake_lane_guide_3_a, :upper_left_c])
   playfield.rubber([:upper_left_rake_lane_guide_3_b, :upper_left_d])
 
-  upper_playfield.draw_wall(0.0, upper_playfield.y_offset, upper_playfield.wall_thickness, playfield.floor_depth, 2.5)
+  upper_playfield.draw_wall(0.0, upper_playfield.y_offset, upper_playfield.wall_thickness, playfield.floor_depth)
   upper_playfield.draw_wall(upper_playfield.wall_thickness, playfield.floor_depth - upper_playfield.wall_thickness, upper_playfield.floor_width - upper_playfield.wall_thickness, playfield.floor_depth, 4.0 + 5.0/8.0)
   
   upper_playfield.post frame(1.0, playfield.floor_depth - 1.0), :upper_playfield_a
@@ -396,11 +396,14 @@ def upper_playfield_ramp(playfield, upper_playfield)
 
   return if playfield.cnc()
   
+  led_depth = 0.080
+  led_width = 0.275
+  
   13.times do |i|
     pt1 = Geom::Point3d.new(3.0/8.0 + i * (39.3701 / 60), playfield.floor_depth)
-    pt2 = Geom::Point3d.new(3.0/8.0 + i * (39.3701 / 60) + 3.0/8.0, playfield.floor_depth)
-    pt3 = Geom::Point3d.new(3.0/8.0 + i * (39.3701 / 60) + 3.0/8.0, playfield.floor_depth - 0.10)
-    pt4 = Geom::Point3d.new(3.0/8.0 + i * (39.3701 / 60), playfield.floor_depth - 0.10)
+    pt2 = Geom::Point3d.new(3.0/8.0 + i * (39.3701 / 60) + led_width, playfield.floor_depth)
+    pt3 = Geom::Point3d.new(3.0/8.0 + i * (39.3701 / 60) + led_width, playfield.floor_depth - led_depth)
+    pt4 = Geom::Point3d.new(3.0/8.0 + i * (39.3701 / 60), playfield.floor_depth - led_depth)
     upper_playfield.hole_from_points(Sketchup.active_model.active_entities.add_group, [pt1, pt2, pt3, pt4])
   end
     
