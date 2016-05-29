@@ -115,7 +115,7 @@ def upper_left(playfield, upper_playfield)
     hole = Sketchup.active_model.active_entities.add_group
     upper_playfield.hole_from_points(hole, [p * Geom::Point3d.new(x0, y2), p * Geom::Point3d.new(x0, y3), p * Geom::Point3d.new(x1, y3), p * Geom::Point3d.new(x1, y2)])
     
-    upper_playfield.component(p * frame(0.0, -(1.0 + 7.0/16.0), upper_playfield.z_offset), 'upper_playfield_lane_guide')
+    upper_playfield.component(p * frame(0.0, -(1.0 + 7.0/16.0)), 'upper_playfield_lane_guide')
     p = p * Geom::Transformation.translation(d)
 
     playfield.rollover_switch p
@@ -136,6 +136,10 @@ def upper_left(playfield, upper_playfield)
     p = p * Geom::Transformation.translation(d)
   end
   playfield.lane_guide p, (post_symbol_prefix.to_s + "_lane_guide_3").to_sym
+
+  p = Geom::Transformation.translation(d).inverse * Geom::Transformation.translation(start)
+  hole = Sketchup.active_model.active_entities.add_group
+  upper_playfield.hole_from_edges(hole, hole.entities.add_circle(p * Geom::Point3d.new(0.0, -(1.0 + 35.0/32.0), upper_playfield.z_offset), Z_AXIS, 1.0 + 1.0/8.0, 96))
   
   playfield.post frame(1.5,             42.0 - (3.0 + 7.0/16.0)),  :upper_left_a
   playfield.post frame(2.0 + 1.0/16.0,  42.0 - (7.0 + 3.0/16.0)),  :upper_left_b
@@ -153,6 +157,12 @@ def upper_left(playfield, upper_playfield)
 
   upper_playfield.draw_wall(0.0, upper_playfield.y_offset, upper_playfield.wall_thickness, playfield.floor_depth, 2.5)
   upper_playfield.draw_wall(upper_playfield.wall_thickness, playfield.floor_depth - upper_playfield.wall_thickness, upper_playfield.floor_width - upper_playfield.wall_thickness, playfield.floor_depth, 4.0 + 5.0/8.0)
+  
+  upper_playfield.post frame(1.0, playfield.floor_depth - 1.0), :upper_playfield_a
+  upper_playfield.circular_hole frame(1.0, playfield.floor_depth - 1.0), 3.0/32.0
+  upper_playfield.post frame(2.0, playfield.floor_depth - 3.5), :upper_playfield_b
+  upper_playfield.circular_hole frame(2.0, playfield.floor_depth - 3.5), 3.0/32.0
+  upper_playfield.rubber([:upper_playfield_a, :upper_playfield_b])
 end
 
 def vendor_area(playfield)
@@ -491,22 +501,22 @@ end
 #draw_ball
 #playfield.component(frame(), 'plastics')
 
-left_flipper_constellation(playfield)
-left_kickout(playfield)
-left_drop_target_bank(playfield)
-
-right_flipper_constellation(playfield)
-right_kickout(playfield)
-right_drop_target_bank(playfield)
-
+#left_flipper_constellation(playfield)
+#left_kickout(playfield)
+#left_drop_target_bank(playfield)
+#
+#right_flipper_constellation(playfield)
+#right_kickout(playfield)
+#right_drop_target_bank(playfield)
+#
 upper_left(playfield, upper_playfield)
-vendor_area(playfield)
-
-spinner_ramp(playfield)
-inline_drop_target_bank(playfield)
+#vendor_area(playfield)
+#
+#spinner_ramp(playfield)
+#inline_drop_target_bank(playfield)
 upper_playfield_ramp(playfield, upper_playfield)
-top_curve(playfield)
-center_lenses(playfield)
+#top_curve(playfield)
+#center_lenses(playfield)
 
 wood = Sketchup.active_model.materials.add
 wood.color = '#ffd98d'

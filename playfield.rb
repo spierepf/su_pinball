@@ -422,7 +422,7 @@ class Playfield
     return if cnc
     filename = (File.dirname(__FILE__) + "/models/" + name + ".skp").gsub("/", "\\")
     component = Sketchup.active_model.definitions.load filename
-    Sketchup.active_model.active_entities.add_instance(component, t)
+    Sketchup.active_model.active_entities.add_instance(component, t * frame(0,0,@z_offset))
   end
   
   def flipper_mechanics t
@@ -527,7 +527,7 @@ class Playfield
 
     rubber = Sketchup.active_model.active_entities.add_group()
     if posts.length == 1 then
-      centerpoint = posts[0].position + Geom::Vector3d.new(0,0,postHeight)
+      centerpoint = posts[0].position + Geom::Vector3d.new(0,0,postHeight + @z_offset)
       perimeter = rubber.entities.add_circle(centerpoint, Geom::Vector3d.new(0,0,1), postRadius + rubberRadius)
     else
       arcs = []
@@ -542,7 +542,7 @@ class Playfield
         theta0 += 360.degrees if theta0 < 0 and posts.length > 2
         theta1 += 360.degrees if theta1 < 0 and posts.length > 2
   
-        centerpoint = post.position + Geom::Vector3d.new(0,0,postHeight)
+        centerpoint = post.position + Geom::Vector3d.new(0,0,postHeight + @z_offset)
         arcs.push(rubber.entities.add_arc(centerpoint, Geom::Vector3d.new(1,0,0), Geom::Vector3d.new(0,0,1), postRadius + rubberRadius, theta0, theta1))
       end
       perimeter = join_arcs(rubber, arcs)
@@ -917,5 +917,7 @@ class UpperPlayfield < Playfield
     @x_offset = 0.0
     @y_offset = parent.floor_depth - @floor_depth
     @z_offset = parent.wall_height + @gap + @floor_thickness
+    
+    @posts = Hash.new
   end
 end
