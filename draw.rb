@@ -447,9 +447,9 @@ end
 def center_lenses(playfield)
   playfield.round_insert(frame(play_area_center_x, 5), 1.5)
 
-  (-1..1).each do |i|
-    playfield.round_insert(frame(play_area_center_x, 5) * rotate(25.0 * i) * frame(0, 5), 1.0)
-  end
+  playfield.round_insert(frame(6.5, 16), 1.0)
+  playfield.round_insert(frame(10.5, 14), 1.0)
+  playfield.round_insert(frame(13, 15), 1.0)
   
   flower_x = play_area_center_x + 0.75
   flower_y = 14.0 + 3.0
@@ -461,7 +461,7 @@ def center_lenses(playfield)
     playfield.large_oval_insert frame(flower_x, flower_y + y_offset)
   end
   
-  insert_spray_x = 5.0
+  insert_spray_x = 5.5
   insert_spray_y = 24.0
   insert_spray_start_angle = 5.0
   insert_spray_spread = 35.0
@@ -491,21 +491,21 @@ end
 #draw_ball
 #playfield.component(frame(), 'plastics')
 
-#left_flipper_constellation(playfield)
-#left_kickout(playfield)
+left_flipper_constellation(playfield)
+left_kickout(playfield)
 left_drop_target_bank(playfield)
-#
-#right_flipper_constellation(playfield)
-#right_kickout(playfield)
+
+right_flipper_constellation(playfield)
+right_kickout(playfield)
 right_drop_target_bank(playfield)
-#
-#upper_left(playfield, upper_playfield)
-#vendor_area(playfield)
-#
-#spinner_ramp(playfield)
-#inline_drop_target_bank(playfield)
-#upper_playfield_ramp(playfield, upper_playfield)
-#top_curve(playfield)
+
+upper_left(playfield, upper_playfield)
+vendor_area(playfield)
+
+spinner_ramp(playfield)
+inline_drop_target_bank(playfield)
+upper_playfield_ramp(playfield, upper_playfield)
+top_curve(playfield)
 center_lenses(playfield)
 
 wood = Sketchup.active_model.materials.add
