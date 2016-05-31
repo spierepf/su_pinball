@@ -717,10 +717,11 @@ class Playfield
   
   def drop_target_bank t
     round_ended_hole(t * frame(0.0, -1.0/8.0, 0.0) * rotate(90), 4.0, 0.5, nil, "mechanical")
-    
-    mini_post_8_32(t * frame(-(1.0 + 11.0/32.0), -9.0/16.0, 0.0))
-    mini_post_8_32(t * frame(0.0,                -9.0/16.0, 0.0))
-    mini_post_8_32(t * frame(  1.0 + 11.0/32.0,  -9.0/16.0, 0.0))
+
+    (-1..1).each do |i|
+      mini_post_8_32(t * frame(i * (1.0 + 11.0/32.0), -9.0/16.0))
+      round_insert(t * frame(i * 1.25, 1.125), 0.75)
+    end    
     
     template(t * frame(0.0, 3.0/16.0), "3_bank_Sys11_Drop_Target_Bank")
     x = 1.0 + 7.0/8.0
