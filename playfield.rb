@@ -720,7 +720,7 @@ class Playfield
 
     (-1..1).each do |i|
       mini_post_8_32(t * frame(i * (1.0 + 11.0/32.0), -9.0/16.0))
-      round_insert(t * frame(i * 1.25, 1.125), 0.75)
+      round_insert(t * frame(i * (1.0 + 1.0/4.0), 1.0 + 3.0/32.0), 0.75)
     end    
     
     template(t * frame(0.0, 3.0/16.0), "3_bank_Sys11_Drop_Target_Bank")
