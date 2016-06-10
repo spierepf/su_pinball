@@ -243,6 +243,8 @@ def inline_drop_target_bank(playfield)
     t * Geom::Point3d.new(18.0/16.0, -9.0/16.0, (1.0 + 1.0/8.0)/2.0),
     t * Geom::Point3d.new(18.0/16.0,  5.25, (1.0 + 1.0/8.0)/2.0)
   ]))
+  
+  playfield.post(t * frame(-(1.0 + 3.0/8.0), 6.5))
 end
 
 def spinner_ramp(playfield)
@@ -256,6 +258,8 @@ def spinner_ramp(playfield)
   
   playfield.circular_hole(frame(ramp_start_x0 + 0.5, ramp_start_y), 1.0/8.0, nil, "mechanical")
   playfield.mini_post_6_32_with_tee(frame(ramp_start_x0 + 0.5, ramp_start_y - 5.0/8.0))
+
+  playfield.large_arrow_insert(frame((ramp_start_x0 + ramp_start_x1) / 2, 25.5))
     
   return if playfield.cnc
   
@@ -298,12 +302,9 @@ def spinner_ramp(playfield)
   wireformTrough.doubleGuide(ballPath, 3, ballPath.length, 60.degrees)
   
   plasticTrough.trough(ballPath, 2.0, 7.0/8.0, 0, 3)
-  
-  playfield.large_arrow_insert(frame((ramp_start_x0 + ramp_start_x1) / 2, 25.5))
 end
 
 def draw_wall(x1, y1, x2, y2, z0, height)
-  # TODO: Create screw holes
   entities = Sketchup.active_model.active_entities.add_group().entities
 
   pt1 = [x1, y1, z0]

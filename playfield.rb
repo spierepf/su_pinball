@@ -205,7 +205,7 @@ class Playfield
     @y_offset = 0.0
     @z_offset = 0.0
     
-    @cnc = false
+    @cnc = true
   end
 
   def draw_floor
@@ -358,23 +358,26 @@ class Playfield
     normal = Geom::Vector3d.new(0,0,1)
     xaxis = t * Geom::Vector3d.new(1,0,0)
   
-    right_arc = hole.entities.add_arc t * Geom::Point3d.new, xaxis, normal, 5.0/8.0, -90.0.degrees, 90.0.degrees
-    top_arc = hole.entities.add_arc t * Geom::Point3d.new(-33.0/4.0, 7.0/16.0, 0.0), xaxis, normal, 3.0/16.0, 90.0.degrees, 180.0.degrees
-    bottom_arc = hole.entities.add_arc t * Geom::Point3d.new(-33.0/4.0, -7.0/16.0, 0.0), xaxis, normal, 3.0/16.0, 180.0.degrees, 270.0.degrees
+    right_arc = hole.entities.add_arc t * Geom::Point3d.new, xaxis, normal, 41.0/64.0, -90.0.degrees, 90.0.degrees
+    top_arc = hole.entities.add_arc t * Geom::Point3d.new(-33.0/4.0, 29.0/64.0, 0.0), xaxis, normal, 3.0/16.0, 90.0.degrees, 180.0.degrees
+    bottom_arc = hole.entities.add_arc t * Geom::Point3d.new(-33.0/4.0, -29.0/64.0, 0.0), xaxis, normal, 3.0/16.0, 180.0.degrees, 270.0.degrees
   
     hole_from_edges hole, join_arcs(hole, [right_arc, top_arc, bottom_arc]), nil, "mechanical"
 
-#    hole = Sketchup.active_model.active_entities.add_group()
-#    hammer_arc = hole.entities.add_arc t * Geom::Point3d.new(-33.0/4.0 - 3.0/16.0 - 1.0/8.0, 0.0, 0.0), xaxis, normal, 5.0/16.0, 90.0.degrees, 270.0.degrees
-#    hole_from_edges hole, join_arcs(hole, [hammer_arc, hole.entities.add_edges(t * Geom::Point3d.new(-33.0/4.0 - 3.0/16.0, -5.0/16.0, 0), t * Geom::Point3d.new(-33.0/4.0 - 3.0/16.0, 5.0/16.0, 0))]), 1.0/4.0
     round_ended_hole(t * frame(-33.0/4.0 - 1.0/16.0 - 1.0/8.0) * rotate(90.0), 7.0/8.0, 5.0/8.0, 1.0/4.0, "mechanical_shallow")
     
     circular_hole(t * frame(-33.0/4.0 - 3.0/16.0 - 1.0/8.0, -(1.0 + 5.0/16.0)), 1.0/4.0, 1.0/4.0, "mechanical_shallow")
+    
+    circular_hole(frame(16.0 + 3.0/4.0, 1.0 + 15.0/16.0), 5.0/8.0, nil, "mechanical")
+    
+    pilot_hole frame(6.0 + 5.0/8.0, 3.0 + 9.0/16.0)
+    pilot_hole frame(8.0 + 3.0/4.0, 2.0 + 1.0/4.0)
+    pilot_hole frame(@floor_width - (2.0 + 25.0/32.0), 4.0 + 19.0/32.0)
   end
   
   def draw_handhold_notches()
     square_hole(frame(), 0.0, 0.0, 1.0 + 1.0/8.0, 4.0 + 3.0/4.0)
-    square_hole(frame(), 20.25 - (1.0 + 13.0/16.0), 0.0, 20.25, 4.0 + 5.0/16.0)
+    square_hole(frame(), 20.25 - (1.0 + 7.0/8.0), 0.0, 20.25, 4.0 + 1.0/4.0)
   end
   
   def draw_hangers()
@@ -629,7 +632,7 @@ class Playfield
     circular_hole(t * frame(-11.0/16.0, 0.0, 0.0), 3.0/16.0, nil, "mechanical")
     
     # Skirt shaft hole
-    circular_hole(t, 5.0/16.0, nil, "mechanical")
+    circular_hole(t, 21.0/64.0, nil, "mechanical")
 
     # Lamp lead holes
     t2 = t * rotate(-45.0)
@@ -660,7 +663,7 @@ class Playfield
   end
   
   def kickout(t)
-    circular_hole(t, (1.0 + 3.0/16.0) / 2.0, nil, "mechanical")
+    circular_hole(t, (1.0 + 7.0/32.0) / 2.0, nil, "mechanical")
     template(t, "Kickout_Hole_SYS7")
     
     # Kickout insert
