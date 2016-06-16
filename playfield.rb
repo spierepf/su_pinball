@@ -511,7 +511,9 @@ class Playfield
         theta1 = theta0 - 180.degrees
       end
       
-      arcs.push(group.entities.add_arc(vertex, Geom::Vector3d.new(1,0,0), Geom::Vector3d.new(0,0,1), arc_radius, theta0, theta1))
+      edgeCount = (((theta0-theta1)/(2*Math::PI)) * (@cnc ? 96 : 24)).floor
+      
+      arcs.push(group.entities.add_arc(vertex, Geom::Vector3d.new(1,0,0), Geom::Vector3d.new(0,0,1), arc_radius, theta0, theta1, edgeCount))
     end
     join_arcs(group, arcs)
   end
