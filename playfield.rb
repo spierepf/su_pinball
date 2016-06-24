@@ -205,7 +205,7 @@ class Playfield
     @y_offset = 0.0
     @z_offset = 0.0
     
-    @cnc = true
+    @cnc = false
   end
 
   def draw_floor
@@ -269,9 +269,9 @@ class Playfield
 
     return if cnc
     
-    depth = @floor_thickness if depth == nil
-    local_pushpull face, -depth
-    @floor = hole.subtract @floor
+#    depth = @floor_thickness if depth == nil
+#    local_pushpull face, -depth
+#    @floor = hole.subtract @floor
   end
   
   def hole_from_edges(hole, edges, depth = nil, layer = nil)
@@ -520,7 +520,7 @@ class Playfield
   
   def rubber(post_symbols)
     rubberRadius = 3.0/32.0
-    postRadius = 7.0/32.0
+    postRadius = 27.0/128.0
     postHeight = 43.0/64.0
     
     return if cnc
@@ -554,10 +554,10 @@ class Playfield
     end
     circumference = 0.0
     perimeter.each { |edge| circumference = circumference + edge.length }
-    innerDiameter = (circumference / Math::PI) - 2 * rubberRadius
+    innerDiameter = (((circumference) - (2 * rubberRadius * Math::PI)) / Math::PI) / 1.2
     puts "Ring inner diameter: #{innerDiameter}"
     
-    wireize(rubber, perimeter, 3.0/32.0)
+    wireize(rubber, perimeter, rubberRadius)
   end
   
   def rubber_with_switch(post_symbol1, post_symbol2)
@@ -811,7 +811,23 @@ class Playfield
     wireize(group, edges, wire_radius)
   end
   
+  def circle_of_pixels t, radius, count
+    (0..count-1).each do |i|
+      theta = i * 360.0 / count
+      Sketchup.active_model.active_entities.add_cpoint t * frame(0,0,@insert_thickness - @insert_depth) * rotate(theta) * frame(radius) * Geom::Point3d.new
+    end
+  end
+  
   def round_insert t, diameter
+    if diameter == 1.5 then
+      circle_of_pixels t, 5.0/8.0, 12
+    elsif diameter == 1.0 then
+      Sketchup.active_model.active_entities.add_cpoint t * frame(0,0,@insert_thickness - @insert_depth) * Geom::Point3d.new
+      circle_of_pixels t, 3.0/8.0, 6
+    else
+      Sketchup.active_model.active_entities.add_cpoint t * frame(0,0,@insert_thickness - @insert_depth) * Geom::Point3d.new
+    end
+
     radius = (diameter / 2.0) + 0.005
     
     circular_hole t, radius, @insert_depth, "insert"
@@ -822,6 +838,8 @@ class Playfield
   end
   
   def triangle_insert t
+    circle_of_pixels t * rotate(-30.0), 3.0/8.0, 3
+
     corner_radius = ((1.0/4.0) / 2.0) + 0.005
     
     zaxis = Geom::Vector3d.new(0.0, 0.0, 1.0)
@@ -838,6 +856,8 @@ class Playfield
   end
   
   def small_arrow_insert t
+    Sketchup.active_model.active_entities.add_cpoint t * frame(0,0,@insert_thickness - @insert_depth) * Geom::Point3d.new
+
     width = 21.0/32.0
     height = 1.0 + 65.0/128.0
     corner_radius = 9.0/64.0 + 0.005
@@ -854,6 +874,10 @@ class Playfield
   end
   
   def large_arrow_insert t
+    (0..7).each do |i|
+      Sketchup.active_model.active_entities.add_cpoint t * frame(0, 1.0/8.0 + i*1.0/4.0, @insert_thickness - @insert_depth) * Geom::Point3d.new
+    end
+    
     width = 1.0 + 1.0/64.0
     height = 2.0 + 1.0/64.0
     corner_radius = 12.0/64.0 + 0.005
@@ -870,6 +894,8 @@ class Playfield
   end
 
   def small_oval_insert t
+    Sketchup.active_model.active_entities.add_cpoint t * frame(0,0,@insert_thickness - @insert_depth) * Geom::Point3d.new
+
     width = 1.0 + 5.0/8.0
     height = 3.0/4.0
     corner_radius = (height / 2.0) + 0.005
@@ -885,6 +911,10 @@ class Playfield
   end
   
   def large_oval_insert t
+    (0..7).each do |i|
+      Sketchup.active_model.active_entities.add_cpoint t * frame(-7.0/8.0) * frame(i * 1.0/4.0,0,@insert_thickness - @insert_depth) * Geom::Point3d.new
+    end
+    
     width = 2.0 + 6.0/16.0
     height = 3.0/4.0
     corner_radius = (height / 2.0) + 0.005
